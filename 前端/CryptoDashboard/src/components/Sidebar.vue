@@ -1,17 +1,36 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 const isCollapsed = ref(false)
+const isAdmin = ref(false)
 
-const menuItems = [
+onMounted(() => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  isAdmin.value = user.role === 'admin'
+})
+
+const baseMenuItems = [
   { name: 'Dashboard', path: '/dashboard', icon: '📊' },
   { name: 'Market', path: '/market', icon: '💹' },
+  { name: 'Compare', path: '/compare', icon: '⚖️' },
   { name: 'Watchlist', path: '/watchlist', icon: '⭐' },
+  { name: 'Submit Coin', path: '/submit-coin', icon: '➕' },
   { name: 'Profile', path: '/profile', icon: '👤' }
 ]
+
+const adminMenuItems = [
+  { name: 'Admin Panel', path: '/admin', icon: '🔧', adminOnly: true }
+]
+
+const menuItems = computed(() => {
+  if (isAdmin.value) {
+    return [...baseMenuItems.slice(0, 5), ...adminMenuItems, baseMenuItems[5]]
+  }
+  return baseMenuItems
+})
 
 const isActive = (path) => {
   return route.path === path

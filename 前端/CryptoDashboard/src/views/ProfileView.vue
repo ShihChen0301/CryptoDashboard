@@ -5,21 +5,38 @@ const user = ref({
   username: '',
   email: '',
   avatar: '',
-  joinDate: ''
+  joinDate: '',
+  tradingExperience: ''
 })
 
 const isEditing = ref(false)
 const editForm = ref({
   username: '',
-  email: ''
+  email: '',
+  tradingExperience: ''
 })
+
+const experienceOptions = [
+  { value: '', label: '請選擇' },
+  { value: 'less-than-1', label: '少於 1 年' },
+  { value: '1-2', label: '1-2 年' },
+  { value: '3-5', label: '3-5 年' },
+  { value: '5-10', label: '5-10 年' },
+  { value: 'more-than-10', label: '10 年以上' }
+]
+
+const getExperienceLabel = (value) => {
+  const option = experienceOptions.find(opt => opt.value === value)
+  return option ? option.label : '未設定'
+}
 
 onMounted(() => {
   const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
   user.value = storedUser
   editForm.value = {
     username: storedUser.username,
-    email: storedUser.email
+    email: storedUser.email,
+    tradingExperience: storedUser.tradingExperience || ''
   }
 })
 
@@ -31,7 +48,8 @@ const cancelEdit = () => {
   isEditing.value = false
   editForm.value = {
     username: user.value.username,
-    email: user.value.email
+    email: user.value.email,
+    tradingExperience: user.value.tradingExperience || ''
   }
 }
 
@@ -40,7 +58,8 @@ const saveProfile = () => {
   user.value = {
     ...user.value,
     username: editForm.value.username,
-    email: editForm.value.email
+    email: editForm.value.email,
+    tradingExperience: editForm.value.tradingExperience
   }
 
   localStorage.setItem('user', JSON.stringify(user.value))
@@ -94,6 +113,24 @@ const formatDate = (dateString) => {
           <div class="form-group">
             <label>Member Since</label>
             <div class="form-value">{{ formatDate(user.joinDate) }}</div>
+          </div>
+
+          <div class="form-group">
+            <label>Trading Experience</label>
+            <select
+              v-if="isEditing"
+              v-model="editForm.tradingExperience"
+              class="form-input"
+            >
+              <option
+                v-for="option in experienceOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+            <div v-else class="form-value">{{ getExperienceLabel(user.tradingExperience) }}</div>
           </div>
 
           <div class="form-actions">

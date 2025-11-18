@@ -45,6 +45,22 @@ const router = createRouter({
           component: () => import('../views/WatchlistView.vue')
         },
         {
+          path: 'compare',
+          name: 'compare',
+          component: () => import('../views/CompareView.vue')
+        },
+        {
+          path: 'submit-coin',
+          name: 'submit-coin',
+          component: () => import('../views/SubmitCoinView.vue')
+        },
+        {
+          path: 'admin',
+          name: 'admin',
+          component: () => import('../views/AdminView.vue'),
+          meta: { requiresAdmin: true }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue')
@@ -57,10 +73,13 @@ const router = createRouter({
 // 路由守衛
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('authToken')
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
   } else if (to.meta.requiresGuest && isAuthenticated) {
+    next('/dashboard')
+  } else if (to.meta.requiresAdmin && user.role !== 'admin') {
     next('/dashboard')
   } else {
     next()

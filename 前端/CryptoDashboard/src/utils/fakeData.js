@@ -79,6 +79,166 @@ export const cryptoCoins = [
     marketCap: 13000000000,
     volume24h: 600000000,
     image: 'https://cryptologos.cc/logos/avalanche-avax-logo.png'
+  },
+  {
+    id: 'binancecoin',
+    symbol: 'BNB',
+    name: 'BNB',
+    price: 315.20,
+    change24h: 1.85,
+    marketCap: 48000000000,
+    volume24h: 1200000000,
+    image: 'https://cryptologos.cc/logos/bnb-bnb-logo.png'
+  },
+  {
+    id: 'chainlink',
+    symbol: 'LINK',
+    name: 'Chainlink',
+    price: 14.75,
+    change24h: 3.20,
+    marketCap: 8500000000,
+    volume24h: 450000000,
+    image: 'https://cryptologos.cc/logos/chainlink-link-logo.png'
+  },
+  {
+    id: 'polygon',
+    symbol: 'MATIC',
+    name: 'Polygon',
+    price: 0.92,
+    change24h: -0.65,
+    marketCap: 8200000000,
+    volume24h: 380000000,
+    image: 'https://cryptologos.cc/logos/polygon-matic-logo.png'
+  },
+  {
+    id: 'litecoin',
+    symbol: 'LTC',
+    name: 'Litecoin',
+    price: 72.30,
+    change24h: 1.45,
+    marketCap: 5300000000,
+    volume24h: 320000000,
+    image: 'https://cryptologos.cc/logos/litecoin-ltc-logo.png'
+  },
+  {
+    id: 'uniswap',
+    symbol: 'UNI',
+    name: 'Uniswap',
+    price: 6.25,
+    change24h: 2.80,
+    marketCap: 4700000000,
+    volume24h: 180000000,
+    image: 'https://cryptologos.cc/logos/uniswap-uni-logo.png'
+  },
+  {
+    id: 'cosmos',
+    symbol: 'ATOM',
+    name: 'Cosmos',
+    price: 9.15,
+    change24h: -1.90,
+    marketCap: 3500000000,
+    volume24h: 150000000,
+    image: 'https://cryptologos.cc/logos/cosmos-atom-logo.png'
+  },
+  {
+    id: 'stellar',
+    symbol: 'XLM',
+    name: 'Stellar',
+    price: 0.12,
+    change24h: 0.95,
+    marketCap: 3400000000,
+    volume24h: 120000000,
+    image: 'https://cryptologos.cc/logos/stellar-xlm-logo.png'
+  },
+  {
+    id: 'algorand',
+    symbol: 'ALGO',
+    name: 'Algorand',
+    price: 0.18,
+    change24h: 2.10,
+    marketCap: 1400000000,
+    volume24h: 85000000,
+    image: 'https://cryptologos.cc/logos/algorand-algo-logo.png'
+  },
+  {
+    id: 'vechain',
+    symbol: 'VET',
+    name: 'VeChain',
+    price: 0.028,
+    change24h: -0.45,
+    marketCap: 2000000000,
+    volume24h: 65000000,
+    image: 'https://cryptologos.cc/logos/vechain-vet-logo.png'
+  },
+  {
+    id: 'tron',
+    symbol: 'TRX',
+    name: 'TRON',
+    price: 0.11,
+    change24h: 1.35,
+    marketCap: 9800000000,
+    volume24h: 450000000,
+    image: 'https://cryptologos.cc/logos/tron-trx-logo.png'
+  },
+  {
+    id: 'toncoin',
+    symbol: 'TON',
+    name: 'Toncoin',
+    price: 5.85,
+    change24h: 4.50,
+    marketCap: 14500000000,
+    volume24h: 280000000,
+    image: 'https://cryptologos.cc/logos/toncoin-ton-logo.png'
+  },
+  {
+    id: 'shiba-inu',
+    symbol: 'SHIB',
+    name: 'Shiba Inu',
+    price: 0.0000095,
+    change24h: -3.25,
+    marketCap: 5600000000,
+    volume24h: 220000000,
+    image: 'https://cryptologos.cc/logos/shiba-inu-shib-logo.png'
+  },
+  {
+    id: 'aptos',
+    symbol: 'APT',
+    name: 'Aptos',
+    price: 8.45,
+    change24h: 2.95,
+    marketCap: 3200000000,
+    volume24h: 140000000,
+    image: 'https://cryptologos.cc/logos/aptos-apt-logo.png'
+  },
+  {
+    id: 'near',
+    symbol: 'NEAR',
+    name: 'NEAR Protocol',
+    price: 5.20,
+    change24h: 3.80,
+    marketCap: 5100000000,
+    volume24h: 280000000,
+    image: 'https://cryptologos.cc/logos/near-protocol-near-logo.png'
+  },
+  {
+    id: 'arbitrum',
+    symbol: 'ARB',
+    name: 'Arbitrum',
+    price: 1.15,
+    change24h: -1.20,
+    marketCap: 2900000000,
+    volume24h: 350000000,
+    image: 'https://cryptologos.cc/logos/arbitrum-arb-logo.png'
+  },
+  {
+    id: 'optimism',
+    symbol: 'OP',
+    name: 'Optimism',
+    price: 2.35,
+    change24h: 1.65,
+    marketCap: 2400000000,
+    volume24h: 180000000,
+    image: 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.png'
   }
 ]
 
@@ -89,7 +249,19 @@ export const mockUser = {
   email: 'demo@example.com',
   avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=4F46E5&color=fff',
   joinDate: '2024-01-15',
-  favoriteCoins: []
+  favoriteCoins: [],
+  role: 'user' // user or admin
+}
+
+// 管理員帳號
+export const mockAdmin = {
+  id: '2',
+  username: 'admin',
+  email: 'admin@example.com',
+  avatar: 'https://ui-avatars.com/api/?name=Admin&background=dc2626&color=fff',
+  joinDate: '2024-01-01',
+  favoriteCoins: [],
+  role: 'admin'
 }
 
 // 假資料：價格圖表資料（最近 30 天）
@@ -115,7 +287,15 @@ export const generateChartData = (basePrice, days = 30) => {
 
 // 假資料：登入驗證
 export const mockLogin = (email, password) => {
-  // 簡單的假驗證
+  // 管理員登入
+  if (email === 'admin@example.com' && password === 'admin123') {
+    return {
+      success: true,
+      token: 'mock-jwt-token-admin-' + Date.now(),
+      user: mockAdmin
+    }
+  }
+  // 一般用戶登入
   if (email === 'demo@example.com' && password === 'password') {
     return {
       success: true,
@@ -168,4 +348,30 @@ export const formatPrice = (price) => {
     return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
   return '$' + price.toFixed(4)
+}
+
+// 假資料：購買趨勢數據
+export const getTrendingBuys = () => {
+  // 模擬各幣種的購買次數
+  const buyData = [
+    { coinId: 'bitcoin', buys: 15420 },
+    { coinId: 'ethereum', buys: 12350 },
+    { coinId: 'solana', buys: 8920 },
+    { coinId: 'binancecoin', buys: 6780 },
+    { coinId: 'ripple', buys: 5430 },
+    { coinId: 'cardano', buys: 4210 },
+    { coinId: 'dogecoin', buys: 3890 },
+    { coinId: 'polygon', buys: 3520 },
+    { coinId: 'avalanche', buys: 2980 },
+    { coinId: 'chainlink', buys: 2650 }
+  ]
+
+  return buyData.map(item => {
+    const coin = cryptoCoins.find(c => c.id === item.coinId)
+    return {
+      ...item,
+      name: coin ? coin.name : item.coinId,
+      symbol: coin ? coin.symbol : item.coinId.toUpperCase()
+    }
+  })
 }

@@ -1,23 +1,78 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
 import { cryptoCoins } from '../utils/fakeData'
 import CoinTable from '../components/CoinTable.vue'
 
 const searchQuery = ref('')
-const allCoins = ref(cryptoCoins)
+const allCoins = ref([])
+const sortBy = ref('')
+const sortOrder = ref('asc')
+const isLoading = ref(true)
+const error = ref(null)
+
+// 載入真實數據
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    const coins = await getCoinsList('usd', 50, 1)
+    allCoins.value = coins.map(convertToAppFormat)
+  } catch (err) {
+    console.error('Failed to fetch coins:', err)
+    error.value = 'Failed to load data. Using cached data.'
+    // 使用假數據作為備用
+    allCoins.value = cryptoCoins
+  } finally {
+    isLoading.value = false
+  }
+})
 
 const filteredCoins = computed(() => {
-  if (!searchQuery.value) {
-    return allCoins.value
+  let result = allCoins.value
+
+  // 搜尋過濾
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    result = result.filter(
+      coin =>
+        coin.name.toLowerCase().includes(query) ||
+        coin.symbol.toLowerCase().includes(query)
+    )
   }
 
-  const query = searchQuery.value.toLowerCase()
-  return allCoins.value.filter(
-    coin =>
-      coin.name.toLowerCase().includes(query) ||
-      coin.symbol.toLowerCase().includes(query)
-  )
+  // 排序
+  if (sortBy.value) {
+    result = [...result].sort((a, b) => {
+      let aVal = a[sortBy.value]
+      let bVal = b[sortBy.value]
+
+      // 處理字串排序
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase()
+        bVal = bVal.toLowerCase()
+      }
+
+      if (sortOrder.value === 'asc') {
+        return aVal > bVal ? 1 : -1
+      } else {
+        return aVal < bVal ? 1 : -1
+      }
+    })
+  }
+
+  return result
 })
+
+const handleSort = (field) => {
+  if (sortBy.value === field) {
+    // 切換排序順序
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    // 新的排序欄位
+    sortBy.value = field
+    sortOrder.value = 'asc'
+  }
+}
 </script>
 
 <template>
@@ -38,9 +93,26 @@ const filteredCoins = computed(() => {
       </div>
     </div>
 
-    <CoinTable :coins="filteredCoins" />
+    <!-- 載入中 -->
+    <div v-if="isLoading" class="loading-state">
+      <p>Loading market data...</p>
+    </div>
 
-    <div v-if="filteredCoins.length === 0" class="no-results">
+    <!-- 錯誤訊息 -->
+    <div v-if="error" class="error-message">
+      <p>{{ error }}</p>
+    </div>
+
+    <!-- 數據表格 -->
+    <CoinTable
+      v-if="!isLoading"
+      :coins="filteredCoins"
+      :sortBy="sortBy"
+      :sortOrder="sortOrder"
+      @sort="handleSort"
+    />
+
+    <div v-if="!isLoading && filteredCoins.length === 0" class="no-results">
       <p>No cryptocurrencies found matching "{{ searchQuery }}"</p>
     </div>
   </div>
@@ -102,5 +174,31 @@ const filteredCoins = computed(() => {
 .no-results p {
   color: #6b7280;
   font-size: 1.125rem;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.loading-state p {
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.error-message p {
+  color: #dc2626;
+  margin: 0;
 }
 </style>

@@ -8,8 +8,18 @@ const props = defineProps({
   coins: {
     type: Array,
     required: true
+  },
+  sortBy: {
+    type: String,
+    default: ''
+  },
+  sortOrder: {
+    type: String,
+    default: 'asc'
   }
 })
+
+const emit = defineEmits(['sort'])
 
 const router = useRouter()
 
@@ -20,6 +30,15 @@ const goToDetail = (coinId) => {
 const getChangeColor = (change) => {
   return change >= 0 ? '#10b981' : '#ef4444'
 }
+
+const handleSort = (field) => {
+  emit('sort', field)
+}
+
+const getSortIcon = (field) => {
+  if (props.sortBy !== field) return '↕'
+  return props.sortOrder === 'asc' ? '↑' : '↓'
+}
 </script>
 
 <template>
@@ -28,11 +47,21 @@ const getChangeColor = (change) => {
       <thead>
         <tr>
           <th>#</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>24h Change</th>
-          <th>Market Cap</th>
-          <th>Volume (24h)</th>
+          <th class="sortable" @click="handleSort('name')">
+            Name <span class="sort-icon">{{ getSortIcon('name') }}</span>
+          </th>
+          <th class="sortable" @click="handleSort('price')">
+            Price <span class="sort-icon">{{ getSortIcon('price') }}</span>
+          </th>
+          <th class="sortable" @click="handleSort('change24h')">
+            24h Change <span class="sort-icon">{{ getSortIcon('change24h') }}</span>
+          </th>
+          <th class="sortable" @click="handleSort('marketCap')">
+            Market Cap <span class="sort-icon">{{ getSortIcon('marketCap') }}</span>
+          </th>
+          <th class="sortable" @click="handleSort('volume24h')">
+            Volume (24h) <span class="sort-icon">{{ getSortIcon('volume24h') }}</span>
+          </th>
           <th>Favorite</th>
         </tr>
       </thead>
@@ -90,6 +119,23 @@ const getChangeColor = (change) => {
   font-size: 0.875rem;
   text-transform: uppercase;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.coin-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.coin-table th.sortable:hover {
+  background: #f3f4f6;
+  color: #4F46E5;
+}
+
+.sort-icon {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.6;
 }
 
 .coin-table td {
