@@ -1,41 +1,82 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { cryptoCoins, generateChartData, formatPrice, formatNumber } from '../utils/fakeData'
+import { ref, computed, watch, onMounted } from 'vue'
+import { getCoinsList, convertToAppFormat, getCoinMarketChart, convertChartData } from '../utils/coingeckoApi'
+import * as coincapApi from '../utils/coincapApi'
+import { formatPrice, formatNumber } from '../utils/format'
 import PriceChart from '../components/PriceChart.vue'
 
 const selectedCoins = ref([])
+const allCoins = ref([])
+const coinChartData = ref({})
 const maxCoins = 4
+const isLoading = ref(true)
 
 const availableCoins = computed(() => {
-  return cryptoCoins.filter(coin => !selectedCoins.value.includes(coin.id))
+  return allCoins.value.filter(coin => !selectedCoins.value.includes(coin.id))
 })
 
 const selectedCoinData = computed(() => {
   return selectedCoins.value.map(id => {
-    const coin = cryptoCoins.find(c => c.id === id)
+    const coin = allCoins.value.find(c => c.id === id)
     if (coin) {
       return {
         ...coin,
-        chartData: generateChartData(coin.price, 30)
+        chartData: coinChartData.value[id] || []
       }
     }
     return null
   }).filter(Boolean)
 })
 
-const addCoin = (coinId) => {
+const loadChartData = async (coinId) => {
+  try {
+    const marketChart = await getCoinMarketChart(coinId, 'usd', 30)
+    coinChartData.value[coinId] = convertChartData(marketChart)
+  } catch (error) {
+    console.error(`Failed to fetch chart for ${coinId}:`, error)
+    try {
+      const history = await coincapApi.getCoinHistory(coinId, 30)
+      coinChartData.value[coinId] = coincapApi.convertChartData(history)
+    } catch (fallbackError) {
+      console.error(`CoinCap fallback for ${coinId} also failed:`, fallbackError)
+      coinChartData.value[coinId] = []
+    }
+  }
+}
+
+const addCoin = async (coinId) => {
   if (selectedCoins.value.length < maxCoins && !selectedCoins.value.includes(coinId)) {
     selectedCoins.value.push(coinId)
+    await loadChartData(coinId)
   }
 }
 
 const removeCoin = (coinId) => {
   selectedCoins.value = selectedCoins.value.filter(id => id !== coinId)
+  delete coinChartData.value[coinId]
 }
 
 const getChangeColor = (change) => {
   return change >= 0 ? '#10b981' : '#ef4444'
 }
+
+onMounted(async () => {
+  try {
+    const coins = await getCoinsList('usd', 100, 1)
+    allCoins.value = coins.map(convertToAppFormat)
+  } catch (error) {
+    console.error('Failed to fetch from CoinGecko:', error)
+    try {
+      const coinsFallback = await coincapApi.getCoinsList(100)
+      allCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
+    } catch (fallbackError) {
+      console.error('CoinCap fallback also failed:', fallbackError)
+      allCoins.value = []
+    }
+  } finally {
+    isLoading.value = false
+  }
+})
 </script>
 
 <template>

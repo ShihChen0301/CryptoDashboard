@@ -2,7 +2,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCoinDetails, getCoinMarketChart, convertChartData } from '../utils/coingeckoApi'
-import { getCoinById, generateChartData, formatPrice, formatNumber } from '../utils/fakeData'
+import * as coincapApi from '../utils/coincapApi'
+import { formatPrice, formatNumber } from '../utils/format'
 import PriceChart from '../components/PriceChart.vue'
 import FavoriteButton from '../components/FavoriteButton.vue'
 
@@ -29,9 +30,15 @@ const updateChartData = async () => {
     const marketChart = await getCoinMarketChart(coin.value.id, 'usd', selectedDays.value)
     chartData.value = convertChartData(marketChart)
   } catch (error) {
-    console.error('Failed to fetch chart data:', error)
-    // 使用假數據作為備用
-    chartData.value = generateChartData(coin.value.price, selectedDays.value)
+    console.error('Failed to fetch chart data from CoinGecko:', error)
+    // 使用 CoinCap API 作為備援
+    try {
+      const history = await coincapApi.getCoinHistory(coin.value.id, selectedDays.value)
+      chartData.value = coincapApi.convertChartData(history)
+    } catch (fallbackError) {
+      console.error('CoinCap chart fallback also failed:', fallbackError)
+      chartData.value = []
+    }
   } finally {
     chartLoading.value = false
   }
@@ -59,11 +66,20 @@ onMounted(async () => {
 
     await updateChartData()
   } catch (error) {
-    console.error('Failed to fetch coin details:', error)
-    // 使用假數據作為備用
-    coin.value = getCoinById(coinId)
-    if (coin.value) {
-      chartData.value = generateChartData(coin.value.price, selectedDays.value)
+    console.error('Failed to fetch from CoinGecko:', error)
+    // 使用 CoinCap API 作為備援
+    try {
+      console.log('Trying CoinCap API as fallback...')
+      const details = await coincapApi.getCoinDetails(coinId)
+      coin.value = coincapApi.convertToAppFormat(details)
+
+      // 載入圖表數據
+      const history = await coincapApi.getCoinHistory(coinId, selectedDays.value)
+      chartData.value = coincapApi.convertChartData(history)
+    } catch (fallbackError) {
+      console.error('CoinCap fallback also failed:', fallbackError)
+      coin.value = null
+      chartData.value = []
     }
   } finally {
     isLoading.value = false

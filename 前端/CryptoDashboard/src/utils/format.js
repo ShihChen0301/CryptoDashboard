@@ -37,8 +37,19 @@ export const formatPrice = (price) => {
     })
   }
 
-  // 小於 1 的價格顯示更多小數位
-  return '$' + price.toFixed(6).replace(/\.?0+$/, '')
+  // 處理極小價格（如 SHIB）：動態計算需要的小數位
+  if (price > 0 && price < 0.0001) {
+    // 找出第一個非零數字的位置，再多顯示 2 位
+    const priceStr = price.toFixed(20)
+    const match = priceStr.match(/0\.0*[1-9]/)
+    if (match) {
+      const decimals = match[0].length - 1 + 2 // 小數點後零的數量 + 2 位有效數字
+      return '$' + price.toFixed(Math.min(decimals, 10))
+    }
+  }
+
+  // 小於 1 但不是極小的價格
+  return '$' + price.toFixed(6)
 }
 
 /**

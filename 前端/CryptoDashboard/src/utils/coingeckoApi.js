@@ -2,11 +2,11 @@
  * CoinGecko API 服務
  * 文檔: https://www.coingecko.com/en/api/documentation
  *
- * 免費版限制: 每分鐘 10-50 次請求
- * 不需要 API Key
+ * Demo API Key 限制: 每分鐘 30 次請求
  */
 
 const BASE_URL = 'https://api.coingecko.com/api/v3'
+const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY || ''
 
 /**
  * 通用 API 請求函數
@@ -20,8 +20,14 @@ const fetchCoinGecko = async (endpoint, params = {}) => {
     }
   })
 
+  // 設定請求 headers（包含 API Key）
+  const headers = {}
+  if (API_KEY) {
+    headers['x-cg-demo-api-key'] = API_KEY
+  }
+
   try {
-    const response = await fetch(url.toString())
+    const response = await fetch(url.toString(), { headers })
 
     if (response.status === 429) {
       throw new Error('Rate limit exceeded. Please wait a moment.')

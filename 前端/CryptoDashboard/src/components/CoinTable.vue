@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { formatPrice, formatNumber } from '../utils/fakeData'
+import { formatPrice, formatNumber } from '../utils/format'
 import FavoriteButton from './FavoriteButton.vue'
 
 const props = defineProps({

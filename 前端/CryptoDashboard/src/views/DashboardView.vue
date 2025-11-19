@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getGlobalData, getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
-import { cryptoCoins, getTrendingBuys, formatNumber } from '../utils/fakeData'
+import * as coincapApi from '../utils/coincapApi'
 import CoinCard from '../components/CoinCard.vue'
 
 // 全球市場數據
@@ -15,9 +15,6 @@ const globalData = ref({
 
 // 取得熱門幣種（前 6 個）
 const hotCoins = ref([])
-
-// 取得購買趨勢數據
-const trendingBuys = ref(getTrendingBuys())
 
 // 載入狀態
 const isLoading = ref(true)
@@ -42,29 +39,40 @@ onMounted(async () => {
     // 設定熱門幣種
     hotCoins.value = coins.map(convertToAppFormat)
   } catch (error) {
-    console.error('Failed to fetch dashboard data:', error)
-    // 使用假數據作為備用
-    hotCoins.value = cryptoCoins.slice(0, 6)
-    globalData.value = {
-      totalMarketCap: 1200000000000,
-      totalVolume: 85400000000,
-      btcDominance: 48.3,
-      activeCryptos: 12845,
-      marketCapChange: 2.5
+    console.error('Failed to fetch from CoinGecko:', error)
+    // 使用 CoinCap API 作為備援
+    try {
+      console.log('Trying CoinCap API as fallback...')
+      const [globalFallback, coinsFallback] = await Promise.all([
+        coincapApi.getGlobalData(),
+        coincapApi.getCoinsList(6)
+      ])
+
+      globalData.value = {
+        totalMarketCap: globalFallback.totalMarketCap,
+        totalVolume: globalFallback.totalVolume,
+        btcDominance: globalFallback.btcDominance,
+        activeCryptos: 0, // CoinCap 沒有此數據
+        marketCapChange: 0 // CoinCap 沒有此數據
+      }
+
+      hotCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
+    } catch (fallbackError) {
+      console.error('CoinCap fallback also failed:', fallbackError)
+      // 如果兩個 API 都失敗，顯示錯誤狀態
+      globalData.value = {
+        totalMarketCap: 0,
+        totalVolume: 0,
+        btcDominance: 0,
+        activeCryptos: 0,
+        marketCapChange: 0
+      }
+      hotCoins.value = []
     }
   } finally {
     isLoading.value = false
   }
 })
-
-// 計算最大購買數用於進度條寬度
-const maxBuys = computed(() => {
-  return Math.max(...trendingBuys.value.map(item => item.buys))
-})
-
-const getBarWidth = (buys) => {
-  return (buys / maxBuys.value) * 100
-}
 
 // 格式化大數字
 const formatLargeNumber = (num) => {
@@ -112,31 +120,6 @@ const formatLargeNumber = (num) => {
 
     <div class="coins-grid">
       <CoinCard v-for="coin in hotCoins" :key="coin.id" :coin="coin" />
-    </div>
-
-    <!-- 購買趨勢排行 -->
-    <div class="section-header">
-      <h2>Trending Buys</h2>
-      <p class="section-subtitle">Most purchased cryptocurrencies</p>
-    </div>
-
-    <div class="trending-section">
-      <div v-for="(item, index) in trendingBuys" :key="item.coinId" class="trending-item">
-        <div class="trending-rank">{{ index + 1 }}</div>
-        <div class="trending-info">
-          <div class="trending-name">
-            <span class="symbol">{{ item.symbol }}</span>
-            <span class="name">{{ item.name }}</span>
-          </div>
-          <div class="trending-bar-container">
-            <div
-              class="trending-bar"
-              :style="{ width: getBarWidth(item.buys) + '%' }"
-            ></div>
-          </div>
-        </div>
-        <div class="trending-buys">{{ formatNumber(item.buys) }}</div>
-      </div>
     </div>
   </div>
 </template>
@@ -216,103 +199,5 @@ const formatLargeNumber = (num) => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
-}
-
-.section-subtitle {
-  margin: 0.5rem 0 0 0;
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.trending-section {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-}
-
-.trending-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.trending-item:last-child {
-  border-bottom: none;
-}
-
-.trending-rank {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #6b7280;
-  flex-shrink: 0;
-}
-
-.trending-item:nth-child(1) .trending-rank {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.trending-item:nth-child(2) .trending-rank {
-  background: #e5e7eb;
-  color: #6b7280;
-}
-
-.trending-item:nth-child(3) .trending-rank {
-  background: #fed7aa;
-  color: #c2410c;
-}
-
-.trending-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.trending-name {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.trending-name .symbol {
-  font-weight: 600;
-  color: #111827;
-}
-
-.trending-name .name {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.trending-bar-container {
-  height: 8px;
-  background: #f3f4f6;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.trending-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #4F46E5, #818cf8);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.trending-buys {
-  font-weight: 600;
-  color: #111827;
-  font-size: 0.875rem;
-  min-width: 60px;
-  text-align: right;
 }
 </style>

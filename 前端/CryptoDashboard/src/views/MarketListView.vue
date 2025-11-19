@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
-import { cryptoCoins } from '../utils/fakeData'
+import * as coincapApi from '../utils/coincapApi'
 import CoinTable from '../components/CoinTable.vue'
 
 const searchQuery = ref('')
@@ -18,10 +18,18 @@ onMounted(async () => {
     const coins = await getCoinsList('usd', 50, 1)
     allCoins.value = coins.map(convertToAppFormat)
   } catch (err) {
-    console.error('Failed to fetch coins:', err)
-    error.value = 'Failed to load data. Using cached data.'
-    // 使用假數據作為備用
-    allCoins.value = cryptoCoins
+    console.error('Failed to fetch from CoinGecko:', err)
+    // 使用 CoinCap API 作為備援
+    try {
+      console.log('Trying CoinCap API as fallback...')
+      const coinsFallback = await coincapApi.getCoinsList(50)
+      allCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
+      error.value = 'Using backup data source.'
+    } catch (fallbackErr) {
+      console.error('CoinCap fallback also failed:', fallbackErr)
+      error.value = 'Failed to load data from all sources.'
+      allCoins.value = []
+    }
   } finally {
     isLoading.value = false
   }

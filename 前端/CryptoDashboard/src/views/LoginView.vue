@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { mockLogin } from '../utils/fakeData'
+import { mockLogin } from '../utils/mockAuth'
 
 const router = useRouter()
 

@@ -1,9 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { cryptoCoins } from '../utils/fakeData'
+import { getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
+import * as coincapApi from '../utils/coincapApi'
 import CoinTable from '../components/CoinTable.vue'
 
 const favorites = ref([])
+const allCoins = ref([])
+const isLoading = ref(true)
 
 const loadFavorites = () => {
   const stored = JSON.parse(localStorage.getItem('favorites') || '[]')
@@ -11,7 +14,7 @@ const loadFavorites = () => {
 }
 
 const favoriteCoins = computed(() => {
-  return cryptoCoins.filter(coin => favorites.value.includes(coin.id))
+  return allCoins.value.filter(coin => favorites.value.includes(coin.id))
 })
 
 const clearAll = () => {
@@ -21,11 +24,28 @@ const clearAll = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   loadFavorites()
 
   // 監聽 localStorage 變化
   window.addEventListener('storage', loadFavorites)
+
+  // 載入幣種數據
+  try {
+    const coins = await getCoinsList('usd', 100, 1)
+    allCoins.value = coins.map(convertToAppFormat)
+  } catch (error) {
+    console.error('Failed to fetch from CoinGecko:', error)
+    try {
+      const coinsFallback = await coincapApi.getCoinsList(100)
+      allCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
+    } catch (fallbackError) {
+      console.error('CoinCap fallback also failed:', fallbackError)
+      allCoins.value = []
+    }
+  } finally {
+    isLoading.value = false
+  }
 })
 </script>
 
