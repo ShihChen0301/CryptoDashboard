@@ -170,12 +170,6 @@ npm run lint
 
 ---
 
-## 授權條款
-
-此專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 檔案
-
----
-
 ## 聯絡方式
 
 - GitHub: [@ShihChen0301](https://github.com/ShihChen0301)
