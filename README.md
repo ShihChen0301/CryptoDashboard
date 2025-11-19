@@ -160,16 +160,6 @@ npm run lint
 
 ---
 
-## 貢獻指南
-
-1. Fork 此專案
-2. 建立功能分支 (`git checkout -b feature/AmazingFeature`)
-3. Commit 變更 (`git commit -m '新增某功能'`)
-4. Push 到分支 (`git push origin feature/AmazingFeature`)
-5. 開啟 Pull Request
-
----
-
 ## 聯絡方式
 
 - GitHub: [@ShihChen0301](https://github.com/ShihChen0301)
