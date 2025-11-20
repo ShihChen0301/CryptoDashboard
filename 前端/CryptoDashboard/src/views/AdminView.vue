@@ -3,8 +3,29 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const submissions = ref([])
 const currentUser = ref(null)
+const activeTab = ref('overview') // overview, users, announcements
+
+// 數據統計
+const stats = ref({
+  totalUsers: 0,
+  activeUsers: 0,
+  totalFavorites: 0
+})
+
+// 用戶列表
+const users = ref([])
+
+// 收藏排行
+const topFavoriteCoins = ref([])
+
+// 公告列表
+const announcements = ref([])
+const newAnnouncement = ref({
+  title: '',
+  content: '',
+  type: 'info' // info, warning, success
+})
 
 // 檢查是否為管理員
 onMounted(() => {
@@ -16,59 +37,161 @@ onMounted(() => {
     return
   }
 
-  loadSubmissions()
+  loadData()
 })
 
-const loadSubmissions = () => {
-  const stored = localStorage.getItem('coinSubmissions')
+const loadData = () => {
+  loadUsers()
+  loadStats()
+  loadTopFavoriteCoins()
+  loadAnnouncements()
+}
+
+const loadUsers = () => {
+  // 模擬用戶數據（未來接 API）
+  const storedUsers = localStorage.getItem('all_users')
+  if (storedUsers) {
+    users.value = JSON.parse(storedUsers)
+  } else {
+    // 預設一些測試用戶
+    users.value = [
+      {
+        id: 1,
+        username: 'demo_user',
+        email: 'demo@example.com',
+        role: 'user',
+        createdAt: '2024-11-15T10:00:00Z',
+        lastLoginAt: '2024-11-20T14:30:00Z',
+        favoriteCount: 5
+      },
+      {
+        id: 2,
+        username: 'admin',
+        email: 'admin@example.com',
+        role: 'admin',
+        createdAt: '2024-11-01T09:00:00Z',
+        lastLoginAt: '2024-11-20T15:00:00Z',
+        favoriteCount: 12
+      }
+    ]
+    localStorage.setItem('all_users', JSON.stringify(users.value))
+  }
+}
+
+const loadStats = () => {
+  stats.value.totalUsers = users.value.length
+  stats.value.activeUsers = users.value.filter(u => {
+    const lastLogin = new Date(u.lastLoginAt)
+    const daysSinceLogin = (Date.now() - lastLogin) / (1000 * 60 * 60 * 24)
+    return daysSinceLogin <= 7
+  }).length
+  stats.value.totalFavorites = users.value.reduce((sum, u) => sum + (u.favoriteCount || 0), 0)
+}
+
+const loadTopFavoriteCoins = () => {
+  // 統計所有用戶的收藏
+  const favoriteCounts = {}
+
+  users.value.forEach(user => {
+    const userFavorites = JSON.parse(localStorage.getItem(`crypto_favorites_${user.id}`) || '[]')
+    userFavorites.forEach(coinId => {
+      favoriteCounts[coinId] = (favoriteCounts[coinId] || 0) + 1
+    })
+  })
+
+  // 轉換為陣列並排序
+  topFavoriteCoins.value = Object.entries(favoriteCounts)
+    .map(([coinId, count]) => ({
+      coinId,
+      coinName: getCoinName(coinId),
+      favoriteCount: count
+    }))
+    .sort((a, b) => b.favoriteCount - a.favoriteCount)
+    .slice(0, 10)
+}
+
+const getCoinName = (coinId) => {
+  const coinNames = {
+    'bitcoin': 'Bitcoin (BTC)',
+    'ethereum': 'Ethereum (ETH)',
+    'tether': 'Tether (USDT)',
+    'binancecoin': 'Binance Coin (BNB)',
+    'cardano': 'Cardano (ADA)',
+    'ripple': 'Ripple (XRP)',
+    'solana': 'Solana (SOL)',
+    'polkadot': 'Polkadot (DOT)'
+  }
+  return coinNames[coinId] || coinId
+}
+
+const loadAnnouncements = () => {
+  const stored = localStorage.getItem('system_announcements')
   if (stored) {
-    submissions.value = JSON.parse(stored)
+    announcements.value = JSON.parse(stored)
   }
 }
 
-const pendingSubmissions = computed(() => {
-  return submissions.value.filter(s => s.status === 'pending')
-})
+const createAnnouncement = () => {
+  if (!newAnnouncement.value.title || !newAnnouncement.value.content) {
+    alert('請填寫標題和內容')
+    return
+  }
 
-const processedSubmissions = computed(() => {
-  return submissions.value.filter(s => s.status !== 'pending')
-})
+  const announcement = {
+    id: Date.now(),
+    ...newAnnouncement.value,
+    createdAt: new Date().toISOString(),
+    createdBy: currentUser.value.email,
+    isActive: true
+  }
 
-const approveSubmission = (id) => {
-  const index = submissions.value.findIndex(s => s.id === id)
-  if (index !== -1) {
-    submissions.value[index].status = 'approved'
-    submissions.value[index].processedAt = new Date().toISOString()
-    submissions.value[index].processedBy = currentUser.value.email
-    localStorage.setItem('coinSubmissions', JSON.stringify(submissions.value))
+  announcements.value.unshift(announcement)
+  localStorage.setItem('system_announcements', JSON.stringify(announcements.value))
+
+  // 清空表單
+  newAnnouncement.value = { title: '', content: '', type: 'info' }
+}
+
+const toggleAnnouncement = (id) => {
+  const announcement = announcements.value.find(a => a.id === id)
+  if (announcement) {
+    announcement.isActive = !announcement.isActive
+    localStorage.setItem('system_announcements', JSON.stringify(announcements.value))
   }
 }
 
-const rejectSubmission = (id) => {
-  const index = submissions.value.findIndex(s => s.id === id)
-  if (index !== -1) {
-    submissions.value[index].status = 'rejected'
-    submissions.value[index].processedAt = new Date().toISOString()
-    submissions.value[index].processedBy = currentUser.value.email
-    localStorage.setItem('coinSubmissions', JSON.stringify(submissions.value))
+const deleteAnnouncement = (id) => {
+  if (confirm('確定要刪除此公告？')) {
+    announcements.value = announcements.value.filter(a => a.id !== id)
+    localStorage.setItem('system_announcements', JSON.stringify(announcements.value))
   }
 }
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString('zh-TW', {
     year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
     hour: '2-digit',
     minute: '2-digit'
   })
 }
 
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'approved': return '#10b981'
-    case 'rejected': return '#ef4444'
-    default: return '#f59e0b'
+const getAnnouncementTypeColor = (type) => {
+  switch (type) {
+    case 'success': return '#10b981'
+    case 'warning': return '#f59e0b'
+    case 'info': return '#3b82f6'
+    default: return '#6b7280'
+  }
+}
+
+const getAnnouncementTypeLabel = (type) => {
+  switch (type) {
+    case 'success': return '成功'
+    case 'warning': return '警告'
+    case 'info': return '資訊'
+    default: return '一般'
   }
 }
 </script>
@@ -76,69 +199,207 @@ const getStatusColor = (status) => {
 <template>
   <div class="admin-page">
     <div class="page-header">
-      <h1>Admin Panel</h1>
-      <p>Review and manage coin submissions</p>
+      <h1>管理員控制台</h1>
+      <p>系統管理與數據統計</p>
     </div>
 
-    <!-- 待審核 -->
-    <div class="section">
-      <h2>Pending Review ({{ pendingSubmissions.length }})</h2>
+    <!-- Tab 導航 -->
+    <div class="tabs">
+      <button
+        :class="['tab', { active: activeTab === 'overview' }]"
+        @click="activeTab = 'overview'"
+      >
+        📊 數據總覽
+      </button>
+      <button
+        :class="['tab', { active: activeTab === 'users' }]"
+        @click="activeTab = 'users'"
+      >
+        👥 用戶管理
+      </button>
+      <button
+        :class="['tab', { active: activeTab === 'announcements' }]"
+        @click="activeTab = 'announcements'"
+      >
+        📢 公告管理
+      </button>
+    </div>
 
-      <div v-if="pendingSubmissions.length === 0" class="empty-state">
-        <p>No pending submissions</p>
+    <!-- 數據總覽 -->
+    <div v-if="activeTab === 'overview'" class="tab-content">
+      <!-- 統計卡片 -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <div class="stat-label">總用戶數</div>
+            <div class="stat-value">{{ stats.totalUsers }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <div class="stat-label">活躍用戶（7天內）</div>
+            <div class="stat-value">{{ stats.activeUsers }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-info">
+            <div class="stat-label">總收藏數</div>
+            <div class="stat-value">{{ stats.totalFavorites }}</div>
+          </div>
+        </div>
       </div>
 
-      <div v-else class="submissions-list">
-        <div v-for="submission in pendingSubmissions" :key="submission.id" class="submission-card">
-          <div class="submission-header">
-            <div class="coin-info">
-              <strong>{{ submission.name }}</strong>
-              <span class="symbol">({{ submission.symbol.toUpperCase() }})</span>
+      <!-- 最多收藏的幣種排行 -->
+      <div class="section">
+        <h2>🏆 最多收藏的幣種排行</h2>
+        <div v-if="topFavoriteCoins.length === 0" class="empty-state">
+          <p>目前沒有收藏數據</p>
+        </div>
+        <div v-else class="ranking-list">
+          <div
+            v-for="(coin, index) in topFavoriteCoins"
+            :key="coin.coinId"
+            class="ranking-item"
+          >
+            <div class="ranking-number">{{ index + 1 }}</div>
+            <div class="ranking-info">
+              <div class="coin-name">{{ coin.coinName }}</div>
             </div>
-            <div class="submission-meta">
-              <span>Submitted by: {{ submission.submittedBy }}</span>
-              <span>{{ formatDate(submission.submittedAt) }}</span>
+            <div class="ranking-count">
+              <span class="count-badge">{{ coin.favoriteCount }} 個收藏</span>
             </div>
-          </div>
-
-          <div v-if="submission.website" class="submission-detail">
-            <label>Website:</label>
-            <a :href="submission.website" target="_blank">{{ submission.website }}</a>
-          </div>
-
-          <div v-if="submission.description" class="submission-detail">
-            <label>Description:</label>
-            <p>{{ submission.description }}</p>
-          </div>
-
-          <div class="submission-actions">
-            <button class="btn-approve" @click="approveSubmission(submission.id)">
-              Approve
-            </button>
-            <button class="btn-reject" @click="rejectSubmission(submission.id)">
-              Reject
-            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 已處理 -->
-    <div class="section">
-      <h2>Processed Submissions</h2>
+    <!-- 用戶管理 -->
+    <div v-if="activeTab === 'users'" class="tab-content">
+      <div class="section">
+        <h2>用戶列表</h2>
+        <div class="users-table">
+          <table>
+            <thead>
+              <tr>
+                <th>用戶名</th>
+                <th>Email</th>
+                <th>角色</th>
+                <th>註冊時間</th>
+                <th>最後登入</th>
+                <th>收藏數</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="user in users" :key="user.id">
+                <td><strong>{{ user.username }}</strong></td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <span :class="['role-badge', user.role]">
+                    {{ user.role === 'admin' ? '管理員' : '用戶' }}
+                  </span>
+                </td>
+                <td>{{ formatDate(user.createdAt) }}</td>
+                <td>{{ formatDate(user.lastLoginAt) }}</td>
+                <td>{{ user.favoriteCount || 0 }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-      <div v-if="processedSubmissions.length === 0" class="empty-state">
-        <p>No processed submissions yet</p>
+    <!-- 公告管理 -->
+    <div v-if="activeTab === 'announcements'" class="tab-content">
+      <!-- 新增公告表單 -->
+      <div class="section">
+        <h2>新增公告</h2>
+        <div class="announcement-form">
+          <div class="form-group">
+            <label>標題</label>
+            <input
+              v-model="newAnnouncement.title"
+              type="text"
+              placeholder="輸入公告標題"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>類型</label>
+            <select v-model="newAnnouncement.type" class="form-select">
+              <option value="info">資訊</option>
+              <option value="success">成功</option>
+              <option value="warning">警告</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>內容</label>
+            <textarea
+              v-model="newAnnouncement.content"
+              placeholder="輸入公告內容"
+              class="form-textarea"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <button @click="createAnnouncement" class="btn-primary">
+            發布公告
+          </button>
+        </div>
       </div>
 
-      <div v-else class="processed-list">
-        <div v-for="submission in processedSubmissions" :key="submission.id" class="processed-item">
-          <div class="processed-info">
-            <strong>{{ submission.name }}</strong>
-            <span class="symbol">({{ submission.symbol.toUpperCase() }})</span>
-          </div>
-          <div class="processed-status" :style="{ color: getStatusColor(submission.status) }">
-            {{ submission.status === 'approved' ? 'Approved' : 'Rejected' }}
+      <!-- 公告列表 -->
+      <div class="section">
+        <h2>公告列表</h2>
+        <div v-if="announcements.length === 0" class="empty-state">
+          <p>目前沒有公告</p>
+        </div>
+        <div v-else class="announcements-list">
+          <div
+            v-for="announcement in announcements"
+            :key="announcement.id"
+            class="announcement-card"
+          >
+            <div class="announcement-header">
+              <div class="announcement-title-row">
+                <h3>{{ announcement.title }}</h3>
+                <span
+                  class="type-badge"
+                  :style="{ backgroundColor: getAnnouncementTypeColor(announcement.type) }"
+                >
+                  {{ getAnnouncementTypeLabel(announcement.type) }}
+                </span>
+              </div>
+              <div class="announcement-meta">
+                <span>發布者：{{ announcement.createdBy }}</span>
+                <span>{{ formatDate(announcement.createdAt) }}</span>
+              </div>
+            </div>
+
+            <div class="announcement-content">
+              {{ announcement.content }}
+            </div>
+
+            <div class="announcement-actions">
+              <button
+                @click="toggleAnnouncement(announcement.id)"
+                :class="['btn-toggle', { active: announcement.isActive }]"
+              >
+                {{ announcement.isActive ? '✓ 啟用中' : '✕ 已停用' }}
+              </button>
+              <button
+                @click="deleteAnnouncement(announcement.id)"
+                class="btn-delete"
+              >
+                刪除
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -148,8 +409,9 @@ const getStatusColor = (status) => {
 
 <style scoped>
 .admin-page {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
 .page-header {
@@ -167,10 +429,101 @@ const getStatusColor = (status) => {
   color: #6b7280;
 }
 
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #4F46E5;
+}
+
+.tab.active {
+  color: #4F46E5;
+  border-bottom-color: #4F46E5;
+}
+
+.tab-content {
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 統計卡片 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Section */
 .section {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -183,133 +536,274 @@ const getStatusColor = (status) => {
 
 .empty-state {
   text-align: center;
-  padding: 2rem;
+  padding: 3rem;
   color: #6b7280;
 }
 
-.submissions-list {
+/* 排行榜 */
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+
+.ranking-item:hover {
+  background: #f3f4f6;
+}
+
+.ranking-number {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4F46E5 0%, #6366f1 100%);
+  color: white;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ranking-info {
+  flex: 1;
+}
+
+.coin-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.count-badge {
+  background: #4F46E5;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* 用戶表格 */
+.users-table {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f9fafb;
+}
+
+th {
+  padding: 0.75rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.role-badge.admin {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.role-badge.user {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+/* 公告表單 */
+.announcement-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.submission-card {
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #4F46E5;
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.btn-primary {
+  padding: 0.75rem 1.5rem;
+  background: #4F46E5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.btn-primary:hover {
+  background: #4338ca;
+}
+
+/* 公告列表 */
+.announcements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.announcement-card {
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 1.5rem;
   background: #f9fafb;
 }
 
-.submission-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.announcement-header {
   margin-bottom: 1rem;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
-.coin-info {
-  font-size: 1.125rem;
-}
-
-.coin-info .symbol {
-  color: #6b7280;
-  margin-left: 0.5rem;
-}
-
-.submission-meta {
+.announcement-title-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.announcement-title-row h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  color: #111827;
+}
+
+.type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.announcement-meta {
+  display: flex;
+  gap: 1rem;
   font-size: 0.875rem;
   color: #6b7280;
 }
 
-.submission-detail {
+.announcement-content {
   margin-bottom: 1rem;
-}
-
-.submission-detail label {
-  font-weight: 600;
-  color: #374151;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.submission-detail a {
-  color: #4F46E5;
-  text-decoration: none;
-}
-
-.submission-detail a:hover {
-  text-decoration: underline;
-}
-
-.submission-detail p {
-  margin: 0;
   color: #4b5563;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.submission-actions {
+.announcement-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 0.75rem;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
 }
 
-.btn-approve,
-.btn-reject {
+.btn-toggle,
+.btn-delete {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.375rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
-.btn-approve {
+.btn-toggle {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.btn-toggle.active {
   background: #10b981;
   color: white;
 }
 
-.btn-approve:hover {
-  background: #059669;
+.btn-toggle:hover {
+  opacity: 0.8;
 }
 
-.btn-reject {
+.btn-delete {
   background: #ef4444;
   color: white;
 }
 
-.btn-reject:hover {
+.btn-delete:hover {
   background: #dc2626;
 }
 
-.processed-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 
-.processed-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: #f9fafb;
-  border-radius: 0.375rem;
-}
+  .tabs {
+    overflow-x: auto;
+  }
 
-.processed-info .symbol {
-  color: #6b7280;
-  margin-left: 0.5rem;
-}
+  .tab {
+    white-space: nowrap;
+  }
 
-.processed-status {
-  font-weight: 600;
-  font-size: 0.875rem;
+  .users-table {
+    font-size: 0.75rem;
+  }
 }
 </style>

@@ -25,8 +25,8 @@ const closeDropdown = () => {
 <template>
   <nav class="navbar">
     <div class="navbar-content">
-      <div class="navbar-title">
-        <span class="logo-icon">₿</span>
+      <div class="navbar-title" @click="router.push('/dashboard')">
+        <img src="/favicon.jpg" alt="CryptoDashboard Logo" class="logo-image" />
         <h2>CryptoDashboard</h2>
       </div>
 
@@ -88,12 +88,19 @@ const closeDropdown = () => {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  cursor: pointer;
+  transition: opacity var(--transition-base);
 }
 
-.logo-icon {
-  font-size: var(--text-3xl);
-  color: var(--color-primary);
-  font-weight: var(--font-bold);
+.navbar-title:hover {
+  opacity: 0.8;
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
 }
 
 .navbar-title h2 {

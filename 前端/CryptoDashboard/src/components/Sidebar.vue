@@ -17,7 +17,6 @@ const baseMenuItems = [
   { name: 'Market', path: '/market', icon: '💹' },
   { name: 'Compare', path: '/compare', icon: '⚖️' },
   { name: 'Watchlist', path: '/watchlist', icon: '⭐' },
-  { name: 'Submit Coin', path: '/submit-coin', icon: '➕' },
   { name: 'Profile', path: '/profile', icon: '👤' }
 ]
 
@@ -27,7 +26,7 @@ const adminMenuItems = [
 
 const menuItems = computed(() => {
   if (isAdmin.value) {
-    return [...baseMenuItems.slice(0, 5), ...adminMenuItems, baseMenuItems[5]]
+    return [...baseMenuItems.slice(0, 4), ...adminMenuItems, baseMenuItems[4]]
   }
   return baseMenuItems
 })
