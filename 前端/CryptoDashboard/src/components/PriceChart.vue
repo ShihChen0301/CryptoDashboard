@@ -14,7 +14,6 @@ const props = defineProps({
 })
 
 const canvas = ref(null)
-const tooltip = ref(null)
 const tooltipVisible = ref(false)
 const tooltipData = ref({ price: 0, date: '', x: 0, y: 0 })
 
@@ -257,7 +256,6 @@ watch(() => props.data, () => {
     <!-- Tooltip -->
     <div
       v-if="tooltipVisible"
-      ref="tooltip"
       class="tooltip"
       :style="{
         left: tooltipData.x + 'px',

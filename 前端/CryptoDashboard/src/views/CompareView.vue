@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getCoinsList, convertToAppFormat, getCoinMarketChart, convertChartData } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
 import { formatPrice, formatNumber } from '../utils/format'

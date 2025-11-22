@@ -4,7 +4,6 @@ import { getGlobalData, getCoinsList, convertToAppFormat } from '../utils/coinge
 import * as coincapApi from '../utils/coincapApi'
 import CoinCard from '../components/CoinCard.vue'
 
-// 全球市場數據
 const globalData = ref({
   totalMarketCap: 0,
   totalVolume: 0,
@@ -13,10 +12,7 @@ const globalData = ref({
   marketCapChange: 0
 })
 
-// 取得熱門幣種（前 6 個）
 const hotCoins = ref([])
-
-// 載入狀態
 const isLoading = ref(true)
 
 onMounted(async () => {

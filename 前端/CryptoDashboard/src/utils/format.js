@@ -107,71 +107,6 @@ export const formatTime = (date) => {
   })
 }
 
-/**
- * 格式化日期時間
- */
-export const formatDateTime = (date) => {
-  if (!date) return '-'
-
-  return `${formatDate(date)} ${formatTime(date)}`
-}
-
-/**
- * 格式化相對時間 (如 "2 hours ago")
- */
-export const formatRelativeTime = (date) => {
-  if (!date) return '-'
-
-  const dateObj = typeof date === 'string' ? new Date(date) : date
-  const now = new Date()
-  const diffMs = now - dateObj
-  const diffSec = Math.floor(diffMs / 1000)
-  const diffMin = Math.floor(diffSec / 60)
-  const diffHour = Math.floor(diffMin / 60)
-  const diffDay = Math.floor(diffHour / 24)
-
-  if (diffDay > 7) {
-    return formatDate(dateObj)
-  }
-  if (diffDay > 0) {
-    return `${diffDay} day${diffDay > 1 ? 's' : ''} ago`
-  }
-  if (diffHour > 0) {
-    return `${diffHour} hour${diffHour > 1 ? 's' : ''} ago`
-  }
-  if (diffMin > 0) {
-    return `${diffMin} minute${diffMin > 1 ? 's' : ''} ago`
-  }
-
-  return 'Just now'
-}
-
-/**
- * 截斷文字
- */
-export const truncate = (text, maxLength = 50) => {
-  if (!text || text.length <= maxLength) return text
-  return text.substring(0, maxLength) + '...'
-}
-
-/**
- * 獲取價格變化的顏色類別
- */
-export const getPriceChangeClass = (change) => {
-  if (change > 0) return 'text-success'
-  if (change < 0) return 'text-danger'
-  return ''
-}
-
-/**
- * 獲取價格變化的顏色
- */
-export const getPriceChangeColor = (change) => {
-  if (change > 0) return 'var(--color-success)'
-  if (change < 0) return 'var(--color-danger)'
-  return 'var(--color-text-secondary)'
-}
-
 export default {
   formatNumber,
   formatPrice,
@@ -179,10 +114,5 @@ export default {
   formatMarketCap,
   formatVolume,
   formatDate,
-  formatTime,
-  formatDateTime,
-  formatRelativeTime,
-  truncate,
-  getPriceChangeClass,
-  getPriceChangeColor
+  formatTime
 }

@@ -9,7 +9,7 @@ const allCoins = ref([])
 const isLoading = ref(true)
 
 const loadFavorites = () => {
-  const stored = JSON.parse(localStorage.getItem('favorites') || '[]')
+  const stored = JSON.parse(localStorage.getItem('crypto_favorites') || '[]')
   favorites.value = stored
 }
 
@@ -19,15 +19,19 @@ const favoriteCoins = computed(() => {
 
 const clearAll = () => {
   if (confirm('Are you sure you want to clear all favorites?')) {
-    localStorage.setItem('favorites', JSON.stringify([]))
+    localStorage.setItem('crypto_favorites', JSON.stringify([]))
     favorites.value = []
+    window.dispatchEvent(new CustomEvent('favoritesChanged', {
+      detail: { favorites: [] }
+    }))
   }
 }
 
 onMounted(async () => {
   loadFavorites()
 
-  // 監聽 localStorage 變化
+  // 監聽收藏變化事件
+  window.addEventListener('favoritesChanged', loadFavorites)
   window.addEventListener('storage', loadFavorites)
 
   // 載入幣種數據

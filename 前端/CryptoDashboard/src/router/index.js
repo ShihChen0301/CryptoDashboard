@@ -50,11 +50,6 @@ const router = createRouter({
           component: () => import('../views/CompareView.vue')
         },
         {
-          path: 'submit-coin',
-          name: 'submit-coin',
-          component: () => import('../views/SubmitCoinView.vue')
-        },
-        {
           path: 'admin',
           name: 'admin',
           component: () => import('../views/AdminView.vue'),

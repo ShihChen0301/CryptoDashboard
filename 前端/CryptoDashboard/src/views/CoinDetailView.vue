@@ -13,7 +13,6 @@ const coin = ref(null)
 const chartData = ref([])
 const selectedDays = ref(30)
 const isLoading = ref(true)
-const chartLoading = ref(false)
 
 const timeRanges = [
   { label: '7D', days: 7 },
@@ -26,12 +25,10 @@ const updateChartData = async () => {
   if (!coin.value) return
 
   try {
-    chartLoading.value = true
     const marketChart = await getCoinMarketChart(coin.value.id, 'usd', selectedDays.value)
     chartData.value = convertChartData(marketChart)
   } catch (error) {
     console.error('Failed to fetch chart data from CoinGecko:', error)
-    // 使用 CoinCap API 作為備援
     try {
       const history = await coincapApi.getCoinHistory(coin.value.id, selectedDays.value)
       chartData.value = coincapApi.convertChartData(history)
@@ -39,8 +36,6 @@ const updateChartData = async () => {
       console.error('CoinCap chart fallback also failed:', fallbackError)
       chartData.value = []
     }
-  } finally {
-    chartLoading.value = false
   }
 }
 

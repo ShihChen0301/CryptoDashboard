@@ -170,26 +170,11 @@ export const convertChartData = (history) => {
   }))
 }
 
-/**
- * 測試 CoinCap API 連接
- */
-export const testConnection = async () => {
-  try {
-    const result = await fetchCoinCap('/assets', { limit: 1 })
-    console.log('CoinCap API 連接成功:', result)
-    return true
-  } catch (error) {
-    console.error('CoinCap API 連接失敗:', error)
-    return false
-  }
-}
-
 export default {
   getCoinsList,
   getCoinDetails,
   getCoinHistory,
   getGlobalData,
   convertToAppFormat,
-  convertChartData,
-  testConnection
+  convertChartData
 }

@@ -164,54 +164,6 @@ export const convertChartData = (marketChart) => {
   }))
 }
 
-// ==================== 測試函數 ====================
-
-/**
- * 測試 CoinGecko API 連線
- */
-export const testCoinGeckoConnection = async () => {
-  console.log('Testing CoinGecko API connection...')
-
-  try {
-    // 測試 1: 取得幣種列表
-    console.log('\n1. Fetching top 10 coins...')
-    const coins = await getCoinsList('usd', 10, 1)
-    console.log(`   Found ${coins.length} coins`)
-    console.log('   Top 3:', coins.slice(0, 3).map(c => `${c.name}: $${c.current_price}`))
-
-    // 測試 2: 取得 BTC 歷史數據
-    console.log('\n2. Fetching BTC market chart (7 days)...')
-    const chart = await getCoinMarketChart('bitcoin', 'usd', 7)
-    console.log(`   Got ${chart.prices.length} price points`)
-
-    // 測試 3: 取得全球市場數據
-    console.log('\n3. Fetching global market data...')
-    const global = await getGlobalData()
-    console.log(`   Total Market Cap: $${(global.data.total_market_cap.usd / 1e12).toFixed(2)}T`)
-    console.log(`   BTC Dominance: ${global.data.market_cap_percentage.btc.toFixed(1)}%`)
-
-    console.log('\n✅ CoinGecko API connection successful!')
-
-    return {
-      success: true,
-      coins: coins.length,
-      chartPoints: chart.prices.length,
-      globalData: global.data
-    }
-  } catch (error) {
-    console.error('\n❌ CoinGecko API test failed:', error.message)
-    return {
-      success: false,
-      error: error.message
-    }
-  }
-}
-
-// 掛載到 window 方便測試
-if (typeof window !== 'undefined') {
-  window.testCoinGeckoConnection = testCoinGeckoConnection
-}
-
 export default {
   getCoinsList,
   getCoinDetails,
@@ -221,6 +173,5 @@ export default {
   getGlobalData,
   getTrendingCoins,
   convertToAppFormat,
-  convertChartData,
-  testCoinGeckoConnection
+  convertChartData
 }
