@@ -71,7 +71,31 @@ CREATE TABLE IF NOT EXISTS coin_favorites (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 4. coin_submissions 使用者提交新幣種表
+-- 4. announcements 系統公告表
+-- =============================================
+CREATE TABLE IF NOT EXISTS announcements (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL COMMENT '公告標題',
+    content TEXT NOT NULL COMMENT '公告內容',
+    type ENUM('info', 'success', 'warning') NOT NULL DEFAULT 'info' COMMENT '公告類型',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '是否啟用',
+    created_by_user_id BIGINT UNSIGNED NOT NULL COMMENT '建立者 user id',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_is_active (is_active),
+    INDEX idx_created_at (created_at),
+    INDEX idx_created_by (created_by_user_id),
+
+    CONSTRAINT fk_announcements_created_by
+        FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 5. coin_submissions 使用者提交新幣種表
+-- 注意：此功能目前已從前端移除（為提高平台可信度）
+--       但保留資料表結構供未來 Future Work 使用
 -- =============================================
 CREATE TABLE IF NOT EXISTS coin_submissions (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
