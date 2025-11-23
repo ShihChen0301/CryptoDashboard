@@ -78,11 +78,10 @@ CREATE TABLE IF NOT EXISTS auth_tokens (
     INDEX idx_user_id (user_id) COMMENT '加速依使用者查詢',
     INDEX idx_expires_at (expires_at) COMMENT '加速清理過期 Token',
 
-    -- 外鍵約束
+    -- 外鍵約束（使用者刪除時，同步刪除其所有 Token）
     CONSTRAINT fk_auth_tokens_user_id
         FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE
-        COMMENT '使用者刪除時，同步刪除其所有 Token'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='認證憑證表 - 管理使用者的登入 Token';
 
@@ -108,11 +107,10 @@ CREATE TABLE IF NOT EXISTS coin_favorites (
     INDEX idx_user_id (user_id) COMMENT '加速查詢使用者的收藏列表',
     INDEX idx_coin_id (coin_id) COMMENT '加速統計幣種的收藏次數',
 
-    -- 外鍵約束
+    -- 外鍵約束（使用者刪除時，同步刪除其所有收藏）
     CONSTRAINT fk_coin_favorites_user_id
         FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE
-        COMMENT '使用者刪除時，同步刪除其所有收藏'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='收藏幣種表 - 使用者的 Watchlist 功能';
 
@@ -147,11 +145,10 @@ CREATE TABLE IF NOT EXISTS announcements (
     INDEX idx_created_at (created_at) COMMENT '支援依時間排序',
     INDEX idx_created_by (created_by_user_id) COMMENT '查詢特定管理員發布的公告',
 
-    -- 外鍵約束
+    -- 外鍵約束（管理員刪除時，同步刪除其發布的公告）
     CONSTRAINT fk_announcements_created_by
         FOREIGN KEY (created_by_user_id) REFERENCES users(id)
         ON DELETE CASCADE
-        COMMENT '管理員刪除時，同步刪除其發布的公告'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='系統公告表 - 管理員發布的平台公告';
 
