@@ -90,6 +90,22 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 開發歷史
 
+### 2024-11-24（凌晨）
+- ✅ **全面專案檢查與優化**：
+  - 檢查所有後端 Java 程式碼（13 個檔案）- Entity、Exception、Config 全部正常
+  - 檢查所有前端 Vue/JS 程式碼（25 個檔案）- Views、Components、Utils 全部正常
+  - 檢查資料庫 Schema 完整性（schema.sql 107 行、schema_zh.sql 209 行）
+  - 檢查專案結構與文檔完整性（7 個 Markdown 檔案）
+- ✅ **文檔更新與清理**：
+  - 更新 README.md（根目錄）：修正前端路徑、更新資料庫表格清單（4 個表）
+  - 更新 docs/README.md：修正所有路徑、新增 CLAUDE.md 參考
+  - 清理 .gitignore：移除舊的「前端/CryptoDashboard/」路徑，保留新的「frontend/CryptoDashboard/」
+- ✅ **品質確認**：
+  - 確認 .env 檔案未被 Git 追蹤（安全性檢查）
+  - 確認 Eclipse 專案檔案未被追蹤（.classpath, .project）
+  - 確認所有文檔與實際專案結構完全一致
+  - Working tree clean，所有修改已推送到 GitHub
+
 ### 2024-11-23（下午）
 - ✅ **資料庫 Schema 優化**：
   - 完全移除 `coin_submissions` 表（功能已廢棄，保持資料庫精簡）
