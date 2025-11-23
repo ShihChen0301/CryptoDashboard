@@ -1,6 +1,6 @@
 # Claude Code 設定
 .claude/
-CLAUDE.md
+# CLAUDE.md 現已納入版本控制，用於保存專案記憶
 
 # 環境變數（包含 API Key）
 .env
@@ -40,7 +40,12 @@ backend/mvnw
 backend/mvnw.cmd
 backend/HELP.md
 backend/.env
+backend/.metadata/
+backend/.settings/
+backend/.classpath
+backend/.project
 
 # 日誌
 *.log
 logs/
+/.metadata/
