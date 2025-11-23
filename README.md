@@ -24,6 +24,12 @@
 - **Pinia** - Vue 狀態管理
 - **Vue Router** - 官方路由管理
 
+### 後端
+- **Spring Boot 3.2** - Java 企業級框架
+- **Spring Security** - JWT 認證授權
+- **Spring Data JPA** - Hibernate ORM
+- **Maven** - 專案管理工具
+
 ### API 數據源
 - **CoinGecko API** - 主要數據來源（30 次/分鐘）
 - **CoinCap API** - 備援數據來源（200 次/分鐘）
@@ -37,9 +43,9 @@
 
 ### 環境需求
 
-- Node.js 18+
-- npm 或 yarn
-- MySQL 8.0+
+- **前端**: Node.js 18+, npm 或 yarn
+- **後端**: JDK 17+, Maven 3.8+
+- **資料庫**: MySQL 8.0+
 
 ### 安裝步驟
 
@@ -69,12 +75,30 @@
    mysql -u root -p < database/schema.sql
    ```
 
-5. **啟動開發伺服器**
+5. **配置後端資料庫連線**
+
+   編輯 `backend/src/main/resources/application.yml`，修改資料庫密碼：
+   ```yaml
+   spring:
+     datasource:
+       password: your_mysql_password
+   ```
+
+6. **啟動後端**
    ```bash
+   cd ../../backend
+   mvn spring-boot:run
+   ```
+
+   後端 API 位址：`http://localhost:8080/api`
+
+7. **啟動前端開發伺服器**
+   ```bash
+   cd ../前端/CryptoDashboard
    npm run dev
    ```
 
-6. **開啟瀏覽器**
+8. **開啟瀏覽器**
    ```
    http://localhost:5173
    ```
@@ -85,18 +109,33 @@
 
 ```
 CryptoDashboard/
-├── 前端/CryptoDashboard/
+├── 前端/CryptoDashboard/              # 前端 Vue 3 應用（待重新命名為 frontend）
 │   ├── src/
-│   │   ├── components/      # 共用元件
-│   │   ├── views/           # 頁面元件
-│   │   ├── utils/           # 工具函數與 API
-│   │   ├── router/          # 路由設定
-│   │   ├── stores/          # Pinia 狀態管理
-│   │   └── assets/          # 靜態資源
-│   ├── .env                 # 環境變數
+│   │   ├── components/               # 共用元件
+│   │   ├── views/                    # 頁面元件
+│   │   ├── utils/                    # 工具函數與 API
+│   │   ├── router/                   # 路由設定
+│   │   ├── stores/                   # Pinia 狀態管理
+│   │   └── assets/                   # 靜態資源
+│   ├── .env                          # 環境變數
 │   └── package.json
+├── backend/                          # 後端 Spring Boot 應用
+│   ├── src/main/java/com/crypto/dashboard/
+│   │   ├── entity/                   # 實體類（User, AuthToken, CoinFavorite, Announcement）
+│   │   ├── repository/               # 資料存取層
+│   │   ├── service/                  # 業務邏輯層
+│   │   ├── controller/               # API 控制器
+│   │   ├── config/                   # 配置類
+│   │   ├── exception/                # 例外處理
+│   │   └── dto/                      # 資料傳輸物件
+│   ├── src/main/resources/
+│   │   └── application.yml           # Spring Boot 配置
+│   └── pom.xml                       # Maven 配置
 ├── database/
-│   └── schema.sql           # MySQL 資料庫結構
+│   └── schema.sql                    # MySQL 資料庫結構
+├── docs/                             # 專案文檔
+│   ├── 後端規劃.md                    # 後端架構設計
+│   └── 專案結構規劃.md                # 資料夾組織方案
 └── README.md
 ```
 

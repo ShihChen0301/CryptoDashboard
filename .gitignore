@@ -20,5 +20,27 @@ Thumbs.db
 
 # IDE 設定
 .idea/
+.vscode/
+*.iml
 *.swp
 *.swo
+
+# 前端
+前端/CryptoDashboard/node_modules/
+前端/CryptoDashboard/dist/
+前端/CryptoDashboard/.env
+frontend/CryptoDashboard/node_modules/
+frontend/CryptoDashboard/dist/
+frontend/CryptoDashboard/.env
+
+# 後端
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/HELP.md
+backend/.env
+
+# 日誌
+*.log
+logs/

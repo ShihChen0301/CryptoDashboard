@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: crypto-dashboard
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/crypto_dashboard?useSSL=false&serverTimezone=Asia/Taipei&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    username: root
+    password: your_password_here
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 不自動修改資料表，使用 schema.sql
+    show-sql: true        # 開發時顯示 SQL
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# JWT 配置
+jwt:
+  secret: crypto-dashboard-secret-key-minimum-256-bits-for-hs256-algorithm-please-change-in-production
+  expiration: 86400000  # 24 小時（毫秒）
+
+# CORS 配置
+cors:
+  allowed-origins: http://localhost:5173
+  allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+# 日誌配置
+logging:
+  level:
+    com.crypto.dashboard: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
