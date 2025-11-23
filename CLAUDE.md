@@ -90,6 +90,27 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 開發歷史
 
+### 2024-11-24（晚上）
+- ✅ **專案結構清理**：
+  - 刪除廢棄的「前端/」資料夾（只剩 1 個 index.html）
+  - 確認 frontend/CryptoDashboard/ 完整（5,198 個檔案）
+  - 清理 untracked 檔案，working tree 保持乾淨
+- ✅ **資料庫 Schema 修復與優化**：
+  - 修復 schema_zh.sql 的外鍵約束 COMMENT 語法錯誤（MySQL 不支援外鍵 COMMENT）
+  - 統一 schema.sql 和 schema_zh.sql 的欄位順序（status 欄位位置調整）
+  - 移除 3 個非法的外鍵 COMMENT，改為註解形式
+- ✅ **完全中文化 schema_zh.sql**：
+  - 資料庫名稱分離：crypto_dashboard（英文版）vs crypto_dashboard_zh（中文版）
+  - 表名稱中文化：users→使用者, auth_tokens→登入憑證, coin_favorites→收藏幣種, announcements→系統公告
+  - 欄位名稱中文化：id→編號, username→使用者名稱, email→電子信箱, password_hash→密碼加密值 等
+  - 索引/約束名稱中文化：uk_username→唯一鍵_使用者名稱, fk_xxx→外鍵_xxx 等
+  - 技術詞彙口語化：token→憑證, hash→加密值, url→網址
+  - ENUM 值保持英文：'user', 'admin', 'active' 等（避免程式碼問題）
+  - 新增完整對照說明區塊，方便查閱英文/中文對照
+- ✅ **用途說明**：
+  - schema.sql（英文版）→ 實際部署使用，程式碼維護容易
+  - schema_zh.sql（中文版）→ 學習對照參考，完全中文化便於理解
+
 ### 2024-11-24（凌晨）
 - ✅ **全面專案檢查與優化**：
   - 檢查所有後端 Java 程式碼（13 個檔案）- Entity、Exception、Config 全部正常
