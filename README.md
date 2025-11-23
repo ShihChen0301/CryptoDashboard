@@ -57,7 +57,7 @@
 
 2. **安裝前端依賴**
    ```bash
-   cd 前端/CryptoDashboard
+   cd frontend/CryptoDashboard
    npm install
    ```
 
@@ -94,7 +94,7 @@
 
 7. **啟動前端開發伺服器**
    ```bash
-   cd ../前端/CryptoDashboard
+   cd ../frontend/CryptoDashboard
    npm run dev
    ```
 
@@ -109,7 +109,7 @@
 
 ```
 CryptoDashboard/
-├── 前端/CryptoDashboard/              # 前端 Vue 3 應用（待重新命名為 frontend）
+├── frontend/CryptoDashboard/          # 前端 Vue 3 應用
 │   ├── src/
 │   │   ├── components/               # 共用元件
 │   │   ├── views/                    # 頁面元件
@@ -132,10 +132,14 @@ CryptoDashboard/
 │   │   └── application.yml           # Spring Boot 配置
 │   └── pom.xml                       # Maven 配置
 ├── database/
-│   └── schema.sql                    # MySQL 資料庫結構
+│   ├── schema.sql                    # MySQL 資料庫結構
+│   └── schema_zh.sql                 # 詳細中文版（含完整註解）
 ├── docs/                             # 專案文檔
 │   ├── 後端規劃.md                    # 後端架構設計
 │   └── 專案結構規劃.md                # 資料夾組織方案
+├── CLAUDE.md                         # 專案記憶與歷史決策
+├── Eclipse 設置指南.md                # Eclipse 開發環境設定
+├── 快速開始.md                        # 快速啟動指南
 └── README.md
 ```
 
@@ -145,12 +149,14 @@ CryptoDashboard/
 
 | 表格 | 說明 |
 |------|------|
-| `users` | 使用者帳號 |
-| `auth_tokens` | 登入 token |
-| `coin_favorites` | 收藏幣種 |
-| `coin_submissions` | 提交新幣種 |
+| `users` | 使用者帳號（包含角色、權限、個人資料） |
+| `auth_tokens` | 登入憑證（JWT Token 管理） |
+| `coin_favorites` | 收藏幣種（Watchlist 功能） |
+| `announcements` | 系統公告（管理員發布） |
 
-詳細結構請參考 `database/schema.sql`
+詳細結構請參考：
+- `database/schema.sql` - 標準資料庫結構
+- `database/schema_zh.sql` - 詳細中文版（含完整註解與說明）
 
 ---
 

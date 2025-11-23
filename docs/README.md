@@ -10,9 +10,10 @@ CryptoDashboard 完整開發文檔
 
 ### 快速連結
 
-- **前端專案**: `../前端/CryptoDashboard/` （待重新命名為 `frontend`）
+- **前端專案**: `../frontend/CryptoDashboard/`
 - **後端專案**: `../backend/`
 - **資料庫腳本**: `../database/`
+- **專案記憶**: `../CLAUDE.md`
 
 ## 技術棧總覽
 
@@ -31,13 +32,14 @@ CryptoDashboard 完整開發文檔
 ### 資料庫
 - MySQL 8.0
 - 4 個核心表格：users, auth_tokens, coin_favorites, announcements
+- 詳見：`../database/schema.sql` 或 `../database/schema_zh.sql`（中文詳細版）
 
 ## 開發指南
 
 ### 前端開發
 
 ```bash
-cd ../前端/CryptoDashboard
+cd ../frontend/CryptoDashboard
 npm install
 npm run dev
 ```
@@ -145,13 +147,16 @@ mysql -u root -p < ../database/schema.sql
 ## 常見問題
 
 ### Q: 前端如何連接後端 API？
-A: 修改 `frontend/CryptoDashboard/.env` 中的 `VITE_API_BASE_URL`
+A: 修改 `../frontend/CryptoDashboard/.env` 中的 `VITE_API_BASE_URL`
 
 ### Q: 如何修改資料庫密碼？
-A: 編輯 `backend/src/main/resources/application.yml`
+A: 編輯 `../backend/src/main/resources/application.yml`
 
 ### Q: JWT Secret 如何設定？
 A: 生產環境請使用環境變數，參考 `application-prod.yml`
+
+### Q: 專案記憶檔案在哪裡？
+A: 參考 `../CLAUDE.md`，包含所有開發歷史與決策記錄
 
 ## 貢獻指南
 
