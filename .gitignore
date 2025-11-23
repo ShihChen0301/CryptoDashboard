@@ -26,9 +26,6 @@ Thumbs.db
 *.swo
 
 # 前端
-前端/CryptoDashboard/node_modules/
-前端/CryptoDashboard/dist/
-前端/CryptoDashboard/.env
 frontend/CryptoDashboard/node_modules/
 frontend/CryptoDashboard/dist/
 frontend/CryptoDashboard/.env
