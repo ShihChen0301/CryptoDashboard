@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
-import * as coincapApi from '../utils/coincapApi'
+import { useCoinsStore } from '../stores/useCoinsStore'
 import CoinTable from '../components/CoinTable.vue'
 
 const searchQuery = ref('')
@@ -15,27 +14,26 @@ const error = ref(null)
 const currentPage = ref(1)
 const perPage = ref(50)
 const totalPages = ref(100) // CoinGecko 支援最多 100 頁
+const coinsStore = useCoinsStore()
 
 // 載入數據函數
 const loadCoins = async (page = 1) => {
   try {
     isLoading.value = true
     error.value = null
-    const coins = await getCoinsList('usd', perPage.value, page)
-    allCoins.value = coins.map(convertToAppFormat)
-  } catch (err) {
-    console.error('Failed to fetch from CoinGecko:', err)
-    // 使用 CoinCap API 作為備援
-    try {
-      console.log('Trying CoinCap API as fallback...')
-      const coinsFallback = await coincapApi.getCoinsList(perPage.value)
-      allCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
-      error.value = 'Using backup data source.'
-    } catch (fallbackErr) {
-      console.error('CoinCap fallback also failed:', fallbackErr)
-      error.value = 'Failed to load data from all sources.'
-      allCoins.value = []
+    const coins = await coinsStore.fetchCoins({
+      currency: 'usd',
+      perPage: perPage.value,
+      page
+    })
+    allCoins.value = coins
+    if (coinsStore.error) {
+      error.value = coinsStore.error
     }
+  } catch (err) {
+    console.error('Failed to load market data:', err)
+    error.value = 'CoinGecko / CoinCap 皆無法取得資料'
+    allCoins.value = []
   } finally {
     isLoading.value = false
   }

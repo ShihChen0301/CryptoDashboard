@@ -5,6 +5,7 @@
  */
 
 const BASE_URL = 'https://api.coincap.io/v2'
+const REQUEST_TIMEOUT = 6000 // ms
 
 /**
  * 通用 API 請求函數
@@ -17,7 +18,14 @@ const fetchCoinCap = async (endpoint, params = {}) => {
     }
   })
 
-  const response = await fetch(url.toString())
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(new Error('CoinCap request timeout')), REQUEST_TIMEOUT)
+
+  const response = await fetch(url.toString(), { signal: controller.signal }).catch((error) => {
+    clearTimeout(timeoutId)
+    throw error
+  })
+  clearTimeout(timeoutId)
 
   if (!response.ok) {
     throw new Error(`CoinCap API error: ${response.status}`)

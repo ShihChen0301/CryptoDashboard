@@ -7,6 +7,9 @@
 
 const BASE_URL = 'https://api.coingecko.com/api/v3'
 const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY || ''
+const REQUEST_TIMEOUT = 6000 // ms
+const MAX_RETRIES = 1
+const RETRY_DELAY = 500 // ms
 
 /**
  * 通用 API 請求函數
@@ -20,27 +23,40 @@ const fetchCoinGecko = async (endpoint, params = {}) => {
     }
   })
 
-  // 設定請求 headers（包含 API Key）
   const headers = {}
   if (API_KEY) {
     headers['x-cg-demo-api-key'] = API_KEY
   }
 
-  try {
-    const response = await fetch(url.toString(), { headers })
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-    if (response.status === 429) {
-      throw new Error('Rate limit exceeded. Please wait a moment.')
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(new Error('CoinGecko request timeout')), REQUEST_TIMEOUT)
+
+    try {
+      const response = await fetch(url.toString(), { headers, signal: controller.signal })
+      clearTimeout(timeoutId)
+
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please wait a moment.')
+      }
+
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      clearTimeout(timeoutId)
+      const isLastAttempt = attempt === MAX_RETRIES
+      if (isLastAttempt) {
+        console.error('CoinGecko API request failed (final):', error)
+        throw error
+      }
+      console.warn(`CoinGecko request failed (attempt ${attempt + 1}), retrying...`, error)
+      await sleep(RETRY_DELAY)
     }
-
-    if (!response.ok) {
-      throw new Error(`CoinGecko API error: ${response.status}`)
-    }
-
-    return await response.json()
-  } catch (error) {
-    console.error('CoinGecko API request failed:', error)
-    throw error
   }
 }
 

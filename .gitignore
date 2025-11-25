@@ -42,6 +42,14 @@ backend/.settings/
 backend/.classpath
 backend/.project
 
+# Eclipse 專案檔案（包含子資料夾）
+backend/CryptoDashboard/.metadata/
+backend/CryptoDashboard/.settings/
+backend/CryptoDashboard/.classpath
+backend/CryptoDashboard/.project
+backend/CryptoDashboard/target/
+backend/CryptoDashboard/.mvn/
+
 # 日誌
 *.log
 logs/

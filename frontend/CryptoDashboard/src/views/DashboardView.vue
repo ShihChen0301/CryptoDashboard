@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getGlobalData, getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
+import { getGlobalData } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
+import { useCoinsStore } from '../stores/useCoinsStore'
 import CoinCard from '../components/CoinCard.vue'
 
 const globalData = ref({
@@ -14,11 +15,15 @@ const globalData = ref({
 
 const hotCoins = ref([])
 const isLoading = ref(true)
+const coinsStore = useCoinsStore()
 
 onMounted(async () => {
   try {
-    // 並行載入數據
-    const [global, coins] = await Promise.all([getGlobalData(), getCoinsList('usd', 6, 1)])
+    // 並行載入數據（幣種走快取，減少重複請求）
+    const [global, coins] = await Promise.all([
+      getGlobalData(),
+      coinsStore.fetchCoins({ currency: 'usd', perPage: 6, page: 1 })
+    ])
 
     // 設定全球市場數據
     globalData.value = {
@@ -29,8 +34,8 @@ onMounted(async () => {
       marketCapChange: global.data.market_cap_change_percentage_24h_usd,
     }
 
-    // 設定熱門幣種
-    hotCoins.value = coins.map(convertToAppFormat)
+    // 設定熱門幣種（已轉換格式）
+    hotCoins.value = coins
   } catch (error) {
     console.error('Failed to fetch from CoinGecko:', error)
     // 使用 CoinCap API 作為備援

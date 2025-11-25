@@ -1,15 +1,17 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getCoinsList, convertToAppFormat, getCoinMarketChart, convertChartData } from '../utils/coingeckoApi'
+import { getCoinMarketChart, convertChartData } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
 import { formatPrice, formatNumber } from '../utils/format'
 import PriceChart from '../components/PriceChart.vue'
+import { useCoinsStore } from '../stores/useCoinsStore'
 
 const selectedCoins = ref([])
 const allCoins = ref([])
 const coinChartData = ref({})
 const maxCoins = 4
 const isLoading = ref(true)
+const coinsStore = useCoinsStore()
 
 const availableCoins = computed(() => {
   return allCoins.value.filter(coin => !selectedCoins.value.includes(coin.id))
@@ -62,8 +64,8 @@ const getChangeColor = (change) => {
 
 onMounted(async () => {
   try {
-    const coins = await getCoinsList('usd', 100, 1)
-    allCoins.value = coins.map(convertToAppFormat)
+    const coins = await coinsStore.fetchCoins({ currency: 'usd', perPage: 100, page: 1 })
+    allCoins.value = coins
   } catch (error) {
     console.error('Failed to fetch from CoinGecko:', error)
     try {
