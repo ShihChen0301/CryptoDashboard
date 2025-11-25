@@ -43,7 +43,7 @@ const goToDetail = () => {
 <style scoped>
 .coin-card {
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #8e8f92;
   border-radius: 0.5rem;
   padding: 1.25rem;
   cursor: pointer;

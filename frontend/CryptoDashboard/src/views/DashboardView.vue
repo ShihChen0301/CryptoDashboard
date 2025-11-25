@@ -9,7 +9,7 @@ const globalData = ref({
   totalVolume: 0,
   btcDominance: 0,
   activeCryptos: 0,
-  marketCapChange: 0
+  marketCapChange: 0,
 })
 
 const hotCoins = ref([])
@@ -18,10 +18,7 @@ const isLoading = ref(true)
 onMounted(async () => {
   try {
     // 並行載入數據
-    const [global, coins] = await Promise.all([
-      getGlobalData(),
-      getCoinsList('usd', 6, 1)
-    ])
+    const [global, coins] = await Promise.all([getGlobalData(), getCoinsList('usd', 6, 1)])
 
     // 設定全球市場數據
     globalData.value = {
@@ -29,7 +26,7 @@ onMounted(async () => {
       totalVolume: global.data.total_volume.usd,
       btcDominance: global.data.market_cap_percentage.btc,
       activeCryptos: global.data.active_cryptocurrencies,
-      marketCapChange: global.data.market_cap_change_percentage_24h_usd
+      marketCapChange: global.data.market_cap_change_percentage_24h_usd,
     }
 
     // 設定熱門幣種
@@ -41,7 +38,7 @@ onMounted(async () => {
       console.log('Trying CoinCap API as fallback...')
       const [globalFallback, coinsFallback] = await Promise.all([
         coincapApi.getGlobalData(),
-        coincapApi.getCoinsList(6)
+        coincapApi.getCoinsList(6),
       ])
 
       globalData.value = {
@@ -49,7 +46,7 @@ onMounted(async () => {
         totalVolume: globalFallback.totalVolume,
         btcDominance: globalFallback.btcDominance,
         activeCryptos: 0, // CoinCap 沒有此數據
-        marketCapChange: 0 // CoinCap 沒有此數據
+        marketCapChange: 0, // CoinCap 沒有此數據
       }
 
       hotCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
@@ -61,7 +58,7 @@ onMounted(async () => {
         totalVolume: 0,
         btcDominance: 0,
         activeCryptos: 0,
-        marketCapChange: 0
+        marketCapChange: 0,
       }
       hotCoins.value = []
     }
@@ -90,7 +87,8 @@ const formatLargeNumber = (num) => {
         <div class="stat-label">Total Market Cap</div>
         <div class="stat-value">{{ formatLargeNumber(globalData.totalMarketCap) }}</div>
         <div class="stat-change" :class="globalData.marketCapChange >= 0 ? 'positive' : 'negative'">
-          {{ globalData.marketCapChange >= 0 ? '+' : '' }}{{ globalData.marketCapChange.toFixed(2) }}%
+          {{ globalData.marketCapChange >= 0 ? '+' : ''
+          }}{{ globalData.marketCapChange.toFixed(2) }}%
         </div>
       </div>
 
@@ -150,8 +148,8 @@ const formatLargeNumber = (num) => {
 
 .stat-card {
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  border: 2px solid #8e8f92;
+  border-radius: 1rem;
   padding: 1.5rem;
 }
 

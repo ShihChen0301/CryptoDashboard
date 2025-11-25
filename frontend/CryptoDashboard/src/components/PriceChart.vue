@@ -5,12 +5,12 @@ import { formatPrice } from '../utils/format'
 const props = defineProps({
   data: {
     type: Array,
-    required: true
+    required: true,
   },
   height: {
     type: Number,
-    default: 200
-  }
+    default: 200,
+  },
 })
 
 const canvas = ref(null)
@@ -72,7 +72,7 @@ const drawChart = () => {
   ctx.clearRect(0, 0, totalWidth, totalHeight)
 
   // 計算價格範圍
-  const prices = props.data.map(d => d.price)
+  const prices = props.data.map((d) => d.price)
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
   const priceRange = maxPrice - minPrice || 1
@@ -140,7 +140,7 @@ const drawChart = () => {
   ctx.fillStyle = gradient
   ctx.beginPath()
   ctx.moveTo(points[0].x, padding.top + chartHeight)
-  points.forEach(point => {
+  points.forEach((point) => {
     ctx.lineTo(point.x, point.y)
   })
   ctx.lineTo(points[points.length - 1].x, padding.top + chartHeight)
@@ -152,7 +152,7 @@ const drawChart = () => {
   ctx.lineWidth = 2
   ctx.beginPath()
   ctx.moveTo(points[0].x, points[0].y)
-  points.forEach(point => {
+  points.forEach((point) => {
     ctx.lineTo(point.x, point.y)
   })
   ctx.stroke()
@@ -169,7 +169,7 @@ const handleMouseMove = (event) => {
   let closestPoint = points[0]
   let closestDistance = Math.abs(mouseX - points[0].x)
 
-  points.forEach(point => {
+  points.forEach((point) => {
     const distance = Math.abs(mouseX - point.x)
     if (distance < closestDistance) {
       closestDistance = distance
@@ -185,10 +185,10 @@ const handleMouseMove = (event) => {
       date: new Date(closestPoint.date).toLocaleDateString('zh-TW', {
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
+        day: '2-digit',
       }),
       x: closestPoint.x / scaleX + rect.left,
-      y: closestPoint.y / scaleX + rect.top
+      y: closestPoint.y / scaleX + rect.top,
     }
 
     // 重繪圖表並高亮當前點
@@ -244,9 +244,13 @@ onUnmounted(() => {
   }
 })
 
-watch(() => props.data, () => {
-  drawChart()
-}, { deep: true })
+watch(
+  () => props.data,
+  () => {
+    drawChart()
+  },
+  { deep: true },
+)
 </script>
 
 <template>
@@ -259,7 +263,7 @@ watch(() => props.data, () => {
       class="tooltip"
       :style="{
         left: tooltipData.x + 'px',
-        top: (tooltipData.y - 60) + 'px'
+        top: tooltipData.y - 60 + 'px',
       }"
     >
       <div class="tooltip-price">{{ formatPrice(tooltipData.price) }}</div>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
 import CoinTable from '../components/CoinTable.vue'
@@ -11,18 +11,24 @@ const sortOrder = ref('asc')
 const isLoading = ref(true)
 const error = ref(null)
 
-// 載入真實數據
-onMounted(async () => {
+// 分頁狀態
+const currentPage = ref(1)
+const perPage = ref(50)
+const totalPages = ref(100) // CoinGecko 支援最多 100 頁
+
+// 載入數據函數
+const loadCoins = async (page = 1) => {
   try {
     isLoading.value = true
-    const coins = await getCoinsList('usd', 50, 1)
+    error.value = null
+    const coins = await getCoinsList('usd', perPage.value, page)
     allCoins.value = coins.map(convertToAppFormat)
   } catch (err) {
     console.error('Failed to fetch from CoinGecko:', err)
     // 使用 CoinCap API 作為備援
     try {
       console.log('Trying CoinCap API as fallback...')
-      const coinsFallback = await coincapApi.getCoinsList(50)
+      const coinsFallback = await coincapApi.getCoinsList(perPage.value)
       allCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
       error.value = 'Using backup data source.'
     } catch (fallbackErr) {
@@ -33,7 +39,40 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+// 初始載入
+onMounted(() => {
+  loadCoins(currentPage.value)
 })
+
+// 監聽頁碼變化
+watch(currentPage, (newPage) => {
+  loadCoins(newPage)
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
+
+// 頁碼輸入
+const pageInput = ref('')
+
+const handlePageInput = (event) => {
+  // 只允許輸入數字
+  const value = event.target.value.replace(/[^0-9]/g, '')
+  pageInput.value = value
+}
+
+const goToPage = () => {
+  const pageNum = parseInt(pageInput.value)
+
+  if (isNaN(pageNum) || pageNum < 1 || pageNum > totalPages.value) {
+    alert(`Please enter a valid page number between 1 and ${totalPages.value}`)
+    pageInput.value = ''
+    return
+  }
+
+  currentPage.value = pageNum
+  pageInput.value = ''
+}
 
 const filteredCoins = computed(() => {
   let result = allCoins.value
@@ -123,6 +162,70 @@ const handleSort = (field) => {
     <div v-if="!isLoading && filteredCoins.length === 0" class="no-results">
       <p>No cryptocurrencies found matching "{{ searchQuery }}"</p>
     </div>
+
+    <!-- 分頁控制 -->
+    <div v-if="!isLoading && !searchQuery" class="pagination">
+      <!-- 第一頁按鈕 -->
+      <button
+        @click="currentPage = 1"
+        :disabled="currentPage === 1"
+        class="pagination-btn pagination-btn-edge"
+        title="Go to first page"
+      >
+        « First
+      </button>
+
+      <!-- 上一頁按鈕 -->
+      <button
+        @click="currentPage--"
+        :disabled="currentPage === 1"
+        class="pagination-btn"
+      >
+        ← Previous
+      </button>
+
+      <!-- 頁碼資訊與輸入框 -->
+      <div class="pagination-info">
+        <div class="page-display">
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        </div>
+        <div class="page-jump">
+          <input
+            v-model="pageInput"
+            @input="handlePageInput"
+            @keyup.enter="goToPage"
+            type="text"
+            inputmode="numeric"
+            placeholder="Jump to..."
+            class="page-input"
+            maxlength="3"
+          />
+          <button @click="goToPage" class="go-btn">Go</button>
+        </div>
+        <span class="page-range">
+          (Coins {{ (currentPage - 1) * perPage + 1 }} - {{ currentPage * perPage }})
+        </span>
+      </div>
+
+      <!-- 下一頁按鈕 -->
+      <button
+        @click="currentPage++"
+        :disabled="currentPage === totalPages"
+        class="pagination-btn"
+      >
+        Next →
+      </button>
+
+      <!-- 最後一頁按鈕 -->
+      <button
+        @click="currentPage = totalPages"
+        :disabled="currentPage === totalPages"
+        class="pagination-btn pagination-btn-edge"
+        title="Go to last page"
+      >
+        Last »
+      </button>
+    </div>
   </div>
 </template>
 
@@ -208,5 +311,136 @@ const handleSort = (field) => {
 .error-message p {
   color: #dc2626;
   margin: 0;
+}
+
+/* 分頁樣式 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  padding: 0.75rem 1.5rem;
+  background: #4F46E5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #4338CA;
+  transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+  background: #D1D5DB;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination-btn-edge {
+  background: #6366F1;
+  padding: 0.75rem 1.25rem;
+}
+
+.pagination-btn-edge:hover:not(:disabled) {
+  background: #4F46E5;
+}
+
+.pagination-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: #374151;
+  padding: 0 1rem;
+}
+
+.page-display {
+  font-weight: 600;
+}
+
+.page-jump {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.page-input {
+  width: 90px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.page-input:focus {
+  outline: none;
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.page-input::placeholder {
+  color: #9CA3AF;
+  font-size: 0.813rem;
+}
+
+.go-btn {
+  padding: 0.5rem 1rem;
+  background: #10B981;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.go-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.page-range {
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    gap: 0.5rem;
+  }
+
+  .pagination-btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .pagination-btn-edge {
+    padding: 0.625rem 0.875rem;
+  }
+
+  .pagination-info {
+    padding: 0 0.5rem;
+  }
+
+  .page-input {
+    width: 70px;
+    font-size: 0.813rem;
+  }
 }
 </style>

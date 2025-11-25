@@ -90,6 +90,61 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 開發歷史
 
+### 2024-11-25（深夜）
+- ✅ **UI 優化：統一框線樣式**：
+  - 統一所有卡片/框框的邊框為 `2px solid #8e8f92`（灰色）
+  - 修改檔案：DashboardView.vue, CoinDetailView.vue, CoinCard.vue
+  - 影響區域：
+    - Dashboard 首頁統計卡片（Total Market Cap 等）
+    - Dashboard 首頁熱門幣種卡片（Hot Cryptocurrencies）
+    - CoinDetailView 幣種資訊框（coin-header）
+    - CoinDetailView 統計區塊框線（stats-section）
+    - CoinDetailView 統計小卡片（stat-item）
+- ✅ **內容優化**：
+  - 刪除 CoinDetailView 的 About 區塊（每個幣種內容都一樣，無意義）
+  - 精簡頁面結構，提升用戶體驗
+- ✅ **Canvas 圖表技術學習**：
+  - 理解 PriceChart.vue 使用 HTML5 Canvas API 手工繪製圖表
+  - 了解 Canvas 繪圖流程：座標計算、漸層背景、折線繪製、互動式 Tooltip
+  - 學習智能小數位數計算（適應穩定幣、極小價格幣）
+
+### 2024-11-25（晚上）
+- ✅ **Market Overview 分頁功能實作**：
+  - 加入完整分頁導航（« First / ← Previous / Next → / Last »）
+  - 實作頁碼輸入框（只允許阿拉伯數字，限制 1-100）
+  - 加入「Go」按鈕與 Enter 鍵快捷跳轉
+  - 實作頁碼驗證（無效頁碼會提示錯誤）
+  - 切換頁面時自動滾動到頂部
+  - 響應式設計（手機版適配）
+  - 支援瀏覽 100 頁共 5,000 個加密貨幣
+  - 搜尋時自動隱藏分頁按鈕
+- ✅ **檔案位置**：`frontend/CryptoDashboard/src/views/MarketListView.vue`
+- ✅ **前後端整合規劃文檔建立**：
+  - 規劃分頁功能的前後端錯誤處理分工
+  - 設計未來後端 API 規格（/api/coins）
+  - 定義 Exception 階層（InvalidPageNumberException, PaginationException）
+  - 規劃整合時程（Phase 1-4）
+
+### 2024-11-25（下午）
+- ✅ **功能需求分析與資料庫 Schema v2.0 設計**：
+  - 分析 9 項新功能需求，評估現有資料庫支援度
+  - 設計 3 個新表格：`coin_submissions`（幣種申請）、`coin_comparisons`（多幣比較）、`user_transactions`（交易記錄）
+  - 建立完整的 Schema v2.0（英文版 + 中文版）
+  - 產出詳細的功能需求分析報告（[docs/功能需求分析_v2.md](docs/功能需求分析_v2.md)）
+  - 產出快速參考的功能對照表（[docs/功能對照表.md](docs/功能對照表.md)）
+- ✅ **新功能清單**：
+  1. 使用者自行新增幣種 + 管理員審核機制（高優先）
+  2. 多幣比較功能（最多 4 個，中優先）
+  3. 趨勢圖（買入最多的幣種，高優先）
+  4. Price Chart 多時間區間（7天、30天、90天、180天、365天、全部）
+  5. Market Overview 每欄可排序
+  6. 幣種選項擴充（調整 API 參數）
+- ✅ **檔案清單**：
+  - `database/schema_v2.sql` - 升級版資料庫結構（英文版，實際部署用）
+  - `database/schema_v2_zh.sql` - 升級版資料庫結構（中文版，學習對照用）
+  - `docs/功能需求分析_v2.md` - 完整的功能需求分析報告
+  - `docs/功能對照表.md` - 快速參考清單（含實作順序建議）
+
 ### 2024-11-24（晚上）
 - ✅ **專案結構清理**：
   - 刪除廢棄的「前端/」資料夾（只剩 1 個 index.html）
@@ -368,4 +423,229 @@ backend/src/main/java/com/crypto/dashboard/
 
 ---
 
-*最後更新：2024-11-23*
+## 前後端整合規劃（分頁功能）
+
+### 1. 前端與後端的錯誤處理分工
+
+#### **前端 UI 驗證**（已實作）
+位置：`frontend/CryptoDashboard/src/views/MarketListView.vue:58-75`
+
+```javascript
+// 只允許輸入數字
+const handlePageInput = (event) => {
+  const value = event.target.value.replace(/[^0-9]/g, '')
+  pageInput.value = value
+}
+
+// 頁碼驗證（1-100）
+const goToPage = () => {
+  const pageNum = parseInt(pageInput.value)
+
+  if (isNaN(pageNum) || pageNum < 1 || pageNum > totalPages.value) {
+    alert(`Please enter a valid page number between 1 and ${totalPages.value}`)
+    return
+  }
+
+  currentPage.value = pageNum
+}
+```
+
+**職責**：
+- 防止使用者輸入非數字字元
+- 驗證頁碼範圍（1-100）
+- 提供即時 UI 反饋
+- **不會傳送無效請求到後端**
+
+---
+
+#### **後端 DAO Exception**（待實作）
+
+**新增 Exception 類別**：
+
+```java
+// InvalidPageNumberException.java
+public class InvalidPageNumberException extends ValidationException {
+    public InvalidPageNumberException(int page, int maxPage) {
+        super(String.format("Invalid page number: %d. Must be between 1 and %d", page, maxPage));
+    }
+}
+
+// PaginationException.java
+public class PaginationException extends CryptoDashboardException {
+    public PaginationException(String message) {
+        super(message);
+    }
+}
+```
+
+**更新 Exception 階層結構**：
+
+```java
+CryptoDashboardException
+├── ValidationException
+│   ├── RequiredFieldException
+│   ├── PasswordMismatchException
+│   ├── PasswordTooShortException
+│   └── InvalidPageNumberException        // 新增：無效頁碼
+├── DataException
+│   ├── DataFetchException
+│   ├── DataUnavailableException
+│   ├── DataParseException
+│   ├── ChartDataException
+│   └── PaginationException               // 新增：分頁錯誤
+└── ApiException
+    ├── CoinGeckoApiException
+    └── DatabaseException
+```
+
+---
+
+### 2. 未來後端 API 設計
+
+#### **API Endpoint**
+```
+GET /api/coins?page={page}&perPage={perPage}&orderBy={orderBy}
+```
+
+#### **請求參數**
+| 參數 | 類型 | 必填 | 說明 | 預設值 |
+|------|------|------|------|--------|
+| page | int | 否 | 頁碼（1-100） | 1 |
+| perPage | int | 否 | 每頁數量（10-100） | 50 |
+| orderBy | string | 否 | 排序方式 | market_cap_desc |
+
+#### **回應格式**
+```json
+{
+  "success": true,
+  "data": {
+    "coins": [...],
+    "pagination": {
+      "currentPage": 1,
+      "perPage": 50,
+      "totalPages": 100,
+      "totalCoins": 5000
+    }
+  }
+}
+```
+
+#### **錯誤回應**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_PAGE_NUMBER",
+    "message": "Invalid page number: 150. Must be between 1 and 100",
+    "timestamp": "2024-11-25T20:30:00Z"
+  }
+}
+```
+
+---
+
+### 3. 後端實作架構（待開發）
+
+#### **Controller 層**
+```java
+@RestController
+@RequestMapping("/api/coins")
+public class CoinController {
+
+    @GetMapping
+    public ResponseEntity<ApiResponse> getCoins(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "50") int perPage,
+        @RequestParam(defaultValue = "market_cap_desc") String orderBy
+    ) {
+        // 驗證 + 呼叫 Service
+    }
+}
+```
+
+#### **Service 層**
+```java
+@Service
+public class CoinService {
+
+    public PaginatedCoinsResponse getCoins(int page, int perPage, String orderBy) {
+        // 1. 驗證頁碼
+        if (page < 1 || page > 100) {
+            throw new InvalidPageNumberException(page, 100);
+        }
+
+        // 2. 呼叫 DAO 或外部 API
+        // 3. 處理資料
+        // 4. 返回結果
+    }
+}
+```
+
+#### **DAO 層**
+```java
+public interface CoinDAO {
+    List<Coin> getCoinsByPage(int page, int perPage, String orderBy)
+        throws DataFetchException;
+
+    int getTotalCoinsCount()
+        throws DatabaseException;
+}
+```
+
+---
+
+### 4. 前後端整合時的修改點
+
+**前端修改**（`MarketListView.vue:20-42`）：
+
+```javascript
+// 現在：直接呼叫 CoinGecko API
+const coins = await getCoinsList('usd', perPage.value, page)
+
+// 之後：改呼叫後端 API
+const response = await fetch(`/api/coins?page=${page}&perPage=${perPage.value}`)
+const data = await response.json()
+
+if (!data.success) {
+  throw new Error(data.error.message)
+}
+
+allCoins.value = data.data.coins
+```
+
+**錯誤處理對應**：
+
+| 後端 Exception | HTTP Status | 前端顯示訊息 |
+|---------------|-------------|-------------|
+| InvalidPageNumberException | 400 | "Invalid page number" |
+| DataFetchException | 500 | "Failed to load coin data" |
+| CoinGeckoApiException | 503 | "External API unavailable" |
+| DatabaseException | 500 | "Database connection error" |
+
+---
+
+### 5. 整合時程規劃
+
+1. **Phase 1**：實作後端 Exception 類別
+   - 建立 `InvalidPageNumberException`
+   - 建立 `PaginationException`
+   - 更新 `GlobalExceptionHandler`
+
+2. **Phase 2**：實作後端 API
+   - Controller: `/api/coins` endpoint
+   - Service: 分頁邏輯 + 驗證
+   - DAO: 資料庫查詢或外部 API 呼叫
+
+3. **Phase 3**：前端整合
+   - 修改 `MarketListView.vue` 的 `loadCoins` 函數
+   - 調整錯誤處理邏輯
+   - 測試前後端整合
+
+4. **Phase 4**：測試與優化
+   - 單元測試（後端）
+   - 整合測試（前後端）
+   - 效能優化（快取、分頁查詢優化）
+
+---
+
+*最後更新：2024-11-25*

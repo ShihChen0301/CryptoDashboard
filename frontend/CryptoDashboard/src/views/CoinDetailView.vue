@@ -18,7 +18,7 @@ const timeRanges = [
   { label: '7D', days: 7 },
   { label: '30D', days: 30 },
   { label: '90D', days: 90 },
-  { label: '1Y', days: 365 }
+  { label: '1Y', days: 365 },
 ]
 
 const updateChartData = async () => {
@@ -56,7 +56,7 @@ onMounted(async () => {
       volume24h: details.market_data.total_volume.usd,
       image: details.image.large,
       high24h: details.market_data.high_24h.usd,
-      low24h: details.market_data.low_24h.usd
+      low24h: details.market_data.low_24h.usd,
     }
 
     await updateChartData()
@@ -86,10 +86,10 @@ watch(selectedDays, () => {
 })
 
 const isPositive = computed(() => coin.value?.change24h >= 0)
-const changeColor = computed(() => isPositive.value ? '#10b981' : '#ef4444')
+const changeColor = computed(() => (isPositive.value ? '#10b981' : '#ef4444'))
 
 const chartTitle = computed(() => {
-  const range = timeRanges.find(r => r.days === selectedDays.value)
+  const range = timeRanges.find((r) => r.days === selectedDays.value)
   return `Price Chart (${range ? range.label : '30D'})`
 })
 </script>
@@ -156,15 +156,6 @@ const chartTitle = computed(() => {
           </div>
         </div>
       </div>
-
-      <div class="info-section">
-        <h2>About {{ coin.name }}</h2>
-        <p>
-          {{ coin.name }} ({{ coin.symbol }}) is a decentralized digital currency
-          that operates on a peer-to-peer network. It is one of the most popular
-          cryptocurrencies in the market with a strong community backing.
-        </p>
-      </div>
     </div>
 
     <div v-else class="not-found">
@@ -188,7 +179,7 @@ const chartTitle = computed(() => {
 
 .coin-header {
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #8e8f92;
   border-radius: 0.5rem;
   padding: 2rem;
   display: flex;
@@ -221,7 +212,7 @@ const chartTitle = computed(() => {
 
 .chart-section {
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 12px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 2rem;
 }
@@ -259,19 +250,19 @@ const chartTitle = computed(() => {
 }
 
 .range-btn:hover {
-  border-color: #4F46E5;
-  color: #4F46E5;
+  border-color: #4f46e5;
+  color: #4f46e5;
 }
 
 .range-btn.active {
-  background: #4F46E5;
-  border-color: #4F46E5;
+  background: #4f46e5;
+  border-color: #4f46e5;
   color: white;
 }
 
 .stats-section {
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #8e8f92;
   border-radius: 0.5rem;
   padding: 2rem;
 }
@@ -291,6 +282,7 @@ const chartTitle = computed(() => {
 .stat-item {
   padding: 1rem;
   background: #f9fafb;
+  border: 2px solid #8e8f92;
   border-radius: 0.375rem;
 }
 
