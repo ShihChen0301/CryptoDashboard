@@ -10,10 +10,10 @@ CryptoDashboard 完整開發文檔
 
 ### 快速連結
 
-- **前端專案**: `../frontend/CryptoDashboard/`
+- **前端專案**: `../frontend/`
 - **後端專案**: `../backend/`
 - **資料庫腳本**: `../database/`
-- **專案記憶**: `../CLAUDE.md`
+- **專案記憶**: `../CLAUDE.md`（開發歷史與決策記錄）
 
 ## 技術棧總覽
 
@@ -39,12 +39,14 @@ CryptoDashboard 完整開發文檔
 ### 前端開發
 
 ```bash
-cd ../frontend/CryptoDashboard
+cd ../frontend
 npm install
 npm run dev
 ```
 
 訪問：http://localhost:5173
+
+> **注意**: CoinGecko API 目前需要透過後端 proxy 才能使用（避免 CORS 問題）
 
 ### 後端開發
 
@@ -63,28 +65,39 @@ mysql -u root -p < ../database/schema.sql
 
 ## 開發流程建議
 
-### Phase 1: 基礎建設 ✅
-- [x] 建立 Spring Boot 專案
-- [x] 配置資料庫連接
-- [x] 建立所有 Entity 類別
-- [ ] 測試資料庫連接
+### Phase 1: CoinGecko API Proxy（進行中）🔥
+- [ ] 實作 `/api/coins/markets` - 幣種列表
+- [ ] 實作 `/api/coins/{id}` - 幣種詳情
+- [ ] 實作 `/api/global` - 全球市場數據
+- [ ] 後端快取機制（減少 API 請求）
+- [ ] 解決 CORS 問題
 
 ### Phase 2: 認證系統
+- [x] 建立 Spring Boot 專案結構
+- [x] 建立所有 Entity 類別
+- [ ] 配置資料庫連接
 - [ ] 實作 JWT Token Provider
 - [ ] 實作 Spring Security 配置
 - [ ] 實作登入/註冊 API
-- [ ] 前端整合測試
+- [ ] 前端整合（替換 mockAuth.js）
 
 ### Phase 3: 核心功能
 - [ ] 實作收藏 CRUD API
 - [ ] 實作用戶資訊 API
 - [ ] 實作公告 CRUD API
+- [ ] 前端整合（替換 localStorage）
 
 ### Phase 4: 管理員功能
 - [ ] 實作用戶管理 API
 - [ ] 實作統計資訊 API
+- [ ] 管理者專屬頁面（與一般使用者分離）
 
-### Phase 5: 優化與測試
+### Phase 5: 新功能開發
+- [ ] Market Overview 篩選功能增強
+- [ ] 語系切換功能（i18n）
+- [ ] 使用者最常關注的幣種統計
+
+### Phase 6: 優化與測試
 - [ ] 單元測試撰寫
 - [ ] API 效能優化
 - [ ] 安全性檢查
@@ -147,7 +160,10 @@ mysql -u root -p < ../database/schema.sql
 ## 常見問題
 
 ### Q: 前端如何連接後端 API？
-A: 修改 `../frontend/CryptoDashboard/.env` 中的 `VITE_API_BASE_URL`
+A: 修改 `../frontend/.env` 中的 `VITE_API_BASE_URL`
+
+### Q: 為什麼前端無法直接呼叫 CoinGecko API？
+A: CoinGecko Demo API Key 不支援瀏覽器 CORS，必須透過後端 proxy。免費 API 速率限制也很嚴格（10-30 次/分鐘）。
 
 ### Q: 如何修改資料庫密碼？
 A: 編輯 `../backend/src/main/resources/application.yml`
@@ -169,5 +185,6 @@ A: 參考 `../CLAUDE.md`，包含所有開發歷史與決策記錄
 ---
 
 **版本**: 1.0.0
-**最後更新**: 2024-11-23
-**維護者**: CryptoDashboard Team
+**最後更新**: 2024-11-25
+**維護者**: Shih Chen
+**專案狀態**: 開發中（Phase 1: API Proxy 實作中）

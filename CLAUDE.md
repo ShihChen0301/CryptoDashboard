@@ -109,6 +109,25 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 開發歷史
 
+### 2024-11-25（深夜 23:30）
+- ✅ **診斷並解決 API 問題**：
+  - 發現 CoinGecko Demo API Key 不支援瀏覽器 CORS
+  - 暫時移除 API Key，改用免費公開 API
+  - 發現免費 API 速率限制過於嚴格（10-30 次/分鐘）
+  - 診斷出 429 Too Many Requests 錯誤（已超過速率限制）
+  - CoinCap 備援 API 無法連接
+- 🎯 **決定實作後端 API Proxy**：
+  - 前端 → 後端 → CoinGecko API
+  - 解決 CORS 問題
+  - 在後端加入快取，減少 API 請求
+  - API Key 更安全（不暴露在瀏覽器）
+- 📋 **記錄新功能需求**：
+  - 管理者與一般使用者應有不同的頁面結構
+  - 管理者不需要 Dashboard、Market 等頁面
+  - Market Overview 新增更多篩選功能
+  - 管理者可查看使用者最常關注的幣種
+  - 網頁語系切換功能（放在 Version 旁邊）
+
 ### 2024-11-25（深夜 23:00）
 - ✅ **修復頁面切換載入慢的問題**：
   - 修改 `DashboardView.vue` 預載入 50 個幣種（顯示前 6 個）
@@ -291,22 +310,59 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 待辦事項
 
-### 高優先
+### 🔥 最高優先（當前進行中）
+- [ ] **實作 CoinGecko API Proxy（Phase 1）**
+  - [ ] Controller: `/api/coins/markets`, `/api/coins/{id}`, `/api/global`
+  - [ ] Service: 呼叫 CoinGecko API + 後端快取
+  - [ ] 解決 CORS 問題和速率限制
+- [ ] **文檔整理**
+  - [ ] 整合 `docs/開發日誌.md` 到 `CLAUDE.md`（已完成整合）
+  - [ ] 簡化或刪除重複的文檔
+
+### 🎯 高優先（後端核心功能）
 - [x] 建立後端 API（已採用 Spring Boot + Java）
 - [ ] 連接 MySQL 資料庫
-- [ ] 實作真實登入/註冊 API
-- [ ] 將 `mockAuth.js` 替換為真實 API 呼叫
-- [ ] 實作後端 Repository、Service、Controller 層
+- [ ] **實作認證系統（Phase 2）**
+  - [ ] POST /api/auth/register
+  - [ ] POST /api/auth/login
+  - [ ] POST /api/auth/logout
+  - [ ] JWT Token 生成與驗證
+  - [ ] 將 `mockAuth.js` 替換為真實 API 呼叫
+- [ ] **實作 Watchlist API（Phase 3）**
+  - [ ] GET /api/favorites
+  - [ ] POST /api/favorites
+  - [ ] DELETE /api/favorites/{coinId}
+  - [ ] 取代前端 localStorage
 
-### 中優先
-- [ ] 實作 Watchlist API（取代 localStorage）
-- [ ] 加入 JWT token 驗證
-- [ ] 實作公告系統 API（取代 localStorage）
+### 📊 中優先（新功能需求）
+- [ ] **管理者與使用者頁面分離**
+  - [ ] 管理者不顯示 Dashboard、Market、Compare 等頁面
+  - [ ] 設計專屬管理者的導航選單
+  - [ ] 根據角色動態顯示側邊欄選項
+- [ ] **Market Overview 篩選功能增強**
+  - [ ] 新增價格範圍篩選
+  - [ ] 新增市值範圍篩選
+  - [ ] 新增漲跌幅篩選
+  - [ ] 新增分類篩選（DeFi、NFT、Layer 1 等）
+- [ ] **管理者統計功能**
+  - [ ] 使用者最常關注的幣種排行
+  - [ ] 總收藏數顯示幣種名稱
+  - [ ] 使用者活躍度分析
+- [ ] **語系切換功能**
+  - [ ] 實作 i18n（中文/英文）
+  - [ ] 在 Sidebar Version 旁邊加入語系切換按鈕
+  - [ ] 儲存使用者語系偏好（localStorage 或後端）
+- [ ] **實作公告系統 API（Phase 4）**
+  - [ ] GET /api/announcements
+  - [ ] POST /api/announcements（管理員）
+  - [ ] PUT /api/announcements/{id}（管理員）
+  - [ ] DELETE /api/announcements/{id}（管理員）
 
-### 低優先
+### 🔧 低優先（未來功能）
 - [ ] 密碼重設功能
 - [ ] Email 驗證
 - [ ] 用戶頭像上傳
+- [ ] 雙因素認證（2FA）
 
 ### Future Work（規劃中但尚未實作）
 - [ ] 用戶提交新幣種功能 - 允許用戶申請新幣種上架，經管理員審核後加入平台（目前為提高平台可信度暫不開放）

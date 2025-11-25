@@ -61,14 +61,11 @@
    npm install
    ```
 
-3. **設定環境變數**
+3. **設定環境變數**（暫時不需要）
 
-   建立 `.env` 檔案：
-   ```env
-   VITE_COINGECKO_API_KEY=your_api_key_here
-   ```
-
-   > 可在 [CoinGecko API](https://www.coingecko.com/en/api) 免費申請 API Key
+   > ⚠️ **重要**: CoinGecko Demo API Key 不支援瀏覽器 CORS，目前已暫時停用。
+   >
+   > 前端 API 請求必須透過後端 proxy（Phase 1 開發中）
 
 4. **設定資料庫**
    ```bash
@@ -84,17 +81,19 @@
        password: your_mysql_password
    ```
 
-6. **啟動後端**
+6. **啟動後端**（⚠️ 開發中）
    ```bash
-   cd ../../backend
+   cd backend
    mvn spring-boot:run
    ```
 
    後端 API 位址：`http://localhost:8080/api`
 
+   > **注意**: 目前後端 API Proxy 尚未完成，前端無法取得幣種資料
+
 7. **啟動前端開發伺服器**
    ```bash
-   cd ../frontend
+   cd frontend
    npm run dev
    ```
 
@@ -102,6 +101,8 @@
    ```
    http://localhost:5173
    ```
+
+   > **目前狀態**: 前端頁面可正常瀏覽，但無法載入幣種資料（等待後端 API Proxy 完成）
 
 ---
 
