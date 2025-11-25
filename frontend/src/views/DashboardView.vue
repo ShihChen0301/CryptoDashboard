@@ -20,9 +20,10 @@ const coinsStore = useCoinsStore()
 onMounted(async () => {
   try {
     // 並行載入數據（幣種走快取，減少重複請求）
+    // 預載入 50 個幣種以便與 Market/Compare 頁面共用快取
     const [global, coins] = await Promise.all([
       getGlobalData(),
-      coinsStore.fetchCoins({ currency: 'usd', perPage: 6, page: 1 })
+      coinsStore.fetchCoins({ currency: 'usd', perPage: 50, page: 1 })
     ])
 
     // 設定全球市場數據
@@ -34,8 +35,8 @@ onMounted(async () => {
       marketCapChange: global.data.market_cap_change_percentage_24h_usd,
     }
 
-    // 設定熱門幣種（已轉換格式）
-    hotCoins.value = coins
+    // 設定熱門幣種（只顯示前 6 個）
+    hotCoins.value = coins.slice(0, 6)
   } catch (error) {
     console.error('Failed to fetch from CoinGecko:', error)
     // 使用 CoinCap API 作為備援
@@ -43,7 +44,7 @@ onMounted(async () => {
       console.log('Trying CoinCap API as fallback...')
       const [globalFallback, coinsFallback] = await Promise.all([
         coincapApi.getGlobalData(),
-        coincapApi.getCoinsList(6),
+        coincapApi.getCoinsList(50),
       ])
 
       globalData.value = {
@@ -54,7 +55,7 @@ onMounted(async () => {
         marketCapChange: 0, // CoinCap 沒有此數據
       }
 
-      hotCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
+      hotCoins.value = coinsFallback.map(coincapApi.convertToAppFormat).slice(0, 6)
     } catch (fallbackError) {
       console.error('CoinCap fallback also failed:', fallbackError)
       // 如果兩個 API 都失敗，顯示錯誤狀態

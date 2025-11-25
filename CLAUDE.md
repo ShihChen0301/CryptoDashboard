@@ -109,7 +109,18 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 開發歷史
 
-### 2024-11-25（深夜）
+### 2024-11-25（深夜 23:00）
+- ✅ **修復頁面切換載入慢的問題**：
+  - 修改 `DashboardView.vue` 預載入 50 個幣種（顯示前 6 個）
+  - 統一 Dashboard、Market、Compare 的快取參數（perPage: 50）
+  - 實現頁面切換秒開（5 分鐘內使用快取資料）
+  - 問題記錄：docs/開發日誌.md（2024-11-26）
+- ✅ **技術細節**：
+  - 快取 key 由 `usd-6-1` 改為 `usd-50-1`
+  - Dashboard、Market、Compare 共用同一份快取
+  - 備援 API（CoinCap）也同步修改
+
+### 2024-11-25（深夜 22:00）
 - ✅ **專案結構重構**：
   - 移除多餘的巢狀資料夾層級
   - 將 `backend/CryptoDashboard/*` 移到 `backend/` 根目錄
