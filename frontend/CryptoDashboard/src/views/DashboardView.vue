@@ -119,10 +119,129 @@ const formatLargeNumber = (num) => {
 </template>
 
 <style scoped>
+/* ==================== 背景動畫選項 ==================== */
+/* 取消註解你想要的背景效果（只能選一個） */
+
+/* 提案 2：藍色專業漸層 */
+/*
+@keyframes professionalGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .dashboard {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #4facfe 75%,
+    #00f2fe 100%
+  );
+  background-size: 400% 400%;
+  animation: professionalGradient 20s ease infinite;
   max-width: 1400px;
   margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: 100vh;
 }
+*/
+
+/* 提案 4：極簡灰階漸變 */
+@keyframes subtleGray {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.dashboard {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-size: 400% 400%;
+  animation: subtleGray 25s ease infinite;
+  min-height: calc(100vh - 64px);
+  padding: 2rem;
+  /* 使用負 margin 抵消 MainLayout 的 padding，讓背景填滿整個頁面 */
+  margin: calc(-1 * var(--spacing-xl));
+  padding: calc(var(--spacing-xl) + 1rem);
+}
+
+/* 提案 5：粒子漂浮效果 */
+/*
+@keyframes floatParticles {
+  0%,
+  100% {
+    transform: translateY(0px);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.dashboard {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 30s ease infinite;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: 100vh;
+}
+
+.dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  right: -50%;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.15) 2px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size:
+    80px 80px,
+    40px 40px;
+  background-position:
+    0 0,
+    20px 20px;
+  animation: floatParticles 10s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dashboard > * {
+  position: relative;
+  z-index: 1;
+}
+*/
 
 .dashboard-header {
   margin-bottom: 2rem;

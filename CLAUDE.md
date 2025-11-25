@@ -90,6 +90,24 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 開發歷史
 
+### 2024-11-25（凌晨）
+- ✅ **Dashboard 背景動畫實作**：
+  - 實作三種背景動畫方案（藍色專業漸層、極簡灰階、粒子漂浮）
+  - 採用提案 4：極簡灰階漸變（25 秒循環）
+  - 顏色：`#f5f7fa` → `#c3cfe2` 緩慢流動
+  - 使用 CSS keyframes 實作平滑動畫效果
+- ✅ **背景填滿技術**：
+  - 使用負 margin 技巧讓 Dashboard 背景填滿整個頁面
+  - 保持其他頁面（Market Overview、CoinDetailView）不受影響
+  - 公式：`margin: calc(-1 * var(--spacing-xl))` + `padding: calc(var(--spacing-xl) + 1rem)`
+- ✅ **技術學習**：
+  - 理解 CSS 變數（`var(--spacing-xl)`）在 Layout 系統中的應用
+  - 學習使用負 margin 突破父容器限制
+  - 掌握 @keyframes 動畫與 background-position 的配合
+- ✅ **檔案修改**：
+  - `DashboardView.vue`：新增背景動畫與獨立 padding 控制
+  - `MainLayout.vue`：保持原有 padding 設定
+
 ### 2024-11-25（深夜）
 - ✅ **UI 優化：統一框線樣式**：
   - 統一所有卡片/框框的邊框為 `2px solid #8e8f92`（灰色）
