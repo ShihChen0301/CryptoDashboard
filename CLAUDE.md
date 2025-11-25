@@ -31,29 +31,48 @@
 ## 重要檔案結構
 
 ```
-前端/CryptoDashboard/
-├── src/
-│   ├── utils/
-│   │   ├── coingeckoApi.js   # 主要 API（含 API Key）
-│   │   ├── coincapApi.js     # 備援 API
-│   │   ├── mockAuth.js       # 模擬認證（待換成真實 API）
-│   │   └── format.js         # 格式化工具（價格、數字）
-│   ├── views/
-│   │   ├── DashboardView.vue
-│   │   ├── MarketListView.vue
-│   │   ├── CoinDetailView.vue
-│   │   ├── WatchlistView.vue
-│   │   ├── CompareView.vue
-│   │   ├── LoginView.vue
-│   │   ├── RegisterView.vue
-│   │   └── AdminView.vue
-│   └── components/
-│       ├── CoinCard.vue
-│       ├── CoinTable.vue
-│       └── Sidebar.vue
-├── .env                      # 環境變數（API Keys）
+CryptoDashboard/
+├── frontend/                 # Vue 3 前端專案
+│   ├── src/
+│   │   ├── utils/
+│   │   │   ├── coingeckoApi.js   # 主要 API（含 API Key）
+│   │   │   ├── coincapApi.js     # 備援 API
+│   │   │   ├── mockAuth.js       # 模擬認證（待換成真實 API）
+│   │   │   └── format.js         # 格式化工具（價格、數字）
+│   │   ├── views/
+│   │   │   ├── DashboardView.vue
+│   │   │   ├── MarketListView.vue
+│   │   │   ├── CoinDetailView.vue
+│   │   │   ├── WatchlistView.vue
+│   │   │   ├── CompareView.vue
+│   │   │   ├── LoginView.vue
+│   │   │   ├── RegisterView.vue
+│   │   │   └── AdminView.vue
+│   │   └── components/
+│   │       ├── CoinCard.vue
+│   │       ├── CoinTable.vue
+│   │       └── Sidebar.vue
+│   ├── package.json
+│   ├── vite.config.js
+│   └── .env                  # 環境變數（API Keys）
+├── backend/                  # Spring Boot 後端專案
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/com/crypto/dashboard/
+│   │       │   ├── config/
+│   │       │   ├── entity/
+│   │       │   ├── exception/
+│   │       │   ├── dto/
+│   │       │   └── CryptoDashboardApplication.java
+│   │       └── resources/
+│   │           ├── application.yml
+│   │           ├── application-dev.yml
+│   │           └── application-prod.yml
+│   ├── pom.xml
+│   └── README.md
 └── database/
-    └── schema.sql            # MySQL 資料庫結構
+    ├── schema.sql            # MySQL 資料庫結構（英文）
+    └── schema_zh.sql         # MySQL 資料庫結構（中文對照）
 ```
 
 ---
@@ -89,6 +108,23 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 ---
 
 ## 開發歷史
+
+### 2024-11-25（深夜）
+- ✅ **專案結構重構**：
+  - 移除多餘的巢狀資料夾層級
+  - 將 `backend/CryptoDashboard/*` 移到 `backend/` 根目錄
+  - 將 `frontend/CryptoDashboard/*` 移到 `frontend/` 根目錄
+  - 清理 Eclipse 產生的垃圾檔案（.metadata, .settings, .classpath, .project）
+  - 清理 Maven 編譯產物（target/）
+  - 刪除 `frontend/AGENTS.md` 和空的 `package-lock.json`
+- ✅ **專案結構優化**：
+  - 採用標準 Monorepo 結構
+  - 前端專案直接位於 `frontend/` 根目錄
+  - 後端專案直接位於 `backend/` 根目錄
+  - 提升專案可維護性和清晰度
+- ✅ **文檔更新**：
+  - 更新 CLAUDE.md 檔案結構說明
+  - 記錄重構歷史
 
 ### 2024-11-25（凌晨）
 - ✅ **Dashboard 背景動畫實作**：
@@ -298,7 +334,7 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ```bash
 # 啟動開發伺服器
-cd 前端/CryptoDashboard && npm run dev
+cd frontend && npm run dev
 
 # 建立資料庫
 mysql -u root -p < database/schema.sql

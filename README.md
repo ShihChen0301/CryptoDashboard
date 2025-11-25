@@ -57,7 +57,7 @@
 
 2. **安裝前端依賴**
    ```bash
-   cd frontend/CryptoDashboard
+   cd frontend
    npm install
    ```
 
@@ -94,7 +94,7 @@
 
 7. **啟動前端開發伺服器**
    ```bash
-   cd ../frontend/CryptoDashboard
+   cd ../frontend
    npm run dev
    ```
 
@@ -109,7 +109,7 @@
 
 ```
 CryptoDashboard/
-├── frontend/CryptoDashboard/          # 前端 Vue 3 應用
+├── frontend/                         # 前端 Vue 3 應用
 │   ├── src/
 │   │   ├── components/               # 共用元件
 │   │   ├── views/                    # 頁面元件
