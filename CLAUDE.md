@@ -109,6 +109,22 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ## 開發歷史
 
+### 2025-11-26
+- ✅ **前端 API 呼叫優化**：
+  - 新增 CoinGecko API 逾時與重試機制
+  - 超時時自動切換到 CoinCap 備援 API
+  - 避免頁面卡在 Loading 狀態
+- ✅ **實作 Pinia 幣種快取系統**：
+  - 建立 `useCoinsStore` 全域狀態管理
+  - Dashboard、Market、Compare 頁面共用快取資料
+  - 減少重複 API 請求，降低被限流機率
+  - 提升頁面切換速度與使用者體驗
+- 📋 **下一步計劃**：
+  - 實作後端 API Proxy 與快取層
+  - 將 API Key 從前端遷移至後端
+  - 集中處理重試與節流邏輯
+  - 前端改為呼叫自家後端 API
+
 ### 2024-11-25（深夜 23:30）
 - ✅ **診斷並解決 API 問題**：
   - 發現 CoinGecko Demo API Key 不支援瀏覽器 CORS
