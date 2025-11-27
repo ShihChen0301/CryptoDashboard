@@ -6,13 +6,28 @@ const router = useRouter()
 const route = useRoute()
 const isCollapsed = ref(false)
 const isAdmin = ref(false)
+const currentLocale = ref('zh-TW')
 
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   isAdmin.value = user.role === 'admin'
+
+  // 讀取語系偏好
+  const savedLocale = localStorage.getItem('preferred_locale') || 'zh-TW'
+  currentLocale.value = savedLocale
 })
 
-const baseMenuItems = [
+const toggleLocale = () => {
+  currentLocale.value = currentLocale.value === 'zh-TW' ? 'en-US' : 'zh-TW'
+  localStorage.setItem('preferred_locale', currentLocale.value)
+  // TODO: 整合 vue-i18n 後會自動切換語系
+}
+
+const localeLabel = computed(() => {
+  return currentLocale.value === 'zh-TW' ? '中文' : 'EN'
+})
+
+const userMenuItems = [
   { name: 'Dashboard', path: '/dashboard', icon: '📊' },
   { name: 'Market', path: '/market', icon: '💹' },
   { name: 'Compare', path: '/compare', icon: '⚖️' },
@@ -21,14 +36,18 @@ const baseMenuItems = [
 ]
 
 const adminMenuItems = [
-  { name: 'Admin Panel', path: '/admin', icon: '🔧', adminOnly: true }
+  { name: 'Admin Panel', path: '/admin', icon: '🔧' },
+  { name: 'Watchlist', path: '/watchlist', icon: '⭐' },
+  { name: 'Profile', path: '/profile', icon: '👤' }
 ]
 
 const menuItems = computed(() => {
+  // 管理者只顯示 Admin Panel、Watchlist、Profile
   if (isAdmin.value) {
-    return [...baseMenuItems.slice(0, 4), ...adminMenuItems, baseMenuItems[4]]
+    return adminMenuItems
   }
-  return baseMenuItems
+  // 一般用戶顯示所有選單
+  return userMenuItems
 })
 
 const isActive = (path) => {
@@ -65,9 +84,15 @@ const toggleSidebar = () => {
     </div>
 
     <div class="sidebar-footer">
-      <div class="version-info" v-if="!isCollapsed">
-        <span class="version-label">Version</span>
-        <span class="version-number">1.0.0</span>
+      <div class="footer-content" v-if="!isCollapsed">
+        <div class="version-info">
+          <span class="version-label">Version</span>
+          <span class="version-number">1.0.0</span>
+        </div>
+        <button class="locale-toggle" @click="toggleLocale" :title="`切換語系 / Switch Language`">
+          <span class="locale-icon">🌐</span>
+          <span class="locale-text">{{ localeLabel }}</span>
+        </button>
       </div>
     </div>
   </aside>
@@ -208,6 +233,12 @@ const toggleSidebar = () => {
   margin-top: var(--spacing-xl);
 }
 
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
 .version-info {
   display: flex;
   flex-direction: column;
@@ -229,6 +260,37 @@ const toggleSidebar = () => {
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   color: var(--color-primary-light);
+}
+
+.locale-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--color-text-white);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.locale-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+.locale-icon {
+  font-size: var(--text-lg);
+}
+
+.locale-text {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 @media (max-width: 768px) {
