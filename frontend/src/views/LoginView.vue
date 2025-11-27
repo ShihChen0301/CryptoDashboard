@@ -38,7 +38,13 @@ const handleLogin = () => {
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1>CryptoDashboard</h1>
+        <div class="brand-logo">
+          <img src="/favicon.jpg" alt="CoinVue Logo" class="logo-image" />
+          <div class="brand-text">
+            <h1>CoinVue</h1>
+            <span class="brand-subtitle">幣景</span>
+          </div>
+        </div>
         <p>Sign in to your account</p>
       </div>
 
@@ -114,10 +120,41 @@ const handleLogin = () => {
   margin-bottom: 2rem;
 }
 
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.logo-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4F46E5;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .login-header h1 {
   color: #4F46E5;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.125rem;
 }
 
 .login-header p {
