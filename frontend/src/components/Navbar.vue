@@ -27,7 +27,7 @@ const closeDropdown = () => {
     <div class="navbar-content">
       <div class="navbar-title" @click="router.push('/dashboard')">
         <img src="/favicon.jpg" alt="CoinVue Logo" class="logo-image" />
-        <h2>CoinVue</h2>
+        <h2>CoinVue 幣景</h2>
       </div>
 
       <div class="navbar-right">

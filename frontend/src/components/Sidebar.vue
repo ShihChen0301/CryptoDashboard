@@ -30,12 +30,12 @@ const userMenuItems = computed(() => [
   { name: t('sidebar.market'), path: '/market', icon: '💹' },
   { name: t('sidebar.compare'), path: '/compare', icon: '⚖️' },
   { name: t('sidebar.watchlist'), path: '/watchlist', icon: '⭐' },
-  { name: t('sidebar.profile'), path: '/profile', icon: '👤' }
+  { name: t('sidebar.profile'), path: '/profile', icon: '👤' },
 ])
 
 const adminMenuItems = computed(() => [
   { name: t('sidebar.adminPanel'), path: '/admin', icon: '🔧' },
-  { name: t('sidebar.profile'), path: '/profile', icon: '👤' }
+  { name: t('sidebar.profile'), path: '/profile', icon: '👤' },
 ])
 
 const menuItems = computed(() => {
@@ -63,10 +63,6 @@ const toggleSidebar = () => {
 <template>
   <aside :class="['sidebar', { collapsed: isCollapsed }]">
     <div class="sidebar-header">
-      <div class="brand" v-if="!isCollapsed">
-        <h1 class="brand-name">CoinVue</h1>
-        <p class="brand-subtitle">{{ t('sidebar.brandSubtitle') }}</p>
-      </div>
       <button class="toggle-btn" @click="toggleSidebar">
         <span>{{ isCollapsed ? '☰' : '✕' }}</span>
       </button>
@@ -90,7 +86,11 @@ const toggleSidebar = () => {
           <span class="version-label">{{ t('sidebar.version') }}</span>
           <span class="version-number">1.1.0</span>
         </div>
-        <button class="locale-toggle" @click="toggleLocale" :title="locale === 'zh-TW' ? '切換至英文' : 'Switch to Chinese'">
+        <button
+          class="locale-toggle"
+          @click="toggleLocale"
+          :title="locale === 'zh-TW' ? '切換至英文' : 'Switch to Chinese'"
+        >
           <span class="locale-icon">🌐</span>
           <span class="locale-text">{{ localeLabel }}</span>
         </button>
@@ -125,31 +125,6 @@ const toggleSidebar = () => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-}
-
-.brand {
-  text-align: center;
-  padding: var(--spacing-md) 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: var(--spacing-md);
-}
-
-.brand-name {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0;
-  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 0.5px;
-}
-
-.brand-subtitle {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0.25rem 0 0 0;
-  font-weight: 400;
 }
 
 .toggle-btn {
