@@ -66,39 +66,45 @@
    npm install
    ```
 
-3. **設定環境變數**（暫時不需要）
+3. **設定環境變數**
 
-   > ⚠️ **重要**: CoinGecko Demo API Key 不支援瀏覽器 CORS，目前已暫時停用。
-   >
-   > 前端 API 請求必須透過後端 proxy（Phase 1 開發中）
+   建立 `frontend/.env` 檔案：
+   ```env
+   VITE_API_BASE_URL=http://localhost:8080/api
+   VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
+   ```
 
 4. **設定資料庫**
    ```bash
-   # 使用 v3.0 完整版 Schema（包含語系、活動記錄等新表）
+   # 建立資料庫（使用 v3.0 完整版）
    mysql -u root -p < database/schema_v3.sql
-
-   # 或使用 v1.0 基礎版 Schema（僅 4 個核心表）
-   # mysql -u root -p < database/schema.sql
    ```
 
 5. **配置後端資料庫連線**
 
-   編輯 `backend/src/main/resources/application.yml`，修改資料庫密碼：
+   編輯 `backend/src/main/resources/application.yml` 或 `application-dev.yml`，修改資料庫密碼：
    ```yaml
    spring:
      datasource:
-       password: your_mysql_password
+       password: your_mysql_password  # 改成您的 MySQL 密碼
    ```
 
-6. **啟動後端**（⚠️ 開發中）
+6. **啟動後端**
    ```bash
    cd backend
+
+   # 方法 A: 使用 Maven（需先安裝 Maven）
    mvn spring-boot:run
+
+   # 方法 B: 使用 Chocolatey 快速安裝 Maven
+   choco install maven -y
+   mvn spring-boot:run
+
+   # 方法 C: 使用 Eclipse IDE
+   # 右鍵 CryptoDashboardApplication.java → Run As → Java Application
    ```
 
    後端 API 位址：`http://localhost:8080/api`
-
-   > **注意**: 目前後端 API Proxy 尚未完成，前端無法取得幣種資料
 
 7. **啟動前端開發伺服器**
    ```bash
@@ -111,7 +117,9 @@
    http://localhost:5173
    ```
 
-   > **目前狀態**: 前端頁面可正常瀏覽，但無法載入幣種資料（等待後端 API Proxy 完成）
+   測試帳號：
+   - 一般用戶：demo@example.com / password
+   - 管理員：admin@example.com / admin123
 
 ---
 
@@ -142,15 +150,12 @@ CryptoDashboard/
 │   │   └── application.yml           # Spring Boot 配置
 │   └── pom.xml                       # Maven 配置
 ├── database/
-│   ├── schema_v3.sql                 # MySQL v3.0 完整結構（推薦）
-│   └── schema_zh.sql                 # v1.0 中文版（含完整註解）
+│   └── schema_v3.sql                 # MySQL v3.0 完整結構
 ├── docs/                             # 專案文檔
-│   ├── 後端規劃.md                    # 後端架構設計
 │   ├── 專案結構規劃.md                # 資料夾組織方案
-│   ├── 功能對照表.md                  # 功能實作狀態（參考）
-│   └── 功能需求分析_v2.md             # 需求分析報告（參考）
+│   ├── 功能對照表.md                  # 功能實作狀態（參考用）
+│   └── 功能需求分析_v2.md             # 需求分析報告（參考用）
 ├── CLAUDE.md                         # 專案記憶與歷史決策
-├── 新電腦設置指南.md                  # 開發環境完整設定
 └── README.md
 ```
 
@@ -175,9 +180,7 @@ CryptoDashboard/
 - `coin_price_alerts` - 價格提醒
 - `coin_comparisons` - 幣種比較歷史
 
-詳細結構請參考：
-- `database/schema_v3.sql` - v3.0 完整結構（推薦）
-- `database/schema_zh.sql` - v1.0 中文版（含完整註解）
+詳細結構請參考：`database/schema_v3.sql`
 
 ---
 

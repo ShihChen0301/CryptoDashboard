@@ -23,8 +23,8 @@ Spring Boot 3 + MySQL 8 後端 API
 ### 2. 資料庫設定
 
 ```bash
-# 建立資料庫
-mysql -u root -p < ../database/schema.sql
+# 建立資料庫（使用 v3.0 完整版）
+mysql -u root -p < ../database/schema_v3.sql
 ```
 
 ### 3. 配置資料庫連線
@@ -61,56 +61,77 @@ backend/
 ├── src/main/java/com/crypto/dashboard/
 │   ├── CryptoDashboardApplication.java    # 主程式
 │   ├── config/                            # 配置類
-│   │   └── CorsConfig.java
-│   ├── controller/                        # API 控制器
-│   ├── service/                           # 業務邏輯層
-│   ├── repository/                        # 資料存取層
+│   │   ├── SecurityConfig.java            # Spring Security 配置
+│   │   ├── AppConfig.java                 # 應用配置（RestTemplate）
+│   │   └── CorsConfig.java                # CORS 跨域配置
+│   ├── controller/                        # API 控制器（已實作）
+│   │   ├── AuthController.java            # 認證 API
+│   │   ├── FavoriteController.java        # 收藏 API
+│   │   └── CoinController.java            # 幣種 API（CoinGecko Proxy）
+│   ├── service/                           # 業務邏輯層（已實作）
+│   │   ├── AuthService.java               # 認證服務
+│   │   ├── FavoriteService.java           # 收藏服務
+│   │   └── CoinService.java               # 幣種服務（API Proxy）
+│   ├── repository/                        # 資料存取層（已實作）
+│   │   ├── UserRepository.java
+│   │   ├── AuthTokenRepository.java
+│   │   ├── CoinFavoriteRepository.java
+│   │   └── AnnouncementRepository.java
 │   ├── entity/                            # 實體類（資料表對應）
 │   │   ├── User.java
 │   │   ├── AuthToken.java
 │   │   ├── CoinFavorite.java
 │   │   └── Announcement.java
 │   ├── dto/                               # 資料傳輸物件
-│   │   ├── request/
-│   │   └── response/
-│   │       └── ApiResponse.java           # 統一回應格式
+│   │   ├── request/                       # 請求 DTO
+│   │   │   ├── LoginRequest.java
+│   │   │   └── RegisterRequest.java
+│   │   └── response/                      # 回應 DTO
+│   │       ├── ApiResponse.java           # 統一回應格式
+│   │       └── AuthResponse.java          # 認證回應
 │   ├── exception/                         # 例外處理
 │   │   ├── GlobalExceptionHandler.java
+│   │   ├── CryptoDashboardException.java
 │   │   ├── InvalidCredentialsException.java
 │   │   ├── UnauthorizedException.java
 │   │   ├── ValidationException.java
-│   │   └── ResourceNotFoundException.java
-│   ├── security/                          # 安全相關（JWT）
+│   │   ├── ResourceNotFoundException.java
+│   │   └── ExternalApiException.java
 │   └── util/                              # 工具類
+│       └── JwtUtil.java                   # JWT Token 工具
 └── src/main/resources/
-    ├── application.yml                    # 主配置
+    ├── application.yml                    # 主配置（JWT, CoinGecko, CORS）
     ├── application-dev.yml                # 開發環境
     └── application-prod.yml               # 生產環境
 ```
 
-## API 端點（規劃）
+## API 端點
 
-### 認證相關
+### 認證相關（已實作）
 - `POST /api/auth/register` - 用戶註冊
 - `POST /api/auth/login` - 用戶登入
 - `POST /api/auth/logout` - 用戶登出
 
-### 用戶相關
+### 收藏相關（已實作）
+- `GET /api/favorites` - 取得收藏列表
+- `POST /api/favorites?coinId={id}` - 新增收藏
+- `DELETE /api/favorites/{coinId}` - 移除收藏
+
+### 幣種相關（已實作）
+- `GET /api/coins?page={page}&perPage={perPage}&orderBy={orderBy}` - 取得幣種列表（CoinGecko Proxy）
+- `GET /api/coins/{id}` - 取得幣種詳情（CoinGecko Proxy）
+
+### 公告相關（待實作）
+- `GET /api/announcements` - 取得啟用的公告
+- `POST /api/announcements` - 建立公告（管理員）
+- `PUT /api/announcements/{id}` - 更新公告（管理員）
+- `DELETE /api/announcements/{id}` - 刪除公告（管理員）
+
+### 用戶相關（待實作）
 - `GET /api/users/me` - 取得當前用戶資訊
 - `PUT /api/users/me` - 更新用戶資訊
 
-### 收藏相關
-- `GET /api/favorites` - 取得收藏列表
-- `POST /api/favorites` - 新增收藏
-- `DELETE /api/favorites/:coinId` - 移除收藏
-
-### 公告相關
-- `GET /api/announcements` - 取得啟用的公告
-- `POST /api/announcements` - 建立公告（管理員）
-- `PUT /api/announcements/:id` - 更新公告（管理員）
-- `DELETE /api/announcements/:id` - 刪除公告（管理員）
-
-### 管理員相關
+### 管理員相關（待實作）
 - `GET /api/admin/users` - 取得所有用戶
 - `GET /api/admin/stats` - 取得統計資訊
 
@@ -150,8 +171,8 @@ A: 參考 `../database/schema.sql` 底部的 INSERT 語句（需先用 BCrypt �
 
 ## 下一步
 
-查看完整開發指南：
-- [後端規劃](../docs/後端規劃.md)
+查看專案文檔：
+- [專案記憶 (CLAUDE.md)](../CLAUDE.md)
 - [專案結構規劃](../docs/專案結構規劃.md)
 
 ## 測試
@@ -166,5 +187,23 @@ mvn test -Dtest=UserServiceTest
 
 ---
 
-**版本**: 1.0.0
-**最後更新**: 2024-11-23
+## 實作狀態
+
+✅ **已完成**：
+- Repository 層（4 個）
+- Service 層（3 個：Auth, Favorite, Coin）
+- Controller 層（3 個：Auth, Favorite, Coin）
+- JWT 認證系統（JwtUtil + SecurityConfig）
+- 全域例外處理（GlobalExceptionHandler + 6 個 Exception）
+- CoinGecko API Proxy（CoinService）
+
+⏳ **待實作**：
+- 公告管理 API
+- 用戶管理 API
+- 管理員統計 API
+- 單元測試
+
+---
+
+**版本**: 1.0.0（基礎功能完成）
+**最後更新**: 2024-11-27

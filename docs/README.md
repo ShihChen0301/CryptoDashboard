@@ -5,12 +5,12 @@ CoinVue（幣景）完整開發文檔
 ## 目錄
 
 ### 核心文檔
-- [後端規劃](./後端規劃.md) - Java Spring Boot 架構設計與 API 規格
+- [專案記憶 (CLAUDE.md)](../CLAUDE.md) - 完整的專案歷史與決策記錄
 - [專案結構規劃](./專案結構規劃.md) - 資料夾組織方案與命名規範
 
-### 參考文檔（已過時，僅供參考）
-- [功能對照表](./功能對照表.md) - v2.0 功能需求（部分已實作）
-- [功能需求分析_v2](./功能需求分析_v2.md) - v2.0 需求分析報告
+### 參考文檔（舊版規劃，僅供參考）
+- [功能對照表](./功能對照表.md) - v2.0 功能需求清單（部分已實作）
+- [功能需求分析_v2](./功能需求分析_v2.md) - v2.0 需求分析報告（已過時）
 
 ### 快速連結
 
@@ -36,9 +36,8 @@ CoinVue（幣景）完整開發文檔
 
 ### 資料庫
 - MySQL 8.0
-- **v1.0**：4 個基礎表（users, auth_tokens, coin_favorites, announcements）
-- **v3.0**：新增 5 個表（user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, users.preferred_language）
-- 詳見：`../database/schema_v3.sql` 或 `../database/schema_zh.sql`
+- **v3.0**：9 個表（users, auth_tokens, coin_favorites, announcements, user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings）
+- 詳見：`../database/schema_v3.sql`
 
 ## 開發指南
 
@@ -66,33 +65,33 @@ mvn spring-boot:run
 ### 資料庫初始化
 
 ```bash
-mysql -u root -p < ../database/schema.sql
+mysql -u root -p < ../database/schema_v3.sql
 ```
 
-## 開發流程建議
+## 開發進度
 
-### Phase 1: 後端基礎建設（待開始）
+### Phase 1: 後端基礎建設（✅ 已完成）
 - [x] 建立 Spring Boot 專案結構
 - [x] 建立所有 Entity 類別
-- [ ] 配置資料庫連接（MySQL 初始化）
-- [ ] 建立 Repository 層
-- [ ] 實作 JWT Token Provider
-- [ ] 實作 Spring Security 配置
-- [ ] 實作登入/註冊 API
+- [x] 配置資料庫連接（MySQL 初始化）
+- [x] 建立 Repository 層（4 個）
+- [x] 實作 JWT Token Provider（JwtUtil）
+- [x] 實作 Spring Security 配置
+- [x] 實作登入/註冊 API（AuthController + AuthService）
 
-### Phase 2: 前後端整合（待開始）
-- [ ] 實作 CoinGecko API Proxy (`/api/coins/*`)
-- [ ] 後端快取機制（減少外部 API 請求）
-- [ ] 實作收藏 CRUD API
-- [ ] 前端整合（移除 mockAuth.js、favorite.js）
+### Phase 2: 前後端整合（✅ 已完成）
+- [x] 實作 CoinGecko API Proxy (`/api/coins/*`)
+- [x] 後端快取機制（Spring Cache）
+- [x] 實作收藏 CRUD API（FavoriteController + FavoriteService）
+- [x] 前端整合（新增 api.js，移除 mockAuth.js）
 
-### Phase 3: 進階功能（待開始）
+### Phase 3: 進階功能（⏳ 進行中）
 - [ ] 實作公告 CRUD API
 - [ ] 實作用戶活動記錄
 - [ ] 實作價格提醒功能
 - [ ] Admin Panel 統計 API
 
-### Phase 4: 優化與測試（待開始）
+### Phase 4: 優化與測試（⏳ 待開始）
 - [ ] 單元測試撰寫
 - [ ] API 效能優化
 - [ ] 安全性檢查
@@ -100,21 +99,26 @@ mysql -u root -p < ../database/schema.sql
 
 ## API 文檔
 
-完整 API 規格請參考：[後端規劃.md - 第三章](./後端規劃.md#三api-端點設計)
+完整 API 規格請參考：[後端 README](../backend/README.md)
 
-### 認證相關
+### 認證相關（已實作）
 - `POST /api/auth/register` - 用戶註冊
 - `POST /api/auth/login` - 用戶登入
+- `POST /api/auth/logout` - 用戶登出
 
-### 收藏相關
+### 收藏相關（已實作）
 - `GET /api/favorites` - 取得收藏列表
-- `POST /api/favorites` - 新增收藏
-- `DELETE /api/favorites/:coinId` - 移除收藏
+- `POST /api/favorites?coinId={id}` - 新增收藏
+- `DELETE /api/favorites/{coinId}` - 移除收藏
 
-### 公告相關
+### 幣種相關（已實作）
+- `GET /api/coins?page={page}&perPage={perPage}&orderBy={orderBy}` - 取得幣種列表
+- `GET /api/coins/{id}` - 取得幣種詳情
+
+### 公告相關（待實作）
 - `GET /api/announcements` - 取得啟用的公告
 
-### 管理員相關
+### 管理員相關（待實作）
 - `GET /api/admin/stats` - 取得統計資訊
 - `GET /api/admin/users` - 取得所有用戶
 
@@ -181,7 +185,7 @@ A: 參考 `../CLAUDE.md`，包含所有開發歷史與決策記錄
 ---
 
 **專案名稱**: CoinVue（幣景）
-**前端版本**: v1.1.0
-**後端版本**: v1.0.0
+**前端版本**: v1.1.0（90% 完成）
+**後端版本**: v1.0.0（基礎功能完成）
 **最後更新**: 2024-11-27
-**專案狀態**: 前端 90% 完成，後端待開發
+**專案狀態**: Phase 1-2 完成，Phase 3-4 進行中
