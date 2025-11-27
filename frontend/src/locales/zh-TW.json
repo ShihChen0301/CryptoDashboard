@@ -25,6 +25,65 @@
       "range": "（幣種 {start} - {end}）"
     }
   },
+  "compare": {
+    "title": "幣種比較",
+    "subtitle": "最多選擇 {max} 個加密貨幣進行比較",
+    "addCoin": "新增加密貨幣：",
+    "selectPlaceholder": "選擇幣種...",
+    "remove": "移除",
+    "price": "價格",
+    "marketCap": "市值",
+    "volume24h": "24h 交易量",
+    "change24h": "24h 漲跌幅",
+    "priceChart": "價格走勢圖（30 天）",
+    "noCoins": "請選擇要比較的加密貨幣",
+    "selectHint": "從上方下拉選單選擇幣種開始比較"
+  },
+  "watchlist": {
+    "title": "我的收藏",
+    "subtitle": "您收藏的加密貨幣",
+    "clearAll": "清除全部",
+    "confirmClear": "確定要清除所有收藏嗎？",
+    "empty": {
+      "title": "尚未收藏任何幣種",
+      "subtitle": "點擊星號圖示將加密貨幣加入收藏清單"
+    }
+  },
+  "profile": {
+    "title": "個人資料設定",
+    "username": "用戶名稱",
+    "email": "電子信箱",
+    "joinDate": "註冊日期",
+    "tradingExperience": "交易經驗",
+    "edit": "編輯資料",
+    "save": "儲存變更",
+    "cancel": "取消",
+    "accountInfo": "帳戶資訊",
+    "userId": "用戶 ID",
+    "accountStatus": "帳戶狀態",
+    "statusActive": "啟用中",
+    "experience": {
+      "select": "請選擇",
+      "lessThan1": "少於 1 年",
+      "oneToTwo": "1-2 年",
+      "threeToFive": "3-5 年",
+      "fiveToTen": "5-10 年",
+      "moreThan10": "10 年以上",
+      "notSet": "未設定"
+    }
+  },
+  "dashboard": {
+    "title": "儀表板",
+    "subtitle": "加密貨幣市場概況",
+    "marketStats": {
+      "totalMarketCap": "總市值",
+      "volume24h": "24h 交易量",
+      "btcDominance": "BTC 市佔率",
+      "activeCoins": "活躍幣種"
+    },
+    "hotCryptos": "熱門加密貨幣",
+    "viewAll": "查看全部"
+  },
   "admin": {
     "title": "管理員控制台",
     "subtitle": "系統管理與數據統計",
@@ -46,6 +105,7 @@
     "cancel": "取消",
     "delete": "刪除",
     "edit": "編輯",
-    "confirm": "確認"
+    "confirm": "確認",
+    "na": "未提供"
   }
 }

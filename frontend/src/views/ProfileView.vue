@@ -1,5 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const user = ref({
   username: '',
@@ -16,18 +19,18 @@ const editForm = ref({
   tradingExperience: ''
 })
 
-const experienceOptions = [
-  { value: '', label: '請選擇' },
-  { value: 'less-than-1', label: '少於 1 年' },
-  { value: '1-2', label: '1-2 年' },
-  { value: '3-5', label: '3-5 年' },
-  { value: '5-10', label: '5-10 年' },
-  { value: 'more-than-10', label: '10 年以上' }
-]
+const experienceOptions = computed(() => [
+  { value: '', label: t('profile.experience.select') },
+  { value: 'less-than-1', label: t('profile.experience.lessThan1') },
+  { value: '1-2', label: t('profile.experience.oneToTwo') },
+  { value: '3-5', label: t('profile.experience.threeToFive') },
+  { value: '5-10', label: t('profile.experience.fiveToTen') },
+  { value: 'more-than-10', label: t('profile.experience.moreThan10') }
+])
 
 const getExperienceLabel = (value) => {
-  const option = experienceOptions.find(opt => opt.value === value)
-  return option ? option.label : '未設定'
+  const option = experienceOptions.value.find(opt => opt.value === value)
+  return option ? option.label : t('profile.experience.notSet')
 }
 
 onMounted(() => {
@@ -80,7 +83,7 @@ const formatDate = (dateString) => {
 <template>
   <div class="profile">
     <div class="profile-container">
-      <h1>Profile Settings</h1>
+      <h1>{{ t('profile.title') }}</h1>
 
       <div class="profile-card">
         <div class="profile-avatar">
@@ -89,7 +92,7 @@ const formatDate = (dateString) => {
 
         <div class="profile-form">
           <div class="form-group">
-            <label>Username</label>
+            <label>{{ t('profile.username') }}</label>
             <input
               v-if="isEditing"
               v-model="editForm.username"
@@ -100,7 +103,7 @@ const formatDate = (dateString) => {
           </div>
 
           <div class="form-group">
-            <label>Email</label>
+            <label>{{ t('profile.email') }}</label>
             <input
               v-if="isEditing"
               v-model="editForm.email"
@@ -111,12 +114,12 @@ const formatDate = (dateString) => {
           </div>
 
           <div class="form-group">
-            <label>Member Since</label>
+            <label>{{ t('profile.joinDate') }}</label>
             <div class="form-value">{{ formatDate(user.joinDate) }}</div>
           </div>
 
           <div class="form-group">
-            <label>Trading Experience</label>
+            <label>{{ t('profile.tradingExperience') }}</label>
             <select
               v-if="isEditing"
               v-model="editForm.tradingExperience"
@@ -139,15 +142,15 @@ const formatDate = (dateString) => {
               @click="startEdit"
               class="btn-primary"
             >
-              Edit Profile
+              {{ t('profile.edit') }}
             </button>
 
             <template v-else>
               <button @click="saveProfile" class="btn-primary">
-                Save Changes
+                {{ t('profile.save') }}
               </button>
               <button @click="cancelEdit" class="btn-secondary">
-                Cancel
+                {{ t('profile.cancel') }}
               </button>
             </template>
           </div>
@@ -155,16 +158,16 @@ const formatDate = (dateString) => {
       </div>
 
       <div class="info-section">
-        <h2>Account Information</h2>
+        <h2>{{ t('profile.accountInfo') }}</h2>
         <div class="info-grid">
           <div class="info-item">
-            <div class="info-label">User ID</div>
+            <div class="info-label">{{ t('profile.userId') }}</div>
             <div class="info-value">{{ user.id }}</div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">Account Status</div>
-            <div class="info-value status-active">Active</div>
+            <div class="info-label">{{ t('profile.accountStatus') }}</div>
+            <div class="info-value status-active">{{ t('profile.statusActive') }}</div>
           </div>
         </div>
       </div>

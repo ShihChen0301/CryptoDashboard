@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
 import CoinTable from '../components/CoinTable.vue'
 
+const { t } = useI18n()
 const favorites = ref([])
 const allCoins = ref([])
 const isLoading = ref(true)
@@ -18,7 +20,7 @@ const favoriteCoins = computed(() => {
 })
 
 const clearAll = () => {
-  if (confirm('Are you sure you want to clear all favorites?')) {
+  if (confirm(t('watchlist.confirmClear'))) {
     localStorage.setItem('crypto_favorites', JSON.stringify([]))
     favorites.value = []
     window.dispatchEvent(new CustomEvent('favoritesChanged', {
@@ -57,8 +59,8 @@ onMounted(async () => {
   <div class="watchlist">
     <div class="watchlist-header">
       <div>
-        <h1>My Watchlist</h1>
-        <p>Your favorite cryptocurrencies</p>
+        <h1>{{ t('watchlist.title') }}</h1>
+        <p>{{ t('watchlist.subtitle') }}</p>
       </div>
 
       <button
@@ -66,7 +68,7 @@ onMounted(async () => {
         @click="clearAll"
         class="btn-clear"
       >
-        Clear All
+        {{ t('watchlist.clearAll') }}
       </button>
     </div>
 
@@ -76,8 +78,8 @@ onMounted(async () => {
 
     <div v-else class="empty-state">
       <div class="empty-icon">⭐</div>
-      <h2>No favorites yet</h2>
-      <p>Start adding cryptocurrencies to your watchlist by clicking the star icon</p>
+      <h2>{{ t('watchlist.empty.title') }}</h2>
+      <p>{{ t('watchlist.empty.subtitle') }}</p>
       <router-link to="/market" class="btn-browse">
         Browse Market
       </router-link>

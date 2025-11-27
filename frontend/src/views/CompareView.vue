@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getCoinMarketChart, convertChartData } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
 import { formatPrice, formatNumber } from '../utils/format'
 import PriceChart from '../components/PriceChart.vue'
 import { useCoinsStore } from '../stores/useCoinsStore'
 
+const { t } = useI18n()
 const selectedCoins = ref([])
 const allCoins = ref([])
 const coinChartData = ref({})
@@ -85,19 +87,19 @@ onMounted(async () => {
   <div class="compare-page">
     <div class="compare-header">
       <div>
-        <h1>Compare Cryptocurrencies</h1>
-        <p>Select up to {{ maxCoins }} cryptocurrencies to compare</p>
+        <h1>{{ t('compare.title') }}</h1>
+        <p>{{ t('compare.subtitle', { max: maxCoins }) }}</p>
       </div>
     </div>
 
     <!-- 幣種選擇器 -->
     <div class="coin-selector">
-      <label>Add Cryptocurrency:</label>
+      <label>{{ t('compare.addCoin') }}</label>
       <select
         @change="(e) => { addCoin(e.target.value); e.target.value = '' }"
         :disabled="selectedCoins.length >= maxCoins"
       >
-        <option value="">Select a coin...</option>
+        <option value="">{{ t('compare.selectPlaceholder') }}</option>
         <option v-for="coin in availableCoins" :key="coin.id" :value="coin.id">
           {{ coin.name }} ({{ coin.symbol }})
         </option>
@@ -117,7 +119,7 @@ onMounted(async () => {
     <div v-if="selectedCoinData.length > 0" class="compare-content">
       <!-- 圖表比較 -->
       <div class="charts-section">
-        <h2>Price Charts (30 Days)</h2>
+        <h2>{{ t('compare.priceChart') }}</h2>
         <div class="charts-grid" :class="`cols-${Math.min(selectedCoinData.length, 2)}`">
           <div v-for="coin in selectedCoinData" :key="coin.id" class="chart-card">
             <div class="chart-card-header">
@@ -144,13 +146,13 @@ onMounted(async () => {
             </thead>
             <tbody>
               <tr>
-                <td>Current Price</td>
+                <td>{{ t('compare.price') }}</td>
                 <td v-for="coin in selectedCoinData" :key="coin.id">
                   {{ formatPrice(coin.price) }}
                 </td>
               </tr>
               <tr>
-                <td>24h Change</td>
+                <td>{{ t('compare.change24h') }}</td>
                 <td
                   v-for="coin in selectedCoinData"
                   :key="coin.id"
@@ -160,13 +162,13 @@ onMounted(async () => {
                 </td>
               </tr>
               <tr>
-                <td>Market Cap</td>
+                <td>{{ t('compare.marketCap') }}</td>
                 <td v-for="coin in selectedCoinData" :key="coin.id">
                   ${{ formatNumber(coin.marketCap) }}
                 </td>
               </tr>
               <tr>
-                <td>24h Volume</td>
+                <td>{{ t('compare.volume24h') }}</td>
                 <td v-for="coin in selectedCoinData" :key="coin.id">
                   ${{ formatNumber(coin.volume24h) }}
                 </td>
@@ -185,7 +187,7 @@ onMounted(async () => {
 
     <!-- 空狀態 -->
     <div v-else class="empty-state">
-      <p>Select cryptocurrencies to start comparing</p>
+      <p>{{ t('compare.selectHint') }}</p>
     </div>
   </div>
 </template>

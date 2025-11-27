@@ -25,6 +25,65 @@
       "range": "(Coins {start} - {end})"
     }
   },
+  "compare": {
+    "title": "Compare Cryptocurrencies",
+    "subtitle": "Select up to {max} cryptocurrencies to compare",
+    "addCoin": "Add Cryptocurrency:",
+    "selectPlaceholder": "Select a coin...",
+    "remove": "Remove",
+    "price": "Price",
+    "marketCap": "Market Cap",
+    "volume24h": "24h Volume",
+    "change24h": "24h Change",
+    "priceChart": "Price Chart (30 days)",
+    "noCoins": "Please select cryptocurrencies to compare",
+    "selectHint": "Choose coins from the dropdown above to start comparing"
+  },
+  "watchlist": {
+    "title": "My Watchlist",
+    "subtitle": "Your favorite cryptocurrencies",
+    "clearAll": "Clear All",
+    "confirmClear": "Are you sure you want to clear all favorites?",
+    "empty": {
+      "title": "No favorites yet",
+      "subtitle": "Start adding cryptocurrencies to your watchlist by clicking the star icon"
+    }
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "username": "Username",
+    "email": "Email",
+    "joinDate": "Join Date",
+    "tradingExperience": "Trading Experience",
+    "edit": "Edit Profile",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "accountInfo": "Account Information",
+    "userId": "User ID",
+    "accountStatus": "Account Status",
+    "statusActive": "Active",
+    "experience": {
+      "select": "Please select",
+      "lessThan1": "Less than 1 year",
+      "oneToTwo": "1-2 years",
+      "threeToFive": "3-5 years",
+      "fiveToTen": "5-10 years",
+      "moreThan10": "More than 10 years",
+      "notSet": "Not set"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Cryptocurrency Market Overview",
+    "marketStats": {
+      "totalMarketCap": "Total Market Cap",
+      "volume24h": "24h Volume",
+      "btcDominance": "BTC Dominance",
+      "activeCoins": "Active Coins"
+    },
+    "hotCryptos": "Hot Cryptocurrencies",
+    "viewAll": "View All"
+  },
   "admin": {
     "title": "Admin Panel",
     "subtitle": "System Management & Statistics",
@@ -46,6 +105,7 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "na": "N/A"
   }
 }
