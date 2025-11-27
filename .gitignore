@@ -13,10 +13,12 @@ node_modules/
 # 編譯產物
 dist/
 build/
+target/
 
 # 系統文件
 .DS_Store
 Thumbs.db
+*.pdf
 
 # IDE 設定
 .idea/
@@ -26,9 +28,9 @@ Thumbs.db
 *.swo
 
 # 前端
-frontend/CryptoDashboard/node_modules/
-frontend/CryptoDashboard/dist/
-frontend/CryptoDashboard/.env
+frontend/node_modules/
+frontend/dist/
+frontend/.env
 
 # 後端
 backend/target/
@@ -41,14 +43,6 @@ backend/.metadata/
 backend/.settings/
 backend/.classpath
 backend/.project
-
-# Eclipse 專案檔案（包含子資料夾）
-backend/CryptoDashboard/.metadata/
-backend/CryptoDashboard/.settings/
-backend/CryptoDashboard/.classpath
-backend/CryptoDashboard/.project
-backend/CryptoDashboard/target/
-backend/CryptoDashboard/.mvn/
 
 # 日誌
 *.log

@@ -1,44 +1,187 @@
-# CryptoDashboard
+# CoinVue（幣景）- 前端專案
 
-This template should help get you started developing with Vue 3 in Vite.
+> 專業的加密貨幣市場監控平台前端應用
 
-## Recommended IDE Setup
+## 📋 專案資訊
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **名稱**：CoinVue（幣景）
+- **版本**：v1.1.0
+- **框架**：Vue 3.5.22 + Vite 7.1.11
+- **狀態管理**：Pinia 3.0.3
+- **國際化**：vue-i18n 9.14.5
 
-## Recommended Browser Setup
+## 🚀 快速開始
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### 安裝依賴
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### 開發模式
 
-```sh
+```bash
 npm run dev
 ```
 
-### Compile and Minify for Production
+### 建置生產版本
 
-```sh
+```bash
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### 預覽生產版本
 
-```sh
+```bash
+npm run preview
+```
+
+### Lint 檢查
+
+```bash
 npm run lint
 ```
+
+## 🎯 主要功能
+
+### ✅ 已完成功能
+
+- **多語系支援**：中文（zh-TW）/ 英文（en-US）即時切換
+- **即時市場數據**：5,000+ 加密貨幣即時價格、市值、交易量
+- **進階篩選**：價格範圍、市值、交易量、漲跌幅多維度篩選
+- **分頁導航**：完整的分頁系統（100 頁）
+- **價格圖表**：Canvas 手繪價格走勢圖
+- **收藏管理**：收藏喜愛的幣種（localStorage）
+- **多幣比較**：同時比較多個幣種
+- **權限分離**：管理員/一般用戶不同介面
+- **模擬認證**：完整的登入/註冊流程（待整合後端）
+
+### 🔧 技術特色
+
+1. **雙 API 架構**：
+   - 主要：CoinGecko API（30 次/分鐘）
+   - 備援：CoinCap API（200 次/分鐘）
+   - 自動切換機制（逾時/錯誤時）
+
+2. **Pinia 狀態管理**：
+   - `useCoinsStore`：幣種資料快取（5 分鐘）
+   - `useLocaleStore`：語系管理
+   - `useMarketFilterStore`：市場篩選狀態
+
+3. **智能價格顯示**：
+   - 自動調整小數位數
+   - 適應穩定幣、極小價格幣、高價幣
+
+## 📁 專案結構
+
+```
+frontend/
+├── src/
+│   ├── assets/              # 靜態資源
+│   │   └── main.css
+│   ├── components/          # 共用元件
+│   │   ├── CoinCard.vue     # 幣種卡片
+│   │   ├── CoinTable.vue    # 幣種表格
+│   │   ├── FavoriteButton.vue # 收藏按鈕
+│   │   ├── MainLayout.vue   # 主要 Layout
+│   │   ├── Navbar.vue       # 導航列
+│   │   ├── PriceChart.vue   # 價格圖表（Canvas）
+│   │   └── Sidebar.vue      # 側邊欄（含語系切換）
+│   ├── stores/              # Pinia Stores
+│   │   ├── useCoinsStore.js        # 幣種快取
+│   │   ├── useLocaleStore.js       # 語系管理
+│   │   └── useMarketFilterStore.js # 篩選狀態
+│   ├── utils/               # 工具函數
+│   │   ├── coingeckoApi.js  # CoinGecko API
+│   │   ├── coincapApi.js    # CoinCap API
+│   │   ├── mockAuth.js      # 模擬認證
+│   │   ├── favorite.js      # 收藏管理
+│   │   ├── format.js        # 格式化工具
+│   │   └── api.js           # HTTP 請求工具
+│   ├── i18n/                # 國際化設定
+│   │   └── index.js
+│   ├── locales/             # 多語系文案
+│   │   ├── zh-TW.json
+│   │   └── en-US.json
+│   ├── views/               # 頁面元件
+│   │   ├── DashboardView.vue    # 儀表板
+│   │   ├── MarketListView.vue   # 市場總覽
+│   │   ├── CoinDetailView.vue   # 幣種詳情
+│   │   ├── WatchlistView.vue    # 收藏清單
+│   │   ├── CompareView.vue      # 多幣比較
+│   │   ├── LoginView.vue        # 登入
+│   │   ├── RegisterView.vue     # 註冊
+│   │   ├── AdminView.vue        # 管理後台
+│   │   └── ProfileView.vue      # 個人資料
+│   ├── router/              # 路由設定
+│   │   └── index.js
+│   ├── App.vue              # 根元件
+│   └── main.js              # 應用程式入口
+├── package.json
+├── vite.config.js
+├── eslint.config.js
+└── .env                     # 環境變數（需自行建立）
+```
+
+## ⚙️ 環境設定
+
+建立 `.env` 檔案：
+
+```env
+VITE_COINGECKO_API_KEY=你的_API_Key
+```
+
+## 🧪 測試帳號
+
+| 角色 | Email | 密碼 |
+|------|-------|------|
+| 一般用戶 | demo@example.com | password |
+| 管理員 | admin@example.com | admin123 |
+
+## 🔗 路由結構
+
+```
+/login          # 登入頁（requiresGuest）
+/register       # 註冊頁（requiresGuest）
+/               # 主佈局（requiresAuth）
+  ├─ /dashboard    # 儀表板
+  ├─ /market       # 市場總覽
+  ├─ /coin/:id     # 幣種詳細
+  ├─ /watchlist    # 收藏清單
+  ├─ /compare      # 多幣比較
+  ├─ /admin        # 管理後台（admin only）
+  └─ /profile      # 個人資料
+```
+
+## 🛠️ 推薦開發工具
+
+### VS Code 擴充功能
+
+- [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+- [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+
+## ⚠️ 注意事項
+
+1. **API 限制**：CoinGecko 免費版有速率限制（30 次/分鐘）
+2. **模擬認證**：目前使用 localStorage 模擬登入，待整合後端 JWT
+3. **收藏功能**：使用 localStorage 儲存，待整合後端 API
+4. **圖表**：使用 Canvas API 手繪，不依賴第三方圖表庫
+
+## 📚 相關文檔
+
+- [專案總覽](../CLAUDE.md)
+- [後端規劃](../docs/後端規劃.md)
+- [功能對照表](../docs/功能對照表.md)
+
+## 🐛 已知問題
+
+- [ ] 前端直接呼叫 CoinGecko API（需移至後端 Proxy）
+- [ ] 收藏功能使用 localStorage（需整合後端 API）
+- [ ] 模擬認證系統（需整合後端 JWT）
+
+---
+
+**建置時間**：2024-11-27
+**作者**：CoinVue Team

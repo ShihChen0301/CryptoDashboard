@@ -4,20 +4,20 @@
 
 **CoinVue** 是一個現代化的加密貨幣儀表板應用，結合 Vue 3 技術棧與即時市場數據，提供直觀流暢的用戶體驗。支援中英文雙語切換，打造專業的加密貨幣市場分析工具。
 
-**版本：** v1.1.0 | **命名日期：** 2025-11-27
+**前端版本：** v1.1.0 | **後端版本：** v1.0.0 | **命名日期：** 2024-11-27
 
 ---
 
 ## 功能特色
 
-- **即時價格追蹤** - 從 CoinGecko / CoinCap API 獲取最新加密貨幣價格
-- **市場總覽** - 查看市值、交易量、漲跌幅等市場數據（支援分頁瀏覽 5000+ 幣種）
+- **即時價格追蹤** - 雙 API 架構（CoinGecko + CoinCap 自動切換）
+- **市場總覽** - 5000+ 幣種分頁瀏覽 + 進階篩選（價格/市值/交易量/漲跌幅）
 - **幣種比較** - 同時比較最多 4 個幣種的價格走勢與數據指標
-- **收藏清單** - 建立個人的 Watchlist 追蹤喜愛的幣種
-- **幣種詳情** - 查看單一幣種的詳細資訊與 30 天歷史圖表
-- **用戶認證** - 登入/註冊系統（支援一般用戶與管理員）
-- **管理後台** - 管理員專用的數據統計與用戶管理功能
-- **多語系支援** - 完整的中英文雙語切換（zh-TW / en-US）
+- **收藏清單** - 建立個人 Watchlist 追蹤喜愛的幣種
+- **幣種詳情** - Canvas 手繪價格圖表 + 智能小數位數顯示
+- **用戶認證** - 登入/註冊系統 + 權限分離（一般用戶/管理員）
+- **管理後台** - 數據總覽、用戶管理、公告管理三大模塊
+- **多語系支援** - 完整的中英文雙語即時切換（zh-TW / en-US）
 
 ---
 
@@ -74,7 +74,11 @@
 
 4. **設定資料庫**
    ```bash
-   mysql -u root -p < database/schema.sql
+   # 使用 v3.0 完整版 Schema（包含語系、活動記錄等新表）
+   mysql -u root -p < database/schema_v3.sql
+
+   # 或使用 v1.0 基礎版 Schema（僅 4 個核心表）
+   # mysql -u root -p < database/schema.sql
    ```
 
 5. **配置後端資料庫連線**
@@ -138,20 +142,23 @@ CryptoDashboard/
 │   │   └── application.yml           # Spring Boot 配置
 │   └── pom.xml                       # Maven 配置
 ├── database/
-│   ├── schema.sql                    # MySQL 資料庫結構
-│   └── schema_zh.sql                 # 詳細中文版（含完整註解）
+│   ├── schema_v3.sql                 # MySQL v3.0 完整結構（推薦）
+│   └── schema_zh.sql                 # v1.0 中文版（含完整註解）
 ├── docs/                             # 專案文檔
 │   ├── 後端規劃.md                    # 後端架構設計
-│   └── 專案結構規劃.md                # 資料夾組織方案
+│   ├── 專案結構規劃.md                # 資料夾組織方案
+│   ├── 功能對照表.md                  # 功能實作狀態（參考）
+│   └── 功能需求分析_v2.md             # 需求分析報告（參考）
 ├── CLAUDE.md                         # 專案記憶與歷史決策
-├── Eclipse 設置指南.md                # Eclipse 開發環境設定
-├── 快速開始.md                        # 快速啟動指南
+├── 新電腦設置指南.md                  # 開發環境完整設定
 └── README.md
 ```
 
 ---
 
 ## 資料庫結構
+
+### v1.0 基礎版（4 個表）
 
 | 表格 | 說明 |
 |------|------|
@@ -160,9 +167,17 @@ CryptoDashboard/
 | `coin_favorites` | 收藏幣種（Watchlist 功能） |
 | `announcements` | 系統公告（管理員發布） |
 
+### v3.0 完整版（新增 5 個表）
+
+- `users.preferred_language` - 使用者語系偏好
+- `user_activities` - 用戶活動記錄
+- `market_filter_presets` - 市場篩選預設
+- `coin_price_alerts` - 價格提醒
+- `coin_comparisons` - 幣種比較歷史
+
 詳細結構請參考：
-- `database/schema.sql` - 標準資料庫結構
-- `database/schema_zh.sql` - 詳細中文版（含完整註解與說明）
+- `database/schema_v3.sql` - v3.0 完整結構（推薦）
+- `database/schema_zh.sql` - v1.0 中文版（含完整註解）
 
 ---
 
