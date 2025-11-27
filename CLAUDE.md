@@ -9,32 +9,58 @@
 - **網站名稱**：CoinVue（幣景）
 - **命名理念**：Coin（加密貨幣）+ Vue（視野/框架），意指「洞察幣圈前景的視野」
 - **中文名稱**：幣景
-- **版本**：v1.1.0
-- **命名日期**：2025-11-27
+- **前端版本**：v1.1.0
+- **後端版本**：v1.0.0
+- **命名日期**：2024-11-27
 
 ---
 
 ## 專案概述
 
-**CoinVue（幣景）** 是一個專業的加密貨幣市場監控平台，提供即時價格追蹤、市場數據分析、個人收藏管理、多幣種比較等功能。採用 Vue 3 技術棧，支援中英文雙語切換，打造直觀流暢的使用者體驗。
+**CoinVue（幣景）** 是一個專業的加密貨幣市場監控平台，提供即時價格追蹤、市場數據分析、個人收藏管理、多幣種比較等功能。採用前後端分離架構（Vue 3 + Spring Boot），支援中英文雙語切換。
 
 ---
 
 ## 技術棧
 
 ### 前端
-- **框架**：Vue 3 + Vite
-- **狀態管理**：Pinia
-- **路由**：Vue Router
-- **樣式**：Scoped CSS
+- **框架**：Vue 3.5.22 + Vite 7.1.11
+- **狀態管理**：Pinia 3.0.3
+- **路由**：Vue Router 4.6.3
+- **國際化**：vue-i18n 9.14.5
+- **樣式**：Scoped CSS + Tailwind CSS 4.1.17
+
+### 後端
+- **框架**：Spring Boot 3.2.0
+- **Java 版本**：17
+- **資料庫**：MySQL 8.0 + JPA/Hibernate
+- **安全**：Spring Security + JWT (jjwt 0.11.5)
+- **建置工具**：Maven
 
 ### API 數據源
 - **主要**：CoinGecko API（有 API Key，30 次/分鐘）
 - **備援**：CoinCap API（免費，200 次/分鐘）
 
-### 資料庫
-- **類型**：MySQL 8
-- **狀態**：Schema 已設計，待連接後端
+---
+
+## 專案現況（2024-11-27）
+
+### ✅ 前端（已完成 90%）
+- Vue 3 + Pinia 狀態管理完整架構
+- i18n 多語系切換（中英文）
+- Market 進階篩選功能
+- Dashboard、Market、Compare、Watchlist、Admin 等頁面完整
+- **尚未完成**：仍直接呼叫 CoinGecko/CoinCap API，未整合後端
+
+### ⚠️ 後端（僅有骨架）
+- Spring Boot 基礎架構完成
+- Entity（4 個）、Exception（6 個）、Config（CORS）已建立
+- **尚未實作**：Controller / Service / Repository / JWT / Security
+
+### ⚠️ 資料庫（未啟動）
+- Schema v1.0（schema.sql）：4 個基礎表
+- Schema v3.0（schema_v3.sql）：新增 preferred_language、user_activities 等
+- **尚未執行**：MySQL 資料庫未初始化
 
 ---
 
@@ -42,52 +68,86 @@
 
 ```
 CryptoDashboard/
-├── frontend/                 # Vue 3 前端專案
-│   ├── src/
-│   │   ├── stores/
-│   │   │   ├── useCoinsStore.js         # 幣種資料快取
-│   │   │   ├── useLocaleStore.js        # 語系管理（新增）
-│   │   │   └── useMarketFilterStore.js  # 市場篩選狀態（新增）
-│   │   ├── utils/
-│   │   │   ├── coingeckoApi.js   # 主要 API（含 API Key）
-│   │   │   ├── coincapApi.js     # 備援 API
-│   │   │   ├── mockAuth.js       # 模擬認證（待換成真實 API）
-│   │   │   └── format.js         # 格式化工具（價格、數字）
-│   │   ├── views/
-│   │   │   ├── DashboardView.vue
-│   │   │   ├── MarketListView.vue     # 已新增進階篩選功能
-│   │   │   ├── CoinDetailView.vue
-│   │   │   ├── WatchlistView.vue
-│   │   │   ├── CompareView.vue
-│   │   │   ├── LoginView.vue
-│   │   │   ├── RegisterView.vue
-│   │   │   └── AdminView.vue
-│   │   └── components/
-│   │       ├── CoinCard.vue
-│   │       ├── CoinTable.vue
-│   │       └── Sidebar.vue            # 已新增語系切換按鈕
-│   ├── package.json
-│   ├── vite.config.js
-│   └── .env                  # 環境變數（API Keys）
-├── backend/                  # Spring Boot 後端專案
-│   ├── src/
-│   │   └── main/
-│   │       ├── java/com/crypto/dashboard/
-│   │       │   ├── config/
-│   │       │   ├── entity/
-│   │       │   ├── exception/
-│   │       │   ├── dto/
-│   │       │   └── CryptoDashboardApplication.java
-│   │       └── resources/
-│   │           ├── application.yml
-│   │           ├── application-dev.yml
-│   │           └── application-prod.yml
-│   ├── pom.xml
-│   └── README.md
-└── database/
-    ├── schema.sql            # MySQL 資料庫結構（英文）
-    └── schema_zh.sql         # MySQL 資料庫結構（中文對照）
+  frontend/                      # Vue 3 前端專案
+    src/
+      stores/                    # Pinia 狀態管理
+        useCoinsStore.js         # 幣種資料快取
+        useLocaleStore.js        # 語系管理
+        useMarketFilterStore.js  # 市場篩選狀態
+      utils/                     # 工具函數
+        coingeckoApi.js          # CoinGecko API（主要）
+        coincapApi.js            # CoinCap API（備援）
+        mockAuth.js              # 模擬登入（待移除）
+        format.js                # 格式化工具
+        favorite.js              # 收藏管理（localStorage）
+        api.js                   # HTTP 請求工具
+      i18n/                      # 國際化設定
+        index.js                 # vue-i18n 設定檔
+      locales/                   # 多語系文案
+        zh-TW.json               # 繁體中文
+        en-US.json               # 英文
+      views/                     # 頁面元件
+        DashboardView.vue        # 儀表板
+        MarketListView.vue       # 市場總覽（含進階篩選、分頁）
+        CoinDetailView.vue       # 幣種詳情
+        WatchlistView.vue        # 收藏清單
+        CompareView.vue          # 多幣比較
+        LoginView.vue            # 登入頁面
+        RegisterView.vue         # 註冊頁面
+        AdminView.vue            # 管理後台（數據總覽、用戶管理、公告管理）
+        ProfileView.vue          # 個人資料
+      components/                # 共用元件
+        CoinCard.vue             # 幣種卡片
+        CoinTable.vue            # 幣種表格
+        Sidebar.vue              # 側邊欄（含語系切換）
+        Navbar.vue               # 導航列
+        PriceChart.vue           # 價格圖表（Canvas）
+        FavoriteButton.vue       # 收藏按鈕
+        MainLayout.vue           # 主要 Layout
+    package.json               # 依賴管理（v1.1.0）
+    vite.config.js             # Vite 設定
+    .env                       # 環境變數（API Keys）
+
+  backend/                     # Spring Boot 後端專案
+    src/main/
+      java/com/crypto/dashboard/
+        config/
+          CorsConfig.java      # CORS 跨域設定
+        entity/                # JPA 實體（4 個）
+          User.java            # 使用者
+          AuthToken.java       # 登入憑證
+          CoinFavorite.java    # 收藏幣種
+          Announcement.java    # 系統公告
+        exception/             # 例外處理（6 個）
+          CryptoDashboardException.java
+          GlobalExceptionHandler.java
+          InvalidCredentialsException.java
+          ResourceNotFoundException.java
+          UnauthorizedException.java
+          ValidationException.java
+        dto/response/
+          ApiResponse.java     # 統一回應格式
+        CryptoDashboardApplication.java  # 主程式
+      resources/
+        application.yml        # 主要設定
+        application-dev.yml    # 開發環境設定
+        application-prod.yml   # 正式環境設定
+    pom.xml                    # Maven 依賴（v1.0.0）
+    README.md
+
+  database/                    # 資料庫 Schema
+    schema.sql                 # v1.0（4 個基礎表）
+    schema_zh.sql              # v1.0（中文對照版）
+    schema_v3.sql              # v3.0（新增 7 個表）
+
+  docs/                        # 專案文檔
+    README.md                  # 文檔索引
+    功能對照表.md              # 功能實作狀態
+    功能需求分析_v2.md         # 需求分析報告
+    專案結構規劃.md            # 架構說明
+    後端規劃.md                # 後端 API 設計
 ```
+
 
 ---
 
@@ -108,332 +168,120 @@ VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 
 ---
 
-## 資料庫表格
+## 資料庫設計狀態
 
-### Schema v3.0（最新）
-1. **users** - 使用者帳號（已新增 `preferred_language` 欄位）
-2. **auth_tokens** - 登入 token
-3. **coin_favorites** - 收藏幣種（Watchlist）
-4. **announcements** - 系統公告（Admin Panel 使用）
-5. **user_activities** - 用戶活動記錄（新增）
-6. **market_filter_presets** - 市場篩選預設組合（新增）
-7. **coin_price_alerts** - 價格提醒（新增）
-8. **coin_comparisons** - 幣種比較歷史（新增）
+### Schema v1.0（已完成 SQL 檔）
+**檔案**：`database/schema.sql`、`database/schema_zh.sql`（中文對照版）
 
-詳見：
-- `database/schema_v3.sql` - 最新版資料庫結構（v3.0）
-- `database/schema.sql` - 標準資料庫結構（v1.0）
-- `database/schema_zh.sql` - 詳細中文版（含完整註解與說明）
+**4 個基礎表**：
+- `users` - 使用者表
+- `auth_tokens` - 登入憑證表
+- `coin_favorites` - 收藏幣種表
+- `announcements` - 系統公告表
+
+### Schema v3.0（已完成 SQL 檔）
+**檔案**：`database/schema_v3.sql`
+
+**新增功能**：
+- `users` 表新增 `preferred_language` 欄位（語系偏好）
+- `user_activities` 表（用戶活動記錄）
+- `market_filter_presets` 表（市場篩選預設）
+- `coin_price_alerts` 表（價格提醒）
+- `coin_comparisons` 表（幣種比較歷史）
+
+**狀態**：✅ SQL 檔已建立，⚠️ 尚未在 MySQL 執行
 
 ---
 
-## 開發歷史
+## 開發歷史（近期重點）
 
-### 2025-11-27
-- ✅ **權限分離優化**：
-  - 管理者專屬選單：移除 Dashboard、Market、Compare
-  - 管理者只顯示：Admin Panel、Watchlist、Profile
-  - 一般用戶保留完整功能選單
-- ✅ **語系切換功能實作**：
-  - 在 Sidebar 底部（Version 旁邊）新增語系切換按鈕
-  - 支援中文（zh-TW）與英文（en-US）切換
-  - 建立 `useLocaleStore` Pinia Store 管理語系狀態
-  - 語系偏好儲存至 localStorage
-- ✅ **Market Overview 進階篩選功能**：
-  - 新增篩選面板（價格範圍、市值範圍、24h 交易量、24h 漲跌幅）
-  - 建立 `useMarketFilterStore` Pinia Store 管理篩選狀態
-  - 實作篩選預設儲存與載入功能
-  - 篩選計數 Badge 顯示已啟用的篩選數量
-  - 一鍵清除所有篩選功能
-- ✅ **資料庫 Schema v3.0 設計**：
-  - 新增 `user_activities` 表（用戶活動記錄）
-  - 新增 `market_filter_presets` 表（市場篩選預設）
-  - 新增 `coin_price_alerts` 表（價格提醒）
-  - 新增 `coin_comparisons` 表（幣種比較歷史）
-  - `users` 表新增 `preferred_language` 欄位
-- ✅ **Pinia Store 架構優化**：
-  - `useCoinsStore`：幣種資料快取（已有）
-  - `useLocaleStore`：語系管理（新增）
-  - `useMarketFilterStore`：市場篩選狀態（新增）
-- 📋 **下一步計劃**：
-  - 整合 vue-i18n 實作完整多語系
-  - 實作後端 API（對應新的資料庫表格）
-  - 價格提醒功能 UI 實作
-  - 幣種比較歷史記錄功能
+### 2024-11-27
+- ✅ **品牌更新**：CryptoDashboard → CoinVue（幣景）
+- ✅ **完整 i18n 實作**：vue-i18n 全頁面多語系支援（中英文）
+- ✅ **權限分離優化**：管理者/一般用戶選單分離
+- ✅ **進階篩選功能**：Market 篩選面板 + Pinia Store 管理
+- ✅ **資料庫 Schema v3.0**：新增語系、活動記錄、篩選預設、價格提醒等表
 
-### 2025-11-26
-- ✅ **前端 API 呼叫優化**：
-  - 新增 CoinGecko API 逾時與重試機制
-  - 超時時自動切換到 CoinCap 備援 API
-  - 避免頁面卡在 Loading 狀態
-- ✅ **實作 Pinia 幣種快取系統**：
-  - 建立 `useCoinsStore` 全域狀態管理
-  - Dashboard、Market、Compare 頁面共用快取資料
-  - 減少重複 API 請求，降低被限流機率
-  - 提升頁面切換速度與使用者體驗
-- 📋 **下一步計劃**：
-  - 實作後端 API Proxy 與快取層
-  - 將 API Key 從前端遷移至後端
-  - 集中處理重試與節流邏輯
-  - 前端改為呼叫自家後端 API
+### 2024-11-26
+- ✅ **API 呼叫優化**：逾時重試 + 自動切換備援 API
+- ✅ **Pinia 快取系統**：`useCoinsStore` 減少重複請求
 
-### 2024-11-25（深夜 23:30）
-- ✅ **診斷並解決 API 問題**：
-  - 發現 CoinGecko Demo API Key 不支援瀏覽器 CORS
-  - 暫時移除 API Key，改用免費公開 API
-  - 發現免費 API 速率限制過於嚴格（10-30 次/分鐘）
-  - 診斷出 429 Too Many Requests 錯誤（已超過速率限制）
-  - CoinCap 備援 API 無法連接
-- 🎯 **決定實作後端 API Proxy**：
-  - 前端 → 後端 → CoinGecko API
-  - 解決 CORS 問題
-  - 在後端加入快取，減少 API 請求
-  - API Key 更安全（不暴露在瀏覽器）
-- 📋 **記錄新功能需求**：
-  - 管理者與一般使用者應有不同的頁面結構
-  - 管理者不需要 Dashboard、Market 等頁面
-  - Market Overview 新增更多篩選功能
-  - 管理者可查看使用者最常關注的幣種
-  - 網頁語系切換功能（放在 Version 旁邊）
+### 2024-11-25
+- ✅ **專案結構重構**：移除巢狀資料夾，採用標準 Monorepo 結構
+- ✅ **分頁功能**：Market Overview 完整分頁導航（100 頁 / 5,000 幣種）
+- ✅ **UI 優化**：Dashboard 背景動畫、統一框線樣式
+- ✅ **Canvas 圖表**：PriceChart 智能小數位數計算
 
-### 2024-11-25（深夜 23:00）
-- ✅ **修復頁面切換載入慢的問題**：
-  - 修改 `DashboardView.vue` 預載入 50 個幣種（顯示前 6 個）
-  - 統一 Dashboard、Market、Compare 的快取參數（perPage: 50）
-  - 實現頁面切換秒開（5 分鐘內使用快取資料）
-  - 問題記錄：docs/開發日誌.md（2024-11-26）
-- ✅ **技術細節**：
-  - 快取 key 由 `usd-6-1` 改為 `usd-50-1`
-  - Dashboard、Market、Compare 共用同一份快取
-  - 備援 API（CoinCap）也同步修改
+### 2024-11-24
+- ✅ **資料庫 Schema v1.0**：建立 4 個基礎表 + 完整中文化版本
+- ✅ **文檔整理**：更新所有 README、清理 .gitignore
 
-### 2024-11-25（深夜 22:00）
-- ✅ **專案結構重構**：
-  - 移除多餘的巢狀資料夾層級
-  - 將 `backend/CryptoDashboard/*` 移到 `backend/` 根目錄
-  - 將 `frontend/CryptoDashboard/*` 移到 `frontend/` 根目錄
-  - 清理 Eclipse 產生的垃圾檔案（.metadata, .settings, .classpath, .project）
-  - 清理 Maven 編譯產物（target/）
-  - 刪除 `frontend/AGENTS.md` 和空的 `package-lock.json`
-- ✅ **專案結構優化**：
-  - 採用標準 Monorepo 結構
-  - 前端專案直接位於 `frontend/` 根目錄
-  - 後端專案直接位於 `backend/` 根目錄
-  - 提升專案可維護性和清晰度
-- ✅ **文檔更新**：
-  - 更新 CLAUDE.md 檔案結構說明
-  - 記錄重構歷史
-
-### 2024-11-25（凌晨）
-- ✅ **Dashboard 背景動畫實作**：
-  - 實作三種背景動畫方案（藍色專業漸層、極簡灰階、粒子漂浮）
-  - 採用提案 4：極簡灰階漸變（25 秒循環）
-  - 顏色：`#f5f7fa` → `#c3cfe2` 緩慢流動
-  - 使用 CSS keyframes 實作平滑動畫效果
-- ✅ **背景填滿技術**：
-  - 使用負 margin 技巧讓 Dashboard 背景填滿整個頁面
-  - 保持其他頁面（Market Overview、CoinDetailView）不受影響
-  - 公式：`margin: calc(-1 * var(--spacing-xl))` + `padding: calc(var(--spacing-xl) + 1rem)`
-- ✅ **技術學習**：
-  - 理解 CSS 變數（`var(--spacing-xl)`）在 Layout 系統中的應用
-  - 學習使用負 margin 突破父容器限制
-  - 掌握 @keyframes 動畫與 background-position 的配合
-- ✅ **檔案修改**：
-  - `DashboardView.vue`：新增背景動畫與獨立 padding 控制
-  - `MainLayout.vue`：保持原有 padding 設定
-
-### 2024-11-25（深夜）
-- ✅ **UI 優化：統一框線樣式**：
-  - 統一所有卡片/框框的邊框為 `2px solid #8e8f92`（灰色）
-  - 修改檔案：DashboardView.vue, CoinDetailView.vue, CoinCard.vue
-  - 影響區域：
-    - Dashboard 首頁統計卡片（Total Market Cap 等）
-    - Dashboard 首頁熱門幣種卡片（Hot Cryptocurrencies）
-    - CoinDetailView 幣種資訊框（coin-header）
-    - CoinDetailView 統計區塊框線（stats-section）
-    - CoinDetailView 統計小卡片（stat-item）
-- ✅ **內容優化**：
-  - 刪除 CoinDetailView 的 About 區塊（每個幣種內容都一樣，無意義）
-  - 精簡頁面結構，提升用戶體驗
-- ✅ **Canvas 圖表技術學習**：
-  - 理解 PriceChart.vue 使用 HTML5 Canvas API 手工繪製圖表
-  - 了解 Canvas 繪圖流程：座標計算、漸層背景、折線繪製、互動式 Tooltip
-  - 學習智能小數位數計算（適應穩定幣、極小價格幣）
-
-### 2024-11-25（晚上）
-- ✅ **Market Overview 分頁功能實作**：
-  - 加入完整分頁導航（« First / ← Previous / Next → / Last »）
-  - 實作頁碼輸入框（只允許阿拉伯數字，限制 1-100）
-  - 加入「Go」按鈕與 Enter 鍵快捷跳轉
-  - 實作頁碼驗證（無效頁碼會提示錯誤）
-  - 切換頁面時自動滾動到頂部
-  - 響應式設計（手機版適配）
-  - 支援瀏覽 100 頁共 5,000 個加密貨幣
-  - 搜尋時自動隱藏分頁按鈕
-- ✅ **檔案位置**：`frontend/CryptoDashboard/src/views/MarketListView.vue`
-- ✅ **前後端整合規劃文檔建立**：
-  - 規劃分頁功能的前後端錯誤處理分工
-  - 設計未來後端 API 規格（/api/coins）
-  - 定義 Exception 階層（InvalidPageNumberException, PaginationException）
-  - 規劃整合時程（Phase 1-4）
-
-### 2024-11-25（下午）
-- ✅ **功能需求分析與資料庫 Schema v2.0 設計**：
-  - 分析 9 項新功能需求，評估現有資料庫支援度
-  - 設計 3 個新表格：`coin_submissions`（幣種申請）、`coin_comparisons`（多幣比較）、`user_transactions`（交易記錄）
-  - 建立完整的 Schema v2.0（英文版 + 中文版）
-  - 產出詳細的功能需求分析報告（[docs/功能需求分析_v2.md](docs/功能需求分析_v2.md)）
-  - 產出快速參考的功能對照表（[docs/功能對照表.md](docs/功能對照表.md)）
-- ✅ **新功能清單**：
-  1. 使用者自行新增幣種 + 管理員審核機制（高優先）
-  2. 多幣比較功能（最多 4 個，中優先）
-  3. 趨勢圖（買入最多的幣種，高優先）
-  4. Price Chart 多時間區間（7天、30天、90天、180天、365天、全部）
-  5. Market Overview 每欄可排序
-  6. 幣種選項擴充（調整 API 參數）
-- ✅ **檔案清單**：
-  - `database/schema_v2.sql` - 升級版資料庫結構（英文版，實際部署用）
-  - `database/schema_v2_zh.sql` - 升級版資料庫結構（中文版，學習對照用）
-  - `docs/功能需求分析_v2.md` - 完整的功能需求分析報告
-  - `docs/功能對照表.md` - 快速參考清單（含實作順序建議）
-
-### 2024-11-24（晚上）
-- ✅ **專案結構清理**：
-  - 刪除廢棄的「前端/」資料夾（只剩 1 個 index.html）
-  - 確認 frontend/CryptoDashboard/ 完整（5,198 個檔案）
-  - 清理 untracked 檔案，working tree 保持乾淨
-- ✅ **資料庫 Schema 修復與優化**：
-  - 修復 schema_zh.sql 的外鍵約束 COMMENT 語法錯誤（MySQL 不支援外鍵 COMMENT）
-  - 統一 schema.sql 和 schema_zh.sql 的欄位順序（status 欄位位置調整）
-  - 移除 3 個非法的外鍵 COMMENT，改為註解形式
-- ✅ **完全中文化 schema_zh.sql**：
-  - 資料庫名稱分離：crypto_dashboard（英文版）vs crypto_dashboard_zh（中文版）
-  - 表名稱中文化：users→使用者, auth_tokens→登入憑證, coin_favorites→收藏幣種, announcements→系統公告
-  - 欄位名稱中文化：id→編號, username→使用者名稱, email→電子信箱, password_hash→密碼加密值 等
-  - 索引/約束名稱中文化：uk_username→唯一鍵_使用者名稱, fk_xxx→外鍵_xxx 等
-  - 技術詞彙口語化：token→憑證, hash→加密值, url→網址
-  - ENUM 值保持英文：'user', 'admin', 'active' 等（避免程式碼問題）
-  - 新增完整對照說明區塊，方便查閱英文/中文對照
-- ✅ **用途說明**：
-  - schema.sql（英文版）→ 實際部署使用，程式碼維護容易
-  - schema_zh.sql（中文版）→ 學習對照參考，完全中文化便於理解
-
-### 2024-11-24（凌晨）
-- ✅ **全面專案檢查與優化**：
-  - 檢查所有後端 Java 程式碼（13 個檔案）- Entity、Exception、Config 全部正常
-  - 檢查所有前端 Vue/JS 程式碼（25 個檔案）- Views、Components、Utils 全部正常
-  - 檢查資料庫 Schema 完整性（schema.sql 107 行、schema_zh.sql 209 行）
-  - 檢查專案結構與文檔完整性（7 個 Markdown 檔案）
-- ✅ **文檔更新與清理**：
-  - 更新 README.md（根目錄）：修正前端路徑、更新資料庫表格清單（4 個表）
-  - 更新 docs/README.md：修正所有路徑、新增 CLAUDE.md 參考
-  - 清理 .gitignore：移除舊的「前端/CryptoDashboard/」路徑，保留新的「frontend/CryptoDashboard/」
-- ✅ **品質確認**：
-  - 確認 .env 檔案未被 Git 追蹤（安全性檢查）
-  - 確認 Eclipse 專案檔案未被追蹤（.classpath, .project）
-  - 確認所有文檔與實際專案結構完全一致
-  - Working tree clean，所有修改已推送到 GitHub
-
-### 2024-11-23（下午）
-- ✅ **資料庫 Schema 優化**：
-  - 完全移除 `coin_submissions` 表（功能已廢棄，保持資料庫精簡）
-  - 建立 `schema_zh.sql` 詳細中文版（包含完整註解、使用說明、維護範例）
-  - 確認前後端資料庫結構完全一致（4 個核心表）
-  - 後端 Spring Boot 專案已成功匯入 Eclipse
-
-### 2024-11-23（上午）
-- ✅ **大規模程式碼清理與精簡**：
-  - 刪除 17 個冗餘檔案（Vue 預設範例、未使用組件等）
-  - 刪除 3 個空資料夾
-  - 精簡程式碼約 152 行（移除未使用函數、測試函數等）
-  - 修復 WatchlistView localStorage key 不一致問題
-- ✅ **修復 Watchlist 即時更新 Bug**：
-  - 新增 `favoritesChanged` 事件監聽
-  - 確保新增收藏後 Watchlist 即時顯示
-- ✅ **建立錯誤處理規範**：
-  - 整理所有前端錯誤訊息（26 個）
-  - 設計 Java 後端 Exception 階層結構
-  - 建立前後端錯誤訊息對照表
-  - 記錄所有錯誤處理位置（認證、驗證、API、Storage）
+### 2024-11-23
+- ✅ **程式碼清理**：刪除 17 個冗餘檔案、精簡 152 行程式碼
+- ✅ **錯誤處理規範**：建立前後端 Exception 對照表
 
 ### 2024-11-20
-- ✅ 修復 `formatPrice` 函數處理極小價格（如 SHIB 0.0000095）
-- ✅ 統一格式化函數至 `format.js`
-- ✅ 建立 CoinCap API 作為備援數據源
-- ✅ 移除 `fakeData.js` 和 `finnhubApi.js`
-- ✅ 建立 `mockAuth.js` 保留模擬登入
-- ✅ 移除 Dashboard 的 Trending Buys 假數據功能
-- ✅ 加入 CoinGecko API Key 支援
-- ✅ 建立 MySQL 資料庫 Schema
-- ✅ 修復 PriceChart 穩定幣顯示問題（動態計算小數位數）
-- ✅ 新增 Navbar 點擊回到主頁功能
-- ✅ 新增網站 Logo（favicon.jpg）
-- ✅ **重構 Admin Panel**：
-  - 移除用戶端「提交新幣種」功能（提高平台可信度）
-  - 新增數據總覽（總用戶數、活躍用戶、收藏排行）
-  - 新增用戶管理（查看用戶列表、活動記錄）
-  - 新增公告管理（發布/編輯/刪除系統公告）
+- ✅ **專案初始化**：建立 Vue 3 前端 + Spring Boot 後端架構
+- ✅ **雙 API 架構**：CoinGecko（主）+ CoinCap（備援）
+- ✅ **Admin Panel**：數據總覽、用戶管理、公告管理三大模塊
 
 ---
 
-## 待辦事項
+## 待辦事項（開發路線圖）
 
-### 🔥 最高優先（當前進行中）
-- [ ] **實作 CoinGecko API Proxy（Phase 1）**
-  - [ ] Controller: `/api/coins/markets`, `/api/coins/{id}`, `/api/global`
-  - [ ] Service: 呼叫 CoinGecko API + 後端快取
-  - [ ] 解決 CORS 問題和速率限制
-- [ ] **文檔整理**
-  - [ ] 整合 `docs/開發日誌.md` 到 `CLAUDE.md`（已完成整合）
-  - [ ] 簡化或刪除重複的文檔
+### Phase 1: 後端基礎建設（高優先）
+- [ ] **MySQL 資料庫初始化**
+  - 執行 `schema.sql` 或 `schema_v3.sql`
+  - 確認資料庫連線正常
+  - 測試 Spring Boot 啟動
 
-### 🎯 高優先（後端核心功能）
-- [x] 建立後端 API（已採用 Spring Boot + Java）
-- [ ] 連接 MySQL 資料庫
-- [ ] **實作認證系統（Phase 2）**
-  - [ ] POST /api/auth/register
-  - [ ] POST /api/auth/login
-  - [ ] POST /api/auth/logout
-  - [ ] JWT Token 生成與驗證
-  - [ ] 將 `mockAuth.js` 替換為真實 API 呼叫
-- [ ] **實作 Watchlist API（Phase 3）**
-  - [ ] GET /api/favorites
-  - [ ] POST /api/favorites
-  - [ ] DELETE /api/favorites/{coinId}
-  - [ ] 取代前端 localStorage
+- [ ] **Repository 層**
+  - UserRepository（Spring Data JPA）
+  - AuthTokenRepository
+  - CoinFavoriteRepository
+  - AnnouncementRepository
 
-### 📊 中優先（新功能需求）
-- [ ] **管理者與使用者頁面分離**
-  - [ ] 管理者不顯示 Dashboard、Market、Compare 等頁面
-  - [ ] 設計專屬管理者的導航選單
-  - [ ] 根據角色動態顯示側邊欄選項
-- [ ] **Market Overview 篩選功能增強**
-  - [ ] 新增價格範圍篩選
-  - [ ] 新增市值範圍篩選
-  - [ ] 新增漲跌幅篩選
-  - [ ] 新增分類篩選（DeFi、NFT、Layer 1 等）
-- [ ] **管理者統計功能**
-  - [ ] 使用者最常關注的幣種排行
-  - [ ] 總收藏數顯示幣種名稱
-  - [ ] 使用者活躍度分析
-- [ ] **語系切換功能**
-  - [ ] 實作 i18n（中文/英文）
-  - [ ] 在 Sidebar Version 旁邊加入語系切換按鈕
-  - [ ] 儲存使用者語系偏好（localStorage 或後端）
-- [ ] **實作公告系統 API（Phase 4）**
-  - [ ] GET /api/announcements
-  - [ ] POST /api/announcements（管理員）
-  - [ ] PUT /api/announcements/{id}（管理員）
-  - [ ] DELETE /api/announcements/{id}（管理員）
+- [ ] **JWT 認證系統**
+  - JwtTokenProvider 工具類
+  - SecurityConfig（Spring Security）
+  - AuthService（註冊/登入/登出邏輯）
+  - AuthController（`/api/auth/*`）
 
-### 🔧 低優先（未來功能）
-- [ ] 密碼重設功能
-- [ ] Email 驗證
-- [ ] 用戶頭像上傳
-- [ ] 雙因素認證（2FA）
+### Phase 2: 前後端整合（高優先）
+- [ ] **API Proxy 實作**
+  - CoinGecko Proxy（`/api/coins/*`）
+  - 快取機制（減少外部 API 請求）
+  - 錯誤處理與重試邏輯
+  - 前端改呼叫自家後端 API
 
-### Future Work（規劃中但尚未實作）
-- [ ] 用戶提交新幣種功能 - 允許用戶申請新幣種上架，經管理員審核後加入平台（目前為提高平台可信度暫不開放）
+- [ ] **收藏功能 API**
+  - FavoriteService + Controller
+  - 取代前端 localStorage
+  - 移除 `favorite.js` 工具
+
+- [ ] **認證整合**
+  - 前端移除 `mockAuth.js`
+  - 整合真實 JWT 登入/註冊
+  - Protected Routes 實作
+
+### Phase 3: 進階功能（中優先）
+- [ ] **公告系統 API**
+  - AnnouncementService + Controller
+  - Admin Panel 整合
+
+- [ ] **用戶活動記錄**
+  - UserActivityService
+  - 統計分析 API
+
+- [ ] **價格提醒功能**
+  - PriceAlertService
+  - WebSocket 推播（選用）
+
+### Phase 4: 優化與部署（低優先）
+- [ ] 密碼重設/忘記密碼流程
+- [ ] 效能優化（前後端快取、CDN）
+- [ ] 部署設定（Docker、CI/CD）
+- [ ] 監控與日誌系統
 
 ---
 
@@ -571,7 +419,7 @@ CryptoDashboardException (基礎 Exception)
 - **框架**：Spring Boot 3.2.0
 - **Java 版本**：17
 - **資料庫**：MySQL 8.0 + JPA/Hibernate
-- **安全**：Spring Security + JWT
+- **安全**：Spring Security + JWT (jjwt 0.11.5)
 - **建置工具**：Maven
 
 ### 專案結構
@@ -585,16 +433,15 @@ backend/src/main/java/com/crypto/dashboard/
 │   ├── AuthToken.java
 │   ├── CoinFavorite.java
 │   └── Announcement.java
-├── exception/                       # 例外處理（5 個）
+├── exception/                       # 例外處理（6 個）
 │   ├── CryptoDashboardException.java
 │   ├── GlobalExceptionHandler.java
 │   ├── InvalidCredentialsException.java
 │   ├── ResourceNotFoundException.java
 │   ├── UnauthorizedException.java
 │   └── ValidationException.java
-└── dto/
-    └── response/
-        └── ApiResponse.java         # 統一回應格式
+└── dto/response/
+    └── ApiResponse.java             # 統一回應格式
 ```
 
 ### 資料庫配置
@@ -603,238 +450,30 @@ backend/src/main/java/com/crypto/dashboard/
 - **時區**：Asia/Taipei
 - **Hibernate DDL**：validate（不自動修改表結構，使用 schema.sql）
 
-### 待實作
-- [ ] Repository 層（Spring Data JPA）
-- [ ] Service 層（業務邏輯）
-- [ ] Controller 層（REST API）
-- [ ] JWT Token 工具類
-- [ ] Spring Security 配置
+### 待實作（詳見「待辦事項」）
+- Repository 層（Spring Data JPA）
+- Service 層（業務邏輯）
+- Controller 層（REST API）
+- JWT Token 工具類
+- Spring Security 配置
 
 ---
 
-## 前後端整合規劃（分頁功能）
+## 前後端整合規劃
 
-### 1. 前端與後端的錯誤處理分工
+### API 設計概要
+- **Coin API**：`GET /api/coins?page={page}&perPage={perPage}`
+- **Auth API**：`POST /api/auth/register`, `POST /api/auth/login`
+- **Favorite API**：`GET/POST/DELETE /api/favorites`
+- **Announcement API**：`GET/POST/PUT/DELETE /api/announcements`
 
-#### **前端 UI 驗證**（已實作）
-位置：`frontend/CryptoDashboard/src/views/MarketListView.vue:58-75`
+### 錯誤處理分工
+- **前端驗證**：UI 輸入驗證（已完成）
+- **後端驗證**：業務邏輯驗證（待實作）
+- **Exception 層級**：已設計完整階層結構
 
-```javascript
-// 只允許輸入數字
-const handlePageInput = (event) => {
-  const value = event.target.value.replace(/[^0-9]/g, '')
-  pageInput.value = value
-}
-
-// 頁碼驗證（1-100）
-const goToPage = () => {
-  const pageNum = parseInt(pageInput.value)
-
-  if (isNaN(pageNum) || pageNum < 1 || pageNum > totalPages.value) {
-    alert(`Please enter a valid page number between 1 and ${totalPages.value}`)
-    return
-  }
-
-  currentPage.value = pageNum
-}
-```
-
-**職責**：
-- 防止使用者輸入非數字字元
-- 驗證頁碼範圍（1-100）
-- 提供即時 UI 反饋
-- **不會傳送無效請求到後端**
+詳細規劃請參考：`docs/後端規劃.md`
 
 ---
 
-#### **後端 DAO Exception**（待實作）
-
-**新增 Exception 類別**：
-
-```java
-// InvalidPageNumberException.java
-public class InvalidPageNumberException extends ValidationException {
-    public InvalidPageNumberException(int page, int maxPage) {
-        super(String.format("Invalid page number: %d. Must be between 1 and %d", page, maxPage));
-    }
-}
-
-// PaginationException.java
-public class PaginationException extends CryptoDashboardException {
-    public PaginationException(String message) {
-        super(message);
-    }
-}
-```
-
-**更新 Exception 階層結構**：
-
-```java
-CryptoDashboardException
-├── ValidationException
-│   ├── RequiredFieldException
-│   ├── PasswordMismatchException
-│   ├── PasswordTooShortException
-│   └── InvalidPageNumberException        // 新增：無效頁碼
-├── DataException
-│   ├── DataFetchException
-│   ├── DataUnavailableException
-│   ├── DataParseException
-│   ├── ChartDataException
-│   └── PaginationException               // 新增：分頁錯誤
-└── ApiException
-    ├── CoinGeckoApiException
-    └── DatabaseException
-```
-
----
-
-### 2. 未來後端 API 設計
-
-#### **API Endpoint**
-```
-GET /api/coins?page={page}&perPage={perPage}&orderBy={orderBy}
-```
-
-#### **請求參數**
-| 參數 | 類型 | 必填 | 說明 | 預設值 |
-|------|------|------|------|--------|
-| page | int | 否 | 頁碼（1-100） | 1 |
-| perPage | int | 否 | 每頁數量（10-100） | 50 |
-| orderBy | string | 否 | 排序方式 | market_cap_desc |
-
-#### **回應格式**
-```json
-{
-  "success": true,
-  "data": {
-    "coins": [...],
-    "pagination": {
-      "currentPage": 1,
-      "perPage": 50,
-      "totalPages": 100,
-      "totalCoins": 5000
-    }
-  }
-}
-```
-
-#### **錯誤回應**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_PAGE_NUMBER",
-    "message": "Invalid page number: 150. Must be between 1 and 100",
-    "timestamp": "2024-11-25T20:30:00Z"
-  }
-}
-```
-
----
-
-### 3. 後端實作架構（待開發）
-
-#### **Controller 層**
-```java
-@RestController
-@RequestMapping("/api/coins")
-public class CoinController {
-
-    @GetMapping
-    public ResponseEntity<ApiResponse> getCoins(
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "50") int perPage,
-        @RequestParam(defaultValue = "market_cap_desc") String orderBy
-    ) {
-        // 驗證 + 呼叫 Service
-    }
-}
-```
-
-#### **Service 層**
-```java
-@Service
-public class CoinService {
-
-    public PaginatedCoinsResponse getCoins(int page, int perPage, String orderBy) {
-        // 1. 驗證頁碼
-        if (page < 1 || page > 100) {
-            throw new InvalidPageNumberException(page, 100);
-        }
-
-        // 2. 呼叫 DAO 或外部 API
-        // 3. 處理資料
-        // 4. 返回結果
-    }
-}
-```
-
-#### **DAO 層**
-```java
-public interface CoinDAO {
-    List<Coin> getCoinsByPage(int page, int perPage, String orderBy)
-        throws DataFetchException;
-
-    int getTotalCoinsCount()
-        throws DatabaseException;
-}
-```
-
----
-
-### 4. 前後端整合時的修改點
-
-**前端修改**（`MarketListView.vue:20-42`）：
-
-```javascript
-// 現在：直接呼叫 CoinGecko API
-const coins = await getCoinsList('usd', perPage.value, page)
-
-// 之後：改呼叫後端 API
-const response = await fetch(`/api/coins?page=${page}&perPage=${perPage.value}`)
-const data = await response.json()
-
-if (!data.success) {
-  throw new Error(data.error.message)
-}
-
-allCoins.value = data.data.coins
-```
-
-**錯誤處理對應**：
-
-| 後端 Exception | HTTP Status | 前端顯示訊息 |
-|---------------|-------------|-------------|
-| InvalidPageNumberException | 400 | "Invalid page number" |
-| DataFetchException | 500 | "Failed to load coin data" |
-| CoinGeckoApiException | 503 | "External API unavailable" |
-| DatabaseException | 500 | "Database connection error" |
-
----
-
-### 5. 整合時程規劃
-
-1. **Phase 1**：實作後端 Exception 類別
-   - 建立 `InvalidPageNumberException`
-   - 建立 `PaginationException`
-   - 更新 `GlobalExceptionHandler`
-
-2. **Phase 2**：實作後端 API
-   - Controller: `/api/coins` endpoint
-   - Service: 分頁邏輯 + 驗證
-   - DAO: 資料庫查詢或外部 API 呼叫
-
-3. **Phase 3**：前端整合
-   - 修改 `MarketListView.vue` 的 `loadCoins` 函數
-   - 調整錯誤處理邏輯
-   - 測試前後端整合
-
-4. **Phase 4**：測試與優化
-   - 單元測試（後端）
-   - 整合測試（前後端）
-   - 效能優化（快取、分頁查詢優化）
-
----
-
-*最後更新：2024-11-25*
+*最後更新：2024-11-27*
