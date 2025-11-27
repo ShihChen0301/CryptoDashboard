@@ -1,0 +1,51 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "market": "Market",
+    "compare": "Compare",
+    "watchlist": "Watchlist",
+    "profile": "Profile",
+    "adminPanel": "Admin Panel",
+    "version": "Version"
+  },
+  "market": {
+    "title": "Market Overview",
+    "subtitle": "All cryptocurrencies ranked by market cap",
+    "searchPlaceholder": "Search coins...",
+    "loading": "Loading market data...",
+    "noResults": "No cryptocurrencies found matching \"{query}\"",
+    "pagination": {
+      "first": "« First",
+      "previous": "← Previous",
+      "next": "Next →",
+      "last": "Last »",
+      "page": "Page {current} of {total}",
+      "jumpTo": "Jump to...",
+      "go": "Go",
+      "range": "(Coins {start} - {end})"
+    }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "System Management & Statistics",
+    "overview": "Overview",
+    "users": "Users",
+    "announcements": "Announcements",
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users (7 days)",
+      "totalFavorites": "Total Favorites"
+    },
+    "topCoins": "Most Favorited Coins",
+    "noData": "No data available"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm"
+  }
+}

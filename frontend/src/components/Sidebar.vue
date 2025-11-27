@@ -1,53 +1,50 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const route = useRoute()
+const { t, locale } = useI18n()
 const isCollapsed = ref(false)
 const isAdmin = ref(false)
-const currentLocale = ref('zh-TW')
 
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   isAdmin.value = user.role === 'admin'
-
-  // 讀取語系偏好
-  const savedLocale = localStorage.getItem('preferred_locale') || 'zh-TW'
-  currentLocale.value = savedLocale
 })
 
 const toggleLocale = () => {
-  currentLocale.value = currentLocale.value === 'zh-TW' ? 'en-US' : 'zh-TW'
-  localStorage.setItem('preferred_locale', currentLocale.value)
-  // TODO: 整合 vue-i18n 後會自動切換語系
+  // 切換語系
+  locale.value = locale.value === 'zh-TW' ? 'en-US' : 'zh-TW'
+  // 儲存到 localStorage
+  localStorage.setItem('preferred_locale', locale.value)
 }
 
 const localeLabel = computed(() => {
-  return currentLocale.value === 'zh-TW' ? '中文' : 'EN'
+  return locale.value === 'zh-TW' ? '中文' : 'EN'
 })
 
-const userMenuItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: '📊' },
-  { name: 'Market', path: '/market', icon: '💹' },
-  { name: 'Compare', path: '/compare', icon: '⚖️' },
-  { name: 'Watchlist', path: '/watchlist', icon: '⭐' },
-  { name: 'Profile', path: '/profile', icon: '👤' }
-]
+const userMenuItems = computed(() => [
+  { name: t('sidebar.dashboard'), path: '/dashboard', icon: '📊' },
+  { name: t('sidebar.market'), path: '/market', icon: '💹' },
+  { name: t('sidebar.compare'), path: '/compare', icon: '⚖️' },
+  { name: t('sidebar.watchlist'), path: '/watchlist', icon: '⭐' },
+  { name: t('sidebar.profile'), path: '/profile', icon: '👤' }
+])
 
-const adminMenuItems = [
-  { name: 'Admin Panel', path: '/admin', icon: '🔧' },
-  { name: 'Watchlist', path: '/watchlist', icon: '⭐' },
-  { name: 'Profile', path: '/profile', icon: '👤' }
-]
+const adminMenuItems = computed(() => [
+  { name: t('sidebar.adminPanel'), path: '/admin', icon: '🔧' },
+  { name: t('sidebar.profile'), path: '/profile', icon: '👤' }
+])
 
 const menuItems = computed(() => {
-  // 管理者只顯示 Admin Panel、Watchlist、Profile
+  // 管理者只顯示 Admin Panel、Profile
   if (isAdmin.value) {
-    return adminMenuItems
+    return adminMenuItems.value
   }
   // 一般用戶顯示所有選單
-  return userMenuItems
+  return userMenuItems.value
 })
 
 const isActive = (path) => {
@@ -86,10 +83,10 @@ const toggleSidebar = () => {
     <div class="sidebar-footer">
       <div class="footer-content" v-if="!isCollapsed">
         <div class="version-info">
-          <span class="version-label">Version</span>
+          <span class="version-label">{{ t('sidebar.version') }}</span>
           <span class="version-number">1.0.0</span>
         </div>
-        <button class="locale-toggle" @click="toggleLocale" :title="`切換語系 / Switch Language`">
+        <button class="locale-toggle" @click="toggleLocale" :title="locale === 'zh-TW' ? '切換至英文' : 'Switch to Chinese'">
           <span class="locale-icon">🌐</span>
           <span class="locale-text">{{ localeLabel }}</span>
         </button>

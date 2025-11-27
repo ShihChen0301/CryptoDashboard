@@ -1,0 +1,51 @@
+{
+  "sidebar": {
+    "dashboard": "儀表板",
+    "market": "市場總覽",
+    "compare": "幣種比較",
+    "watchlist": "我的收藏",
+    "profile": "個人資料",
+    "adminPanel": "管理員面板",
+    "version": "版本"
+  },
+  "market": {
+    "title": "市場總覽",
+    "subtitle": "所有加密貨幣（按市值排序）",
+    "searchPlaceholder": "搜尋幣種...",
+    "loading": "載入市場數據中...",
+    "noResults": "找不到符合 \"{query}\" 的加密貨幣",
+    "pagination": {
+      "first": "« 第一頁",
+      "previous": "← 上一頁",
+      "next": "下一頁 →",
+      "last": "最後一頁 »",
+      "page": "第 {current} 頁，共 {total} 頁",
+      "jumpTo": "跳至...",
+      "go": "前往",
+      "range": "（幣種 {start} - {end}）"
+    }
+  },
+  "admin": {
+    "title": "管理員控制台",
+    "subtitle": "系統管理與數據統計",
+    "overview": "數據總覽",
+    "users": "用戶管理",
+    "announcements": "公告管理",
+    "stats": {
+      "totalUsers": "總用戶數",
+      "activeUsers": "活躍用戶（7天內）",
+      "totalFavorites": "總收藏數"
+    },
+    "topCoins": "最多收藏的幣種排行",
+    "noData": "目前沒有數據"
+  },
+  "common": {
+    "loading": "載入中...",
+    "error": "發生錯誤",
+    "save": "儲存",
+    "cancel": "取消",
+    "delete": "刪除",
+    "edit": "編輯",
+    "confirm": "確認"
+  }
+}
