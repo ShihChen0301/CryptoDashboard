@@ -63,6 +63,10 @@ const toggleSidebar = () => {
 <template>
   <aside :class="['sidebar', { collapsed: isCollapsed }]">
     <div class="sidebar-header">
+      <div class="brand" v-if="!isCollapsed">
+        <h1 class="brand-name">CoinVue</h1>
+        <p class="brand-subtitle">{{ t('sidebar.brandSubtitle') }}</p>
+      </div>
       <button class="toggle-btn" @click="toggleSidebar">
         <span>{{ isCollapsed ? '☰' : '✕' }}</span>
       </button>
@@ -118,6 +122,34 @@ const toggleSidebar = () => {
 .sidebar-header {
   padding: 0 var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.brand {
+  text-align: center;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: var(--spacing-md);
+}
+
+.brand-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.5px;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0.25rem 0 0 0;
+  font-weight: 400;
 }
 
 .toggle-btn {

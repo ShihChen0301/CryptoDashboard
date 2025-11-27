@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCoinsStore } from '../stores/useCoinsStore'
 import CoinTable from '../components/CoinTable.vue'
@@ -50,6 +50,11 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('favoritesChanged', loadFavorites)
+  window.removeEventListener('storage', loadFavorites)
 })
 </script>
 

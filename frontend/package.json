@@ -1,7 +1,8 @@
 {
-  "name": "cryptodashboard",
-  "version": "0.0.0",
+  "name": "coinvue",
+  "version": "1.1.0",
   "private": true,
+  "description": "CoinVue（幣景）- 專業的加密貨幣市場監控平台",
   "type": "module",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
