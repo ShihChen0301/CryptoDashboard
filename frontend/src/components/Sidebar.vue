@@ -84,7 +84,7 @@ const toggleSidebar = () => {
       <div class="footer-content" v-if="!isCollapsed">
         <div class="version-info">
           <span class="version-label">{{ t('sidebar.version') }}</span>
-          <span class="version-number">1.0.0</span>
+          <span class="version-number">1.1.0</span>
         </div>
         <button class="locale-toggle" @click="toggleLocale" :title="locale === 'zh-TW' ? '切換至英文' : 'Switch to Chinese'">
           <span class="locale-icon">🌐</span>

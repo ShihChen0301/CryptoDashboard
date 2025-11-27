@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getGlobalData } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
 import { useCoinsStore } from '../stores/useCoinsStore'
 import CoinCard from '../components/CoinCard.vue'
+
+const { t } = useI18n()
 
 const globalData = ref({
   totalMarketCap: 0,
@@ -84,13 +87,13 @@ const formatLargeNumber = (num) => {
 <template>
   <div class="dashboard">
     <div class="dashboard-header">
-      <h1>Dashboard</h1>
-      <p>Welcome back! Here are your favorite cryptocurrencies</p>
+      <h1>{{ t('dashboard.title') }}</h1>
+      <p>{{ t('dashboard.welcome') }}</p>
     </div>
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Total Market Cap</div>
+        <div class="stat-label">{{ t('dashboard.marketStats.totalMarketCap') }}</div>
         <div class="stat-value">{{ formatLargeNumber(globalData.totalMarketCap) }}</div>
         <div class="stat-change" :class="globalData.marketCapChange >= 0 ? 'positive' : 'negative'">
           {{ globalData.marketCapChange >= 0 ? '+' : ''
@@ -99,23 +102,23 @@ const formatLargeNumber = (num) => {
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">24h Trading Volume</div>
+        <div class="stat-label">{{ t('dashboard.marketStats.volume24h') }}</div>
         <div class="stat-value">{{ formatLargeNumber(globalData.totalVolume) }}</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">Bitcoin Dominance</div>
+        <div class="stat-label">{{ t('dashboard.marketStats.btcDominance') }}</div>
         <div class="stat-value">{{ globalData.btcDominance.toFixed(1) }}%</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">Active Cryptocurrencies</div>
+        <div class="stat-label">{{ t('dashboard.marketStats.activeCryptos') }}</div>
         <div class="stat-value">{{ globalData.activeCryptos.toLocaleString() }}</div>
       </div>
     </div>
 
     <div class="section-header">
-      <h2>Hot Cryptocurrencies</h2>
+      <h2>{{ t('dashboard.hotCryptos') }}</h2>
     </div>
 
     <div class="coins-grid">

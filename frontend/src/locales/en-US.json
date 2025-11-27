@@ -75,11 +75,12 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Cryptocurrency Market Overview",
+    "welcome": "Welcome back! Here are your favorite cryptocurrencies",
     "marketStats": {
       "totalMarketCap": "Total Market Cap",
-      "volume24h": "24h Volume",
-      "btcDominance": "BTC Dominance",
-      "activeCoins": "Active Coins"
+      "volume24h": "24h Trading Volume",
+      "btcDominance": "Bitcoin Dominance",
+      "activeCryptos": "Active Cryptocurrencies"
     },
     "hotCryptos": "Hot Cryptocurrencies",
     "viewAll": "View All"

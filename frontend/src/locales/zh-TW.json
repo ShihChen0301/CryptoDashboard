@@ -75,11 +75,12 @@
   "dashboard": {
     "title": "儀表板",
     "subtitle": "加密貨幣市場概況",
+    "welcome": "歡迎回來！以下是您的熱門加密貨幣",
     "marketStats": {
       "totalMarketCap": "總市值",
       "volume24h": "24h 交易量",
       "btcDominance": "BTC 市佔率",
-      "activeCoins": "活躍幣種"
+      "activeCryptos": "活躍加密貨幣"
     },
     "hotCryptos": "熱門加密貨幣",
     "viewAll": "查看全部"
