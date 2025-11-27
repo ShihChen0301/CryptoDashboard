@@ -221,37 +221,148 @@ coingecko:
 
 ---
 
-## 待辦事項
+## 接下來要做的事
 
-### 高優先
-- [ ] **資料庫初始化**：執行 `mysql -u root -p < database/schema_v3.sql`
-- [ ] **後端啟動測試**：`mvn spring-boot:run` 或 Eclipse 運行
-- [ ] **前後端整合測試**：
-  - [ ] 註冊新帳號
-  - [ ] 登入功能
-  - [ ] 查看 Dashboard
-  - [ ] 新增/移除收藏
-  - [ ] 查看 Watchlist
-- [ ] **Admin Panel 功能實作**：
-  - [ ] 公告管理 API（CRUD）
-  - [ ] 使用者管理 API
-  - [ ] 統計資料 API
+### 🔥 立即執行（下一步）
 
-### 中優先
-- [ ] **語系正式化**：
-  - [ ] 檢查 `locales/zh-TW.json` 和 `en-US.json` 是否完整
-  - [ ] 補齊所有頁面的翻譯文案
-  - [ ] 測試切換語系時所有頁面顯示正確
-- [ ] **Market 篩選再強化**：
-  - [ ] 價格/市值/漲跌幅/領域等進階條件
-  - [ ] 儲存篩選預設到資料庫
-- [ ] **資料庫 schema v3.0 落地**：
-  - [ ] 確認所有表格建立成功
-  - [ ] 更新文件與 Entity 對應
+#### 1. 安裝 Maven（如果尚未安裝）
+```powershell
+# 以系統管理員身分執行 PowerShell
+choco install maven -y
 
-### 低優先
+# 重新開啟 PowerShell，確認安裝
+mvn -version
+```
+
+#### 2. 初始化資料庫
+```bash
+# 確認 MySQL 已啟動
+mysql -u root -p -e "SHOW DATABASES LIKE 'crypto_dashboard';"
+
+# 如果資料庫不存在，執行以下指令建立
+mysql -u root -p < database/schema_v3.sql
+
+# 確認建立成功（應該顯示 9 個表）
+mysql -u root -p -e "USE crypto_dashboard; SHOW TABLES;"
+```
+
+#### 3. 啟動後端並測試
+```bash
+# 方法 A: 使用 Maven
+cd backend
+mvn spring-boot:run
+
+# 方法 B: 使用 Eclipse
+# 右鍵 CryptoDashboardApplication.java → Run As → Java Application
+```
+
+**預期結果**：
+- Console 顯示 `Started CryptoDashboardApplication in X.XXX seconds`
+- 無紅色 ERROR 訊息
+- 後端運行在 `http://localhost:8080/api`
+
+#### 4. 啟動前端並測試整合
+```bash
+cd frontend
+npm run dev
+```
+
+**開啟瀏覽器測試**：`http://localhost:5173`
+- [ ] 測試註冊功能（POST /api/auth/register）
+- [ ] 測試登入功能（POST /api/auth/login）
+- [ ] 登入後查看 Dashboard（GET /api/coins）
+- [ ] 測試收藏功能（POST /api/favorites, DELETE /api/favorites/{id}）
+- [ ] 查看 Watchlist 頁面（GET /api/favorites）
+- [ ] 測試登出功能（POST /api/auth/logout）
+
+---
+
+### 📋 待辦事項（按優先順序）
+
+#### 高優先（本週完成）
+- [ ] **完成前後端整合測試**（見上方測試清單）
+- [ ] **修復整合測試中發現的 Bug**
+- [ ] **Admin Panel 後端 API 實作**：
+  - [ ] `GET /api/admin/stats` - 統計資料（總用戶數、活躍用戶、收藏排行）
+  - [ ] `GET /api/admin/users` - 用戶列表
+  - [ ] `POST /api/announcements` - 建立公告
+  - [ ] `PUT /api/announcements/{id}` - 更新公告
+  - [ ] `DELETE /api/announcements/{id}` - 刪除公告
+  - [ ] `GET /api/announcements` - 取得啟用公告（一般用戶）
+
+#### 中優先（下週完成）
+- [ ] **語系完整化**：
+  - [ ] 檢查 `frontend/src/locales/zh-TW.json` 完整性
+  - [ ] 檢查 `frontend/src/locales/en-US.json` 完整性
+  - [ ] 補齊所有頁面缺少的翻譯文案
+  - [ ] 測試語系切換功能
+- [ ] **Market 進階篩選強化**：
+  - [ ] 新增領域/分類篩選（DeFi, NFT, Meme 等）
+  - [ ] 實作「儲存篩選預設」功能（使用 market_filter_presets 表）
+  - [ ] 實作「載入已儲存的篩選」功能
+- [ ] **資料庫 v3.0 新表格整合**：
+  - [ ] user_activities 表 - 實作用戶活動記錄 API
+  - [ ] coin_price_alerts 表 - 實作價格提醒功能
+  - [ ] coin_comparisons 表 - 實作幣種比較歷史記錄
+
+#### 低優先（未來功能）
 - [ ] 密碼重設/忘記密碼流程
-- [ ] 其他 UI 微調與效能優化
+- [ ] Email 驗證功能
+- [ ] 使用者個人資料編輯 API
+- [ ] 單元測試撰寫（JUnit + MockMvc）
+- [ ] API 效能優化（查詢優化、索引優化）
+- [ ] 部署準備（Docker, CI/CD）
+
+---
+
+### ⚠️ 已知問題與注意事項
+
+1. **前端 API 呼叫**：
+   - 目前前端 `api.js` 已整合，但尚未實際測試
+   - 需要確認 CORS 設定正確（application.yml 中已設定）
+   - 需要確認 JWT Token 在前端正確儲存與傳送
+
+2. **資料庫欄位對應**：
+   - Entity 類別目前只對應 v1.0 的 4 個表
+   - v3.0 新增的 5 個表尚未建立對應的 Entity
+
+3. **測試帳號**：
+   - 資料庫初始化後，需要手動建立測試帳號
+   - 或在 AuthService 中先用模擬帳號測試
+
+---
+
+### 📊 開發進度追蹤
+
+**Phase 1: 後端基礎建設** ✅ 100% 完成
+- [x] Spring Boot 專案結構
+- [x] Entity 層（4 個）
+- [x] Repository 層（4 個）
+- [x] Service 層（3 個）
+- [x] Controller 層（3 個）
+- [x] JWT 認證系統
+- [x] 全域例外處理
+
+**Phase 2: 前後端整合** ✅ 80% 完成
+- [x] 前端 API 工具類（api.js）
+- [x] 移除模擬資料（mockAuth.js）
+- [x] CoinGecko API Proxy
+- [x] 登入/註冊頁面整合
+- [x] Watchlist 頁面整合
+- [ ] ⏳ 實際測試整合（待完成）
+- [ ] ⏳ Bug 修正（待完成）
+
+**Phase 3: 進階功能** ⏳ 0% 完成
+- [ ] Admin Panel API
+- [ ] 用戶活動記錄
+- [ ] 價格提醒功能
+- [ ] 幣種比較歷史
+
+**Phase 4: 優化與測試** ⏳ 0% 完成
+- [ ] 單元測試
+- [ ] 效能優化
+- [ ] 安全性檢查
+- [ ] 部署設定
 
 ---
 
