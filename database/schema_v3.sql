@@ -1,18 +1,18 @@
 -- =============================================
--- CryptoDashboard 資料庫結構 v3.0
+-- CryptoDashboard database schema v3.0
 -- MySQL 8.0+
--- 新增功能：用戶活動記錄、篩選偏好、價格提醒
+-- Focus: user activity logging, market filter presets, price alerts, comparisons, i18n
 -- =============================================
 
--- 建立資料庫
+-- Create database
 CREATE DATABASE IF NOT EXISTS crypto_dashboard
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 USE crypto_dashboard;
 
 -- =============================================
--- 1. users 使用者表
+-- 1. users
 -- =============================================
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
     status ENUM('active', 'disabled') NOT NULL DEFAULT 'active',
     trading_experience ENUM('less-than-1', '1-2', '3-5', '5-10', 'more-than-10') NULL,
-    preferred_language ENUM('zh-TW', 'en-US') NOT NULL DEFAULT 'zh-TW' COMMENT '使用者偏好語系',
-    join_date DATETIME NOT NULL,
+    preferred_language ENUM('zh-TW', 'en-US') NOT NULL DEFAULT 'zh-TW',
+    join_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login_at DATETIME NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 2. auth_tokens 登入 token 表
+-- 2. auth_tokens
 -- =============================================
 CREATE TABLE IF NOT EXISTS auth_tokens (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS auth_tokens (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 3. coin_favorites 使用者收藏幣種表 (Watchlist)
+-- 3. coin_favorites (Watchlist)
 -- =============================================
 CREATE TABLE IF NOT EXISTS coin_favorites (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -73,15 +73,15 @@ CREATE TABLE IF NOT EXISTS coin_favorites (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 4. announcements 系統公告表
+-- 4. announcements
 -- =============================================
 CREATE TABLE IF NOT EXISTS announcements (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(200) NOT NULL COMMENT '公告標題',
-    content TEXT NOT NULL COMMENT '公告內容',
-    type ENUM('info', 'success', 'warning') NOT NULL DEFAULT 'info' COMMENT '公告類型',
-    is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '是否啟用',
-    created_by_user_id BIGINT UNSIGNED NOT NULL COMMENT '建立者 user id',
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    type ENUM('info', 'success', 'warning') NOT NULL DEFAULT 'info',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by_user_id BIGINT UNSIGNED NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -95,23 +95,22 @@ CREATE TABLE IF NOT EXISTS announcements (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 5. user_activities 用戶活動記錄表（新增）
--- 用途：記錄用戶的關鍵操作，供管理員分析用戶行為
+-- 5. user_activities
 -- =============================================
 CREATE TABLE IF NOT EXISTS user_activities (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     activity_type ENUM(
-        'login',              -- 登入
-        'logout',             -- 登出
-        'view_coin',          -- 查看幣種詳情
-        'add_favorite',       -- 新增收藏
-        'remove_favorite',    -- 移除收藏
-        'compare_coins',      -- 比較幣種
-        'export_data'         -- 匯出數據
+        'login',
+        'logout',
+        'view_coin',
+        'add_favorite',
+        'remove_favorite',
+        'compare_coins',
+        'export_data'
     ) NOT NULL,
-    coin_id VARCHAR(64) NULL COMMENT '相關幣種 ID（若有）',
-    metadata JSON NULL COMMENT '額外資訊（如 IP、裝置等）',
+    coin_id VARCHAR(64) NULL COMMENT 'CoinGecko coin id (nullable)',
+    metadata JSON NULL COMMENT 'Extra info such as ip/device',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     INDEX idx_user_id (user_id),
@@ -125,25 +124,23 @@ CREATE TABLE IF NOT EXISTS user_activities (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 6. market_filter_presets 市場篩選預設組合表（新增）
--- 用途：儲存用戶自訂的 Market Overview 篩選條件
+-- 6. market_filter_presets
 -- =============================================
 CREATE TABLE IF NOT EXISTS market_filter_presets (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
-    preset_name VARCHAR(100) NOT NULL COMMENT '預設組合名稱，如「高市值穩定幣」',
+    preset_name VARCHAR(100) NOT NULL COMMENT 'Saved filter name',
 
-    -- 篩選條件（JSON 格式）
-    price_min DECIMAL(20, 8) NULL COMMENT '最低價格',
-    price_max DECIMAL(20, 8) NULL COMMENT '最高價格',
-    market_cap_min BIGINT NULL COMMENT '最低市值（USD）',
-    market_cap_max BIGINT NULL COMMENT '最高市值（USD）',
-    volume_24h_min BIGINT NULL COMMENT '最低 24h 交易量',
-    price_change_24h_min DECIMAL(8, 2) NULL COMMENT '最低 24h 漲跌幅（%）',
-    price_change_24h_max DECIMAL(8, 2) NULL COMMENT '最高 24h 漲跌幅（%）',
-    categories JSON NULL COMMENT '幣種分類標籤，如 ["DeFi", "Layer 1"]',
+    price_min DECIMAL(20, 8) NULL COMMENT 'Lower price bound',
+    price_max DECIMAL(20, 8) NULL COMMENT 'Upper price bound',
+    market_cap_min BIGINT NULL COMMENT 'Lower market cap bound (USD)',
+    market_cap_max BIGINT NULL COMMENT 'Upper market cap bound (USD)',
+    volume_24h_min BIGINT NULL COMMENT 'Lower 24h volume bound',
+    price_change_24h_min DECIMAL(8, 2) NULL COMMENT 'Lower 24h change (%)',
+    price_change_24h_max DECIMAL(8, 2) NULL COMMENT 'Upper 24h change (%)',
+    categories JSON NULL COMMENT 'Categories list, e.g. ["DeFi", "Layer 1"]',
 
-    is_default BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否為預設篩選',
+    is_default BOOLEAN NOT NULL DEFAULT FALSE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -156,21 +153,20 @@ CREATE TABLE IF NOT EXISTS market_filter_presets (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 7. coin_price_alerts 價格提醒表（新增）
--- 用途：用戶設定的價格提醒功能
+-- 7. coin_price_alerts
 -- =============================================
 CREATE TABLE IF NOT EXISTS coin_price_alerts (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     coin_id VARCHAR(64) NOT NULL COMMENT 'CoinGecko coin id',
 
-    alert_type ENUM('above', 'below') NOT NULL COMMENT '提醒類型：高於/低於',
-    target_price DECIMAL(20, 8) NOT NULL COMMENT '目標價格',
-    currency VARCHAR(10) NOT NULL DEFAULT 'usd' COMMENT '貨幣單位',
+    alert_type ENUM('above', 'below') NOT NULL COMMENT 'Price cross direction',
+    target_price DECIMAL(20, 8) NOT NULL COMMENT 'Alert price',
+    currency VARCHAR(10) NOT NULL DEFAULT 'usd',
 
-    is_triggered BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否已觸發',
-    triggered_at DATETIME NULL COMMENT '觸發時間',
-    is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '是否啟用',
+    is_triggered BOOLEAN NOT NULL DEFAULT FALSE,
+    triggered_at DATETIME NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
 
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -186,15 +182,14 @@ CREATE TABLE IF NOT EXISTS coin_price_alerts (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 8. coin_comparisons 幣種比較歷史表（新增）
--- 用途：記錄用戶的比較記錄，方便再次查看
+-- 8. coin_comparisons
 -- =============================================
 CREATE TABLE IF NOT EXISTS coin_comparisons (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
-    comparison_name VARCHAR(100) NULL COMMENT '比較組合名稱（用戶可自訂）',
-    coin_ids JSON NOT NULL COMMENT '比較的幣種 ID 列表，如 ["bitcoin", "ethereum", "cardano"]',
-    is_saved BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否儲存為常用比較',
+    comparison_name VARCHAR(100) NULL COMMENT 'Saved comparison name',
+    coin_ids JSON NOT NULL COMMENT 'Array of coin ids, e.g. ["bitcoin", "ethereum"]',
+    is_saved BOOLEAN NOT NULL DEFAULT FALSE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -208,28 +203,28 @@ CREATE TABLE IF NOT EXISTS coin_comparisons (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 初始資料：建立預設管理員帳號
--- 密碼: admin123 (需要用 bcrypt 加密後替換)
+-- 9. system_settings
 -- =============================================
--- INSERT INTO users (username, email, password_hash, role, join_date) VALUES
--- ('admin', 'admin@example.com', '$2b$10$YOUR_BCRYPT_HASH_HERE', 'admin', NOW());
+CREATE TABLE IF NOT EXISTS system_settings (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    setting_key VARCHAR(100) NOT NULL UNIQUE,
+    setting_value TEXT NOT NULL,
+    description VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 初始資料：建立測試用戶
--- 密碼: password (需要用 bcrypt 加密後替換)
+-- Seed helper (optional)
 -- =============================================
--- INSERT INTO users (username, email, password_hash, role, join_date) VALUES
--- ('demo_user', 'demo@example.com', '$2b$10$YOUR_BCRYPT_HASH_HERE', 'user', NOW());
+-- INSERT INTO users (username, email, password_hash, role, join_date)
+-- VALUES ('admin', 'admin@example.com', '$2b$10$YOUR_BCRYPT_HASH_HERE', 'admin', NOW());
+--
+-- INSERT INTO users (username, email, password_hash, role, join_date)
+-- VALUES ('demo_user', 'demo@example.com', '$2b$10$YOUR_BCRYPT_HASH_HERE', 'user', NOW());
 
 -- =============================================
--- 資料庫 Schema 版本資訊
+-- Schema version
 -- =============================================
 -- Version: 3.0
--- Last Updated: 2024-11-27
--- Changes:
---   - 新增 user_activities 表（用戶活動記錄）
---   - 新增 market_filter_presets 表（市場篩選預設）
---   - 新增 coin_price_alerts 表（價格提醒）
---   - 新增 coin_comparisons 表（幣種比較歷史）
---   - users 表新增 preferred_language 欄位
--- =============================================
+-- Last Updated: 2025-11-27
