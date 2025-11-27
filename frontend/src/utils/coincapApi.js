@@ -5,7 +5,7 @@
  */
 
 const BASE_URL = 'https://api.coincap.io/v2'
-const REQUEST_TIMEOUT = 6000 // ms
+const REQUEST_TIMEOUT = 3000 // ms (優化：從 6000 降到 3000，與 CoinGecko 一致)
 
 /**
  * 通用 API 請求函數

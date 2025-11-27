@@ -7,9 +7,9 @@
 
 const BASE_URL = 'https://api.coingecko.com/api/v3'
 const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY || ''
-const REQUEST_TIMEOUT = 6000 // ms
+const REQUEST_TIMEOUT = 3000 // ms (優化：從 6000 降到 3000，加快失敗切換)
 const MAX_RETRIES = 1
-const RETRY_DELAY = 500 // ms
+const RETRY_DELAY = 200 // ms (優化：從 500 降到 200，加快重試速度)
 
 /**
  * 通用 API 請求函數

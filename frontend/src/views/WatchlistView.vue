@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getCoinsList, convertToAppFormat } from '../utils/coingeckoApi'
-import * as coincapApi from '../utils/coincapApi'
+import { useCoinsStore } from '../stores/useCoinsStore'
 import CoinTable from '../components/CoinTable.vue'
 
 const { t } = useI18n()
+const coinsStore = useCoinsStore()
 const favorites = ref([])
 const allCoins = ref([])
 const isLoading = ref(true)
@@ -36,19 +36,17 @@ onMounted(async () => {
   window.addEventListener('favoritesChanged', loadFavorites)
   window.addEventListener('storage', loadFavorites)
 
-  // 載入幣種數據
+  // 載入幣種數據（使用 Store 快取，perPage: 50 與 Dashboard 一致）
   try {
-    const coins = await getCoinsList('usd', 100, 1)
-    allCoins.value = coins.map(convertToAppFormat)
+    const coins = await coinsStore.fetchCoins({
+      currency: 'usd',
+      perPage: 50,
+      page: 1
+    })
+    allCoins.value = coins
   } catch (error) {
-    console.error('Failed to fetch from CoinGecko:', error)
-    try {
-      const coinsFallback = await coincapApi.getCoinsList(100)
-      allCoins.value = coinsFallback.map(coincapApi.convertToAppFormat)
-    } catch (fallbackError) {
-      console.error('CoinCap fallback also failed:', fallbackError)
-      allCoins.value = []
-    }
+    console.error('Failed to load coins from store:', error)
+    allCoins.value = []
   } finally {
     isLoading.value = false
   }
