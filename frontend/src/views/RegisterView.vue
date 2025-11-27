@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { mockRegister } from '../utils/mockAuth'
+import { authApi } from '@/utils/api'
 
 const router = useRouter()
 
@@ -11,10 +11,9 @@ const password = ref('')
 const confirmPassword = ref('')
 const error = ref('')
 
-const handleRegister = () => {
+const handleRegister = async () => {
   error.value = ''
 
-  // 表單驗證
   if (!username.value || !email.value || !password.value || !confirmPassword.value) {
     error.value = 'Please fill in all fields'
     return
@@ -30,18 +29,19 @@ const handleRegister = () => {
     return
   }
 
-  // 假註冊
-  const result = mockRegister(username.value, email.value, password.value)
+  try {
+    const response = await authApi.register({
+      username: username.value,
+      email: email.value,
+      password: password.value
+    })
 
-  if (result.success) {
-    // 自動登入
-    localStorage.setItem('authToken', 'mock-token-' + Date.now())
-    localStorage.setItem('user', JSON.stringify(result.user))
+    localStorage.setItem('authToken', response.data.token)
+    localStorage.setItem('user', JSON.stringify(response.data.user))
 
-    // 導向 dashboard
     router.push('/dashboard')
-  } else {
-    error.value = result.message
+  } catch (e) {
+    error.value = e.message || 'Registration failed'
   }
 }
 </script>

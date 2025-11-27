@@ -21,11 +21,11 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 10MB
+  cache:
+    type: simple
 
 server:
   port: 8080
-  servlet:
-    context-path: /api
 
 # JWT 配置
 jwt:
@@ -40,6 +40,10 @@ cors:
   allow-credentials: true
 
 # 日誌配置
+coingecko:
+  api:
+    key: CG-vczvnvBTsqG7Z8EVB7KRb3ii
+
 logging:
   level:
     com.crypto.dashboard: DEBUG

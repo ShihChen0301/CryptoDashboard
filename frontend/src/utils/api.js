@@ -1,84 +1,73 @@
-/**
- * API 工具函式
- * 用於處理 API 請求的基礎設定
- */
+// 統一的 API 請求工具
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
-// API 基礎 URL (這裡使用假資料，實際應該指向真實 API)
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://api.example.com'
+// 取得 Token
+const getAuthToken = () => {
+  return localStorage.getItem('authToken')
+}
 
-/**
- * 通用 API 請求函式
- */
-export const apiRequest = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('authToken')
-
-  const defaultOptions = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    }
-  }
+// 通用請求函數
+export async function apiRequest(endpoint, options = {}) {
+  const url = `${API_BASE_URL}${endpoint}`
+  const token = getAuthToken()
 
   const config = {
-    ...defaultOptions,
     ...options,
     headers: {
-      ...defaultOptions.headers,
-      ...options.headers
-    }
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    },
   }
 
-  try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, config)
+  const response = await fetch(url, config)
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    return await response.json()
-  } catch (error) {
-    console.error('API Request Error:', error)
-    throw error
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.message || 'API request failed')
   }
+
+  return response.json()
 }
 
-/**
- * GET 請求
- */
-export const get = (endpoint) => {
-  return apiRequest(endpoint, { method: 'GET' })
+// 認證 API
+export const authApi = {
+  register: (data) =>
+    apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  login: (data) =>
+    apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  logout: () =>
+    apiRequest('/auth/logout', {
+      method: 'POST',
+    }),
 }
 
-/**
- * POST 請求
- */
-export const post = (endpoint, data) => {
-  return apiRequest(endpoint, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
+// 收藏 API
+export const favoriteApi = {
+  getAll: () => apiRequest('/favorites'),
+
+  add: (coinId) =>
+    apiRequest(`/favorites?coinId=${encodeURIComponent(coinId)}`, {
+      method: 'POST',
+    }),
+
+  remove: (coinId) =>
+    apiRequest(`/favorites/${encodeURIComponent(coinId)}`, {
+      method: 'DELETE',
+    }),
 }
 
-/**
- * PUT 請求
- */
-export const put = (endpoint, data) => {
-  return apiRequest(endpoint, {
-    method: 'PUT',
-    body: JSON.stringify(data)
-  })
-}
-
-/**
- * DELETE 請求
- */
-export const del = (endpoint) => {
-  return apiRequest(endpoint, { method: 'DELETE' })
-}
-
-export default {
-  get,
-  post,
-  put,
-  del
+// 幣種 API
+export const coinApi = {
+  getList: (page = 1, perPage = 50, orderBy = 'market_cap_desc') =>
+    apiRequest(`/coins?page=${page}&perPage=${perPage}&orderBy=${orderBy}`),
+  getDetail: (coinId) => apiRequest(`/coins/${encodeURIComponent(coinId)}`),
 }

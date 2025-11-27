@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { mockLogin } from '../utils/mockAuth'
+import { authApi } from '@/utils/api'
 
 const router = useRouter()
 
@@ -9,27 +9,26 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 
-const handleLogin = () => {
+const handleLogin = async () => {
   error.value = ''
 
-  // 表單驗證
   if (!email.value || !password.value) {
     error.value = 'Please fill in all fields'
     return
   }
 
-  // 假登入驗證
-  const result = mockLogin(email.value, password.value)
+  try {
+    const response = await authApi.login({
+      email: email.value,
+      password: password.value
+    })
 
-  if (result.success) {
-    // 儲存 token 和使用者資訊
-    localStorage.setItem('authToken', result.token)
-    localStorage.setItem('user', JSON.stringify(result.user))
+    localStorage.setItem('authToken', response.data.token)
+    localStorage.setItem('user', JSON.stringify(response.data.user))
 
-    // 導向 dashboard
     router.push('/dashboard')
-  } else {
-    error.value = result.message
+  } catch (e) {
+    error.value = e.message || 'Login failed'
   }
 }
 </script>

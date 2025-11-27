@@ -1,60 +1,43 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useCoinsStore } from '../stores/useCoinsStore'
 import CoinTable from '../components/CoinTable.vue'
+import { favoriteApi, coinApi } from '@/utils/api'
 
 const { t } = useI18n()
-const coinsStore = useCoinsStore()
-const favorites = ref([])
-const allCoins = ref([])
+const favorites = ref([]) // coin detail list
 const isLoading = ref(true)
+const error = ref('')
 
-const loadFavorites = () => {
-  const stored = JSON.parse(localStorage.getItem('crypto_favorites') || '[]')
-  favorites.value = stored
-}
+const favoriteCoins = computed(() => favorites.value)
 
-const favoriteCoins = computed(() => {
-  return allCoins.value.filter(coin => favorites.value.includes(coin.id))
-})
-
-const clearAll = () => {
-  if (confirm(t('watchlist.confirmClear'))) {
-    localStorage.setItem('crypto_favorites', JSON.stringify([]))
-    favorites.value = []
-    window.dispatchEvent(new CustomEvent('favoritesChanged', {
-      detail: { favorites: [] }
-    }))
-  }
-}
-
-onMounted(async () => {
-  loadFavorites()
-
-  // 監聽收藏變化事件
-  window.addEventListener('favoritesChanged', loadFavorites)
-  window.addEventListener('storage', loadFavorites)
-
-  // 載入幣種數據（使用 Store 快取，perPage: 50 與 Dashboard 一致）
+const loadFavorites = async () => {
+  isLoading.value = true
+  error.value = ''
   try {
-    const coins = await coinsStore.fetchCoins({
-      currency: 'usd',
-      perPage: 50,
-      page: 1
-    })
-    allCoins.value = coins
-  } catch (error) {
-    console.error('Failed to load coins from store:', error)
-    allCoins.value = []
+    const response = await favoriteApi.getAll()
+    const favoriteIds = response.data.map((f) => f.coinId)
+    const coinDetails = await Promise.all(
+      favoriteIds.map((id) => coinApi.getDetail(id))
+    )
+    favorites.value = coinDetails.map((r) => r.data)
+  } catch (e) {
+    console.error('Failed to load favorites:', e)
+    error.value = e.message || 'Failed to load favorites'
+    favorites.value = []
   } finally {
     isLoading.value = false
   }
-})
+}
 
-onUnmounted(() => {
-  window.removeEventListener('favoritesChanged', loadFavorites)
-  window.removeEventListener('storage', loadFavorites)
+const clearAll = () => {
+  if (confirm(t('watchlist.confirmClear'))) {
+    favorites.value = []
+  }
+}
+
+onMounted(() => {
+  loadFavorites()
 })
 </script>
 
