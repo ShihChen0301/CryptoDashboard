@@ -2,13 +2,14 @@ package com.crypto.dashboard.service;
 
 import com.crypto.dashboard.entity.CoinFavorite;
 import com.crypto.dashboard.entity.User;
+import com.crypto.dashboard.exception.ResourceNotFoundException;
 import com.crypto.dashboard.exception.ValidationException;
 import com.crypto.dashboard.repository.CoinFavoriteRepository;
+import com.crypto.dashboard.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -16,6 +17,7 @@ import java.util.List;
 public class FavoriteService {
 
     private final CoinFavoriteRepository favoriteRepository;
+    private final UserRepository userRepository;
 
     public List<CoinFavorite> getUserFavorites(Long userId) {
         return favoriteRepository.findByUser_Id(userId);
@@ -29,13 +31,14 @@ public class FavoriteService {
                     throw new ValidationException("Coin already in favorites");
                 });
 
-        User userRef = new User();
-        userRef.setId(userId);
+        // 從資料庫載入 User 實體
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         CoinFavorite favorite = new CoinFavorite();
-        favorite.setUser(userRef);
+        favorite.setUser(user);
         favorite.setCoinId(coinId);
-        favorite.setCreatedAt(LocalDateTime.now());
+        // createdAt 由 @CreatedDate 自動處理
         return favoriteRepository.save(favorite);
     }
 

@@ -21,7 +21,10 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
   cache:
-    type: simple
+    type: caffeine
+    cache-names: coinsList,coinDetail
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=5m
 
 server:
   port: 8080

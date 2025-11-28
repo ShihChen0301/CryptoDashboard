@@ -32,8 +32,6 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        validateRegisterInput(request);
-
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ValidationException("Email already in use");
         }
@@ -57,8 +55,6 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        validateLoginInput(request);
-
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isEmpty()) {
             throw new InvalidCredentialsException("Invalid email or password");
@@ -110,26 +106,5 @@ public class AuthService {
         safe.setStatus(user.getStatus());
         safe.setLastLoginAt(user.getLastLoginAt());
         return safe;
-    }
-
-    private void validateRegisterInput(RegisterRequest request) {
-        if (request.getEmail() == null || request.getEmail().isBlank()) {
-            throw new ValidationException("Email is required");
-        }
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
-            throw new ValidationException("Username is required");
-        }
-        if (request.getPassword() == null || request.getPassword().isBlank()) {
-            throw new ValidationException("Password is required");
-        }
-    }
-
-    private void validateLoginInput(LoginRequest request) {
-        if (request.getEmail() == null || request.getEmail().isBlank()) {
-            throw new ValidationException("Email is required");
-        }
-        if (request.getPassword() == null || request.getPassword().isBlank()) {
-            throw new ValidationException("Password is required");
-        }
     }
 }
