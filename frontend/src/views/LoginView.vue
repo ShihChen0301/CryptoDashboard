@@ -54,7 +54,7 @@ const handleLogin = async () => {
             id="email"
             v-model="email"
             type="email"
-            placeholder="demo@example.com"
+            placeholder="your@email.com"
             required
           />
         </div>
@@ -83,12 +83,6 @@ const handleLogin = async () => {
             Don't have an account?
             <router-link to="/register">Sign up</router-link>
           </p>
-        </div>
-
-        <div class="demo-info">
-          <p><strong>Demo Account:</strong></p>
-          <p>Email: demo@example.com</p>
-          <p>Password: password</p>
         </div>
       </form>
     </div>
@@ -235,18 +229,5 @@ const handleLogin = async () => {
 
 .login-footer a:hover {
   text-decoration: underline;
-}
-
-.demo-info {
-  background: #f3f4f6;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-top: 1rem;
-}
-
-.demo-info p {
-  margin: 0.25rem 0;
-  font-size: 0.875rem;
-  color: #4b5563;
 }
 </style>

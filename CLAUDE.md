@@ -177,12 +177,22 @@ coingecko:
 
 ---
 
-## 測試帳號
+## 帳號說明
 
-| 角色 | Email | 密碼 |
-|------|-------|------|
-| 一般用戶 | demo@example.com | password |
-| 管理員 | admin@example.com | admin123 |
+**目前沒有預設帳號**，請使用以下方式建立帳號：
+
+### 方式 1：註冊新帳號（推薦）
+1. 前端註冊頁面：http://localhost:5173/register
+2. 填寫用戶名、Email、密碼
+3. 註冊後會自動獲得 `user` 角色
+
+### 方式 2：升級為 Admin
+註冊後，在資料庫中執行：
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
+```
+
+**安全考量**：為了安全，註冊 API 不允許直接建立 admin 帳號，只能先註冊為普通用戶，再由資料庫手動升級。
 
 ---
 
@@ -393,9 +403,10 @@ npm run dev
    - Entity 類別目前只對應 v1.0 的 4 個核心表（users, auth_tokens, coin_favorites, announcements）
    - v3.0 新增的 5 個擴充表尚未建立對應的 Entity（user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings）
 
-3. **測試帳號**：
-   - 資料庫初始化後，需要手動建立測試帳號
-   - 註冊功能已完整實作，可直接使用註冊 API 建立帳號
+3. **帳號建立**：
+   - 資料庫初始化後無預設帳號
+   - 可透過前端註冊頁面建立新帳號（自動為 user 角色）
+   - Admin 帳號需在註冊後於資料庫手動升級（安全考量）
 
 4. **後端代碼品質**：
    - ✅ 所有已知的代碼問題已修復（共 13 項）
