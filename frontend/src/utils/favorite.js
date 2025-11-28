@@ -1,17 +1,29 @@
 /**
  * 收藏功能工具函式
- * 使用 localStorage 儲存用戶的收藏列表
+ * 使用後端 API 管理用戶的收藏列表
  */
+import { favoriteApi } from './api'
 
-const STORAGE_KEY = 'crypto_favorites'
+// 快取收藏列表（減少 API 請求）
+let favoritesCache = null
+let lastFetchTime = 0
+const CACHE_DURATION = 30000 // 30 秒快取
 
 /**
  * 獲取所有收藏的幣種 ID
  */
-export const getFavorites = () => {
+export const getFavorites = async () => {
   try {
-    const favorites = localStorage.getItem(STORAGE_KEY)
-    return favorites ? JSON.parse(favorites) : []
+    // 如果快取有效，直接返回
+    if (favoritesCache && Date.now() - lastFetchTime < CACHE_DURATION) {
+      return favoritesCache.map(f => f.coinId)
+    }
+
+    // 從後端獲取
+    const response = await favoriteApi.getAll()
+    favoritesCache = response.data
+    lastFetchTime = Date.now()
+    return favoritesCache.map(f => f.coinId)
   } catch (error) {
     console.error('Error getting favorites:', error)
     return []
@@ -19,33 +31,36 @@ export const getFavorites = () => {
 }
 
 /**
- * 檢查某個幣種是否已收藏
+ * 同步檢查某個幣種是否已收藏（使用快取）
  */
 export const isFavorite = (coinId) => {
-  const favorites = getFavorites()
-  return favorites.includes(coinId)
+  if (!favoritesCache) {
+    // 沒有快取時，先載入
+    getFavorites().then(() => {
+      // 觸發重新渲染
+      window.dispatchEvent(new CustomEvent('favoritesChanged'))
+    })
+    return false
+  }
+  return favoritesCache.some(f => f.coinId === coinId)
 }
 
 /**
  * 添加收藏
  */
-export const addFavorite = (coinId) => {
+export const addFavorite = async (coinId) => {
   try {
-    const favorites = getFavorites()
+    await favoriteApi.add(coinId)
 
-    if (!favorites.includes(coinId)) {
-      favorites.push(coinId)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites))
+    // 清除快取，強制下次重新載入
+    favoritesCache = null
 
-      // 觸發自定義事件，通知其他組件
-      window.dispatchEvent(new CustomEvent('favoritesChanged', {
-        detail: { favorites }
-      }))
+    // 觸發自定義事件，通知其他組件
+    window.dispatchEvent(new CustomEvent('favoritesChanged', {
+      detail: { action: 'add', coinId }
+    }))
 
-      return true
-    }
-
-    return false
+    return true
   } catch (error) {
     console.error('Error adding favorite:', error)
     return false
@@ -55,24 +70,30 @@ export const addFavorite = (coinId) => {
 /**
  * 移除收藏
  */
-export const removeFavorite = (coinId) => {
+export const removeFavorite = async (coinId) => {
   try {
-    const favorites = getFavorites()
-    const index = favorites.indexOf(coinId)
-
-    if (index > -1) {
-      favorites.splice(index, 1)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites))
-
-      // 觸發自定義事件，通知其他組件
-      window.dispatchEvent(new CustomEvent('favoritesChanged', {
-        detail: { favorites }
-      }))
-
-      return true
+    // 找到對應的收藏 ID
+    if (!favoritesCache) {
+      await getFavorites()
     }
 
-    return false
+    const favorite = favoritesCache?.find(f => f.coinId === coinId)
+    if (!favorite) {
+      console.warn('Favorite not found:', coinId)
+      return false
+    }
+
+    await favoriteApi.remove(favorite.id)
+
+    // 清除快取，強制下次重新載入
+    favoritesCache = null
+
+    // 觸發自定義事件，通知其他組件
+    window.dispatchEvent(new CustomEvent('favoritesChanged', {
+      detail: { action: 'remove', coinId }
+    }))
+
+    return true
   } catch (error) {
     console.error('Error removing favorite:', error)
     return false
@@ -82,24 +103,37 @@ export const removeFavorite = (coinId) => {
 /**
  * 切換收藏狀態
  */
-export const toggleFavorite = (coinId) => {
+export const toggleFavorite = async (coinId) => {
+  // 先載入快取
+  if (!favoritesCache) {
+    await getFavorites()
+  }
+
   if (isFavorite(coinId)) {
-    return removeFavorite(coinId)
+    return await removeFavorite(coinId)
   } else {
-    return addFavorite(coinId)
+    return await addFavorite(coinId)
   }
 }
 
 /**
  * 清空所有收藏
  */
-export const clearFavorites = () => {
+export const clearFavorites = async () => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
+    if (!favoritesCache) {
+      await getFavorites()
+    }
+
+    // 刪除所有收藏
+    await Promise.all(favoritesCache.map(f => favoriteApi.remove(f.id)))
+
+    // 清除快取
+    favoritesCache = []
 
     // 觸發自定義事件，通知其他組件
     window.dispatchEvent(new CustomEvent('favoritesChanged', {
-      detail: { favorites: [] }
+      detail: { action: 'clear' }
     }))
 
     return true
@@ -112,8 +146,16 @@ export const clearFavorites = () => {
 /**
  * 獲取收藏數量
  */
-export const getFavoritesCount = () => {
-  return getFavorites().length
+export const getFavoritesCount = async () => {
+  const favorites = await getFavorites()
+  return favorites.length
+}
+
+/**
+ * 初始化收藏資料（預載入）
+ */
+export const initFavorites = async () => {
+  return await getFavorites()
 }
 
 export default {

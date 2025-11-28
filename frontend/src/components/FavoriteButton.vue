@@ -16,15 +16,20 @@ const loadFavoriteStatus = () => {
   isFav.value = checkFavorite(props.coinId)
 }
 
-const handleToggle = (event) => {
+const handleToggle = async (event) => {
   event.stopPropagation()
   event.preventDefault()
 
-  toggleFav(props.coinId)
-  isFav.value = checkFavorite(props.coinId)
-
   // 觸發動畫
   isAnimating.value = true
+
+  try {
+    await toggleFav(props.coinId)
+    isFav.value = checkFavorite(props.coinId)
+  } catch (error) {
+    console.error('Failed to toggle favorite:', error)
+  }
+
   setTimeout(() => {
     isAnimating.value = false
   }, 600)
