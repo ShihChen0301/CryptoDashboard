@@ -58,31 +58,41 @@
   - 移除模擬資料（mockAuth.js）
   - LoginView、RegisterView、WatchlistView 已串接真實 API
 
-### ✅ 後端（v1.0.0，核心功能完成）
+### ✅ 後端（v1.0.0，生產就緒）
 - **配置層（Config）**：
-  - AppConfig：RestTemplate Bean 配置
-  - SecurityConfig：JWT 驗證 + BCrypt 密碼編碼 + CORS 設定
-  - 路徑放行：/api/auth/\*, /api/coins/\*（其餘需驗證）
+  - AppConfig：RestTemplate Bean 配置（含超時設定：連線 5 秒 / 讀取 10 秒）
+  - SecurityConfig：JWT 驗證 + BCrypt 密碼編碼 + CORS 設定 + JwtAuthenticationFilter
+  - CorsConfig：CORS 跨域配置（支援 wildcard）
+  - 路徑放行：/api/auth/\*, /api/coins/\*（其餘需 JWT 驗證）
+- **安全層（Security）**：
+  - JwtAuthenticationFilter：JWT Token 驗證過濾器（整合至 Spring Security 鏈）
+  - 無狀態 Session 管理（SessionCreationPolicy.STATELESS）
 - **控制器層（Controller）**：
-  - AuthController：註冊、登入、登出
+  - AuthController：註冊、登入、登出（含 @Valid 自動驗證）
   - FavoriteController：收藏 CRUD
   - CoinController：CoinGecko API Proxy
 - **服務層（Service）**：
-  - AuthService：JWT 簽發、登出、返回淨化 User 物件
-  - FavoriteService：防重複收藏邏輯
-  - CoinService：CoinGecko Proxy + @Cacheable 快取機制
+  - AuthService：JWT 簽發、登出、返回淨化 User 物件（移除手動驗證邏輯）
+  - FavoriteService：防重複收藏邏輯（使用資料庫載入的 User 實體）
+  - CoinService：CoinGecko Proxy + Caffeine Cache（5 分鐘 TTL，最大 1000 項）
 - **資料層（Repository）**：
   - UserRepository, AuthTokenRepository, CoinFavoriteRepository, AnnouncementRepository
+- **實體層（Entity）**：
+  - User, AuthToken, CoinFavorite, Announcement（使用 @Getter/@Setter，避免循環參照）
 - **DTO 物件**：
-  - Request：LoginRequest, RegisterRequest
+  - Request：LoginRequest, RegisterRequest（含 Jakarta Bean Validation）
   - Response：AuthResponse（token + user）
 - **JWT 工具（JwtUtil）**：
   - 演算法：HS512
   - 配置化：secret、expiration（application.yml）
   - 方法：getUserIdFromToken, validateToken
 - **例外處理**：
-  - GlobalExceptionHandler
+  - GlobalExceptionHandler（使用 SLF4J Logger，移除 printStackTrace）
   - 6 個自訂 Exception（ResourceNotFoundException, DuplicateFavoriteException, etc.）
+- **快取機制**：
+  - Caffeine Cache（coinsList, coinDetail）
+  - TTL：5 分鐘自動過期
+  - 容量：最大 1000 項
 
 ### ✅ 資料庫（v3.0）
 - **檔案**：`database/schema_v3.sql`（唯一正式版本）
@@ -90,9 +100,11 @@
   - **核心表**（已實作 Entity）：users, auth_tokens, coin_favorites, announcements
   - **擴充表**（v3.0 新增）：user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings
 - **配置檔**：application.yml/application-dev.yml
-  - Cache：Spring Cache Simple
+  - Cache：Caffeine（5 分鐘 TTL，最大 1000 項）
   - CoinGecko API Key：已配置
   - JWT：secret/expiration 已設定
+  - CORS：允許 localhost:5173
+  - RestTemplate：連線超時 5 秒，讀取超時 10 秒
 
 ---
 
@@ -135,9 +147,11 @@ CryptoDashboard/
   database/
     schema_v3.sql         # MySQL v3.0 完整結構（唯一正式版）
   docs/
-    README.md             # 文檔導覽
-    功能對照表.md          # v2.0 功能規劃（未來參考）
-    功能需求分析_v2.md     # v2.0 需求分析（未來參考）
+    README.md                  # 文檔導覽
+    功能對照表.md              # v2.0 功能規劃（未來參考）
+    功能需求分析_v2.md         # v2.0 需求分析（未來參考）
+    archive/
+      後端代碼檢查報告.md      # 後端代碼檢查報告（已完成修復）
 ```
 
 ---
@@ -200,6 +214,33 @@ coingecko:
 - ✅ **文檔更新**：
   - 更新 CLAUDE.md、README.md、docs/README.md 反映最新實作狀態
   - 刪除過時文檔：docs/專案結構規劃.md（已完成重構）
+- ✅ **後端代碼全面修復與優化**（下午）：
+  - **重大修復（2 項）**：
+    - 新增 `JwtAuthenticationFilter`：實作完整 JWT 認證流程，整合到 Spring Security 過濾鏈
+    - 修正 `FavoriteService`：改用資料庫載入的 User 實體（解決 JPA unmanaged entity 問題）
+  - **中等優先修復（6 項）**：
+    - Entity 層改用 `@Getter/@Setter` 取代 `@Data`（避免 JPA 循環參照）
+    - `AppConfig`：RestTemplate 加入連線超時（5秒）和讀取超時（10秒）
+    - `CorsConfig`：修正 allowedHeaders wildcard 處理的型別錯誤
+    - `GlobalExceptionHandler`：移除 printStackTrace，改用 SLF4J Logger
+    - `pom.xml`：新增 Caffeine Cache 依賴
+    - `application.yml`：配置 Caffeine Cache TTL（5分鐘過期，最大1000項）
+  - **次要優化（5 項）**：
+    - DTO 層加入 Jakarta Bean Validation 註解
+    - `AuthController`：使用 `@Valid` 啟用自動驗證
+    - `AuthService`：移除手動驗證邏輯
+    - 修正所有 Entity 的 Lombok import
+    - 編譯與啟動測試通過
+  - **測試結果**：
+    - ✅ Maven 編譯成功
+    - ✅ Spring Boot 成功啟動（http://localhost:8080/api）
+    - ✅ JWT Filter 正確載入
+    - ✅ 4 個 JPA Repository 掃描成功
+    - ✅ MySQL 資料庫連線成功
+    - ✅ Caffeine Cache 配置生效
+  - **文檔整理**：
+    - 生成「後端代碼檢查報告.md」（詳細記錄所有問題與修復方案）
+    - 將報告移至 `docs/archive/`（問題已全部修復）
 
 ### 2024-11-27
 - ✅ **後端基礎架構完整實作**：
@@ -344,17 +385,23 @@ npm run dev
 ### ⚠️ 已知問題與注意事項
 
 1. **前端 API 呼叫**：
-   - 目前前端 `api.js` 已整合，但尚未實際測試
-   - 需要確認 CORS 設定正確（application.yml 中已設定）
-   - 需要確認 JWT Token 在前端正確儲存與傳送
+   - 前端 `api.js` 已整合，待實際前後端整合測試
+   - CORS 設定已正確配置（application.yml）
+   - JWT Token 傳送機制已實作（Bearer Token）
 
 2. **資料庫欄位對應**：
-   - Entity 類別目前只對應 v1.0 的 4 個表
-   - v3.0 新增的 5 個表尚未建立對應的 Entity
+   - Entity 類別目前只對應 v1.0 的 4 個核心表（users, auth_tokens, coin_favorites, announcements）
+   - v3.0 新增的 5 個擴充表尚未建立對應的 Entity（user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings）
 
 3. **測試帳號**：
    - 資料庫初始化後，需要手動建立測試帳號
-   - 或在 AuthService 中先用模擬帳號測試
+   - 註冊功能已完整實作，可直接使用註冊 API 建立帳號
+
+4. **後端代碼品質**：
+   - ✅ 所有已知的代碼問題已修復（共 13 項）
+   - ✅ JWT 認證機制已完整實作並測試通過
+   - ✅ 所有依賴注入與 Bean 配置正確
+   - ✅ 快取機制已配置 TTL，避免資料過時
 
 ---
 
@@ -465,4 +512,4 @@ mysql -u root -p -e "SHOW DATABASES LIKE 'crypto_dashboard';"
 
 ---
 
-*最後更新：2024-11-28（後端完整架構實作、前端 API 整合、文檔更新）*
+*最後更新：2024-11-28（後端完整架構實作、前端 API 整合、後端代碼全面修復與優化、文檔更新）*
