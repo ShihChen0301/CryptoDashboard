@@ -45,27 +45,54 @@
 
 ---
 
-## 現況（2024-11-27）
+## 現況（2024-11-28）
 
-### ✅ 前端（v1.1.0，90% 完成）
+### ✅ 前端（v1.1.0，95% 完成）
 - Vue 3 + Pinia + i18n 完整架構
 - Sidebar 語系切換按鈕（zh-TW / en-US）
 - Market 進階篩選功能（價格、市值、漲跌幅範圍）
 - Dashboard、Market、Compare、Watchlist、Profile、Admin 全頁面完成
-- **整合狀態**：已改用後端 API（api.js），移除 mockAuth.js
+- **API 整合**：
+  - 統一 API 工具（utils/api.js）：支援 Bearer Token 認證
+  - 完整前後端整合：auth/favorite/coin API
+  - 移除模擬資料（mockAuth.js）
+  - LoginView、RegisterView、WatchlistView 已串接真實 API
 
-### ✅ 後端（v1.0.0，基礎功能完成）
-- **Repository 層**：UserRepository, AuthTokenRepository, CoinFavoriteRepository, AnnouncementRepository
-- **Service 層**：AuthService（註冊/登入/登出）、FavoriteService（收藏 CRUD）、CoinService（CoinGecko Proxy）
-- **Controller 層**：AuthController, FavoriteController, CoinController
-- **安全配置**：SecurityConfig（CORS + BCrypt 密碼加密）
-- **JWT 工具**：JwtUtil（Token 生成與驗證）
-- **例外處理**：GlobalExceptionHandler + 5 個自訂 Exception
+### ✅ 後端（v1.0.0，核心功能完成）
+- **配置層（Config）**：
+  - AppConfig：RestTemplate Bean 配置
+  - SecurityConfig：JWT 驗證 + BCrypt 密碼編碼 + CORS 設定
+  - 路徑放行：/api/auth/\*, /api/coins/\*（其餘需驗證）
+- **控制器層（Controller）**：
+  - AuthController：註冊、登入、登出
+  - FavoriteController：收藏 CRUD
+  - CoinController：CoinGecko API Proxy
+- **服務層（Service）**：
+  - AuthService：JWT 簽發、登出、返回淨化 User 物件
+  - FavoriteService：防重複收藏邏輯
+  - CoinService：CoinGecko Proxy + @Cacheable 快取機制
+- **資料層（Repository）**：
+  - UserRepository, AuthTokenRepository, CoinFavoriteRepository, AnnouncementRepository
+- **DTO 物件**：
+  - Request：LoginRequest, RegisterRequest
+  - Response：AuthResponse（token + user）
+- **JWT 工具（JwtUtil）**：
+  - 演算法：HS512
+  - 配置化：secret、expiration（application.yml）
+  - 方法：getUserIdFromToken, validateToken
+- **例外處理**：
+  - GlobalExceptionHandler
+  - 6 個自訂 Exception（ResourceNotFoundException, DuplicateFavoriteException, etc.）
 
-### ✅ 資料庫（v3.0 已設計）
+### ✅ 資料庫（v3.0）
 - **檔案**：`database/schema_v3.sql`（唯一正式版本）
-- **表格**：9 個（users, auth_tokens, coin_favorites, announcements, user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings）
-- **狀態**：SQL 檔案已就緒，可執行建立資料庫
+- **表格**：9 個
+  - **核心表**（已實作 Entity）：users, auth_tokens, coin_favorites, announcements
+  - **擴充表**（v3.0 新增）：user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings
+- **配置檔**：application.yml/application-dev.yml
+  - Cache：Spring Cache Simple
+  - CoinGecko API Key：已配置
+  - JWT：secret/expiration 已設定
 
 ---
 
@@ -109,9 +136,8 @@ CryptoDashboard/
     schema_v3.sql         # MySQL v3.0 完整結構（唯一正式版）
   docs/
     README.md             # 文檔導覽
-    專案結構規劃.md        # 資料夾組織方案
-    功能對照表.md          # 功能實作狀態（參考用）
-    功能需求分析_v2.md     # 需求分析報告（參考用）
+    功能對照表.md          # v2.0 功能規劃（未來參考）
+    功能需求分析_v2.md     # v2.0 需求分析（未來參考）
 ```
 
 ---
@@ -148,7 +174,34 @@ coingecko:
 
 ## 開發歷史
 
-### 2024-11-27（今日）
+### 2024-11-28（今日）
+- ✅ **後端完整架構實作**：
+  - **Config 層**：AppConfig（RestTemplate Bean）、SecurityConfig（JWT + BCrypt + CORS）
+  - **Controller 層**：AuthController、FavoriteController、CoinController
+  - **Service 層**：
+    - AuthService：登入/註冊/登出 + JWT 簽發 + User 物件淨化
+    - FavoriteService：收藏 CRUD + 防重複收藏邏輯
+    - CoinService：CoinGecko Proxy + @Cacheable 快取
+  - **Repository 層**：UserRepository、AuthTokenRepository、CoinFavoriteRepository、AnnouncementRepository
+  - **DTO 層**：LoginRequest、RegisterRequest、AuthResponse（token + user）
+  - **JWT 工具**：JwtUtil（HS512 + 配置化 secret/expiration + validateToken）
+  - **例外處理**：GlobalExceptionHandler + 6 個自訂 Exception
+- ✅ **前端 API 整合**：
+  - 重寫 `utils/api.js`：統一 API_BASE_URL + Bearer Token 認證
+  - 實作 authApi、favoriteApi、coinApi 三大模組
+  - 移除 `mockAuth.js`（清除所有模擬資料）
+  - LoginView、RegisterView、WatchlistView 改用真實 API
+  - 新增 `frontend/.env`（配置 VITE_API_BASE_URL）
+- ✅ **資料庫配置**：
+  - Schema v3.0 新增 `system_settings` 表
+  - application.yml 加入 Spring Cache Simple 配置
+  - application.yml 加入 CoinGecko API Key
+  - application-dev.yml 補齊 JWT 欄位
+- ✅ **文檔更新**：
+  - 更新 CLAUDE.md、README.md、docs/README.md 反映最新實作狀態
+  - 刪除過時文檔：docs/專案結構規劃.md（已完成重構）
+
+### 2024-11-27
 - ✅ **後端基礎架構完整實作**：
   - Repository 層（4 個）+ Service 層（3 個）+ Controller 層（3 個）
   - JWT 認證系統完整（JwtUtil + SecurityConfig）
@@ -225,44 +278,12 @@ coingecko:
 
 ### 🔥 立即執行（下一步）
 
-#### 1. 安裝 Maven（如果尚未安裝）
-```powershell
-# 以系統管理員身分執行 PowerShell
-choco install maven -y
-
-# 重新開啟 PowerShell，確認安裝
-mvn -version
-```
-
-#### 2. 初始化資料庫
+#### 1. 前後端整合測試
 ```bash
-# 確認 MySQL 已啟動
-mysql -u root -p -e "SHOW DATABASES LIKE 'crypto_dashboard';"
+# 確認後端正在運行
+# 後端應該在 http://localhost:8080/api
 
-# 如果資料庫不存在，執行以下指令建立
-mysql -u root -p < database/schema_v3.sql
-
-# 確認建立成功（應該顯示 9 個表）
-mysql -u root -p -e "USE crypto_dashboard; SHOW TABLES;"
-```
-
-#### 3. 啟動後端並測試
-```bash
-# 方法 A: 使用 Maven
-cd backend
-mvn spring-boot:run
-
-# 方法 B: 使用 Eclipse
-# 右鍵 CryptoDashboardApplication.java → Run As → Java Application
-```
-
-**預期結果**：
-- Console 顯示 `Started CryptoDashboardApplication in X.XXX seconds`
-- 無紅色 ERROR 訊息
-- 後端運行在 `http://localhost:8080/api`
-
-#### 4. 啟動前端並測試整合
-```bash
+# 啟動前端
 cd frontend
 npm run dev
 ```
@@ -274,6 +295,11 @@ npm run dev
 - [ ] 測試收藏功能（POST /api/favorites, DELETE /api/favorites/{id}）
 - [ ] 查看 Watchlist 頁面（GET /api/favorites）
 - [ ] 測試登出功能（POST /api/auth/logout）
+
+#### 2. 修復整合測試中發現的 Bug
+- 根據測試結果修復任何前後端整合問題
+- 確認 JWT Token 正確傳送與驗證
+- 確認 CORS 設定正確
 
 ---
 
@@ -336,33 +362,39 @@ npm run dev
 
 **Phase 1: 後端基礎建設** ✅ 100% 完成
 - [x] Spring Boot 專案結構
-- [x] Entity 層（4 個）
-- [x] Repository 層（4 個）
-- [x] Service 層（3 個）
-- [x] Controller 層（3 個）
-- [x] JWT 認證系統
-- [x] 全域例外處理
+- [x] Config 層（AppConfig, SecurityConfig）
+- [x] Entity 層（4 個實體類）
+- [x] Repository 層（4 個 Repository）
+- [x] Service 層（AuthService, FavoriteService, CoinService）
+- [x] Controller 層（AuthController, FavoriteController, CoinController）
+- [x] DTO 層（Request/Response）
+- [x] JWT 認證系統（JwtUtil + HS512）
+- [x] 全域例外處理（GlobalExceptionHandler + 6 個自訂 Exception）
 
-**Phase 2: 前後端整合** ✅ 80% 完成
-- [x] 前端 API 工具類（api.js）
+**Phase 2: 前後端整合** ✅ 90% 完成
+- [x] 前端 API 工具類（api.js，含 Bearer Token）
 - [x] 移除模擬資料（mockAuth.js）
-- [x] CoinGecko API Proxy
+- [x] CoinGecko API Proxy（含 @Cacheable）
 - [x] 登入/註冊頁面整合
 - [x] Watchlist 頁面整合
-- [ ] ⏳ 實際測試整合（待完成）
+- [x] 前端環境變數配置（.env）
+- [x] 後端配置檔完善（application.yml, application-dev.yml）
+- [ ] ⏳ 實際前後端整合測試（待完成）
 - [ ] ⏳ Bug 修正（待完成）
 
 **Phase 3: 進階功能** ⏳ 0% 完成
-- [ ] Admin Panel API
-- [ ] 用戶活動記錄
-- [ ] 價格提醒功能
-- [ ] 幣種比較歷史
+- [ ] Admin Panel API（統計、用戶管理、公告管理）
+- [ ] 用戶活動記錄（user_activities 表整合）
+- [ ] 價格提醒功能（coin_price_alerts 表整合）
+- [ ] 幣種比較歷史（coin_comparisons 表整合）
+- [ ] 市場篩選預設（market_filter_presets 表整合）
 
 **Phase 4: 優化與測試** ⏳ 0% 完成
-- [ ] 單元測試
-- [ ] 效能優化
+- [ ] 單元測試（JUnit + MockMvc）
+- [ ] 整合測試
+- [ ] API 效能優化
 - [ ] 安全性檢查
-- [ ] 部署設定
+- [ ] 部署設定（Docker, CI/CD）
 
 ---
 
@@ -433,4 +465,4 @@ mysql -u root -p -e "SHOW DATABASES LIKE 'crypto_dashboard';"
 
 ---
 
-*最後更新：2024-11-27（後端基礎架構完成、前後端整合）*
+*最後更新：2024-11-28（後端完整架構實作、前端 API 整合、文檔更新）*

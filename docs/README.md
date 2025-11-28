@@ -5,12 +5,12 @@ CoinVue（幣景）完整開發文檔
 ## 目錄
 
 ### 核心文檔
-- [專案記憶 (CLAUDE.md)](../CLAUDE.md) - 完整的專案歷史與決策記錄
-- [專案結構規劃](./專案結構規劃.md) - 資料夾組織方案與命名規範
+- [專案記憶 (CLAUDE.md)](../CLAUDE.md) - 完整的專案歷史與決策記錄（主要文檔）
+- [專案 README](../README.md) - 專案簡介、快速開始、技術棧
 
-### 參考文檔（舊版規劃，僅供參考）
-- [功能對照表](./功能對照表.md) - v2.0 功能需求清單（部分已實作）
-- [功能需求分析_v2](./功能需求分析_v2.md) - v2.0 需求分析報告（已過時）
+### 參考文檔（v2.0 未來功能規劃）
+- [功能對照表](./功能對照表.md) - v2.0 功能需求清單（未來功能參考）
+- [功能需求分析_v2](./功能需求分析_v2.md) - v2.0 需求分析報告（未來功能參考）
 
 ### 快速連結
 
@@ -79,17 +79,23 @@ mysql -u root -p < ../database/schema_v3.sql
 - [x] 實作 Spring Security 配置
 - [x] 實作登入/註冊 API（AuthController + AuthService）
 
-### Phase 2: 前後端整合（✅ 已完成）
+### Phase 2: 前後端整合（✅ 90% 完成）
 - [x] 實作 CoinGecko API Proxy (`/api/coins/*`)
-- [x] 後端快取機制（Spring Cache）
+- [x] 後端快取機制（Spring Cache + @Cacheable）
 - [x] 實作收藏 CRUD API（FavoriteController + FavoriteService）
 - [x] 前端整合（新增 api.js，移除 mockAuth.js）
+- [x] 前端環境變數配置（.env）
+- [x] 後端配置檔完善（application.yml, application-dev.yml）
+- [x] LoginView、RegisterView、WatchlistView 改用真實 API
+- [ ] ⏳ 實際前後端整合測試（待完成）
 
-### Phase 3: 進階功能（⏳ 進行中）
-- [ ] 實作公告 CRUD API
-- [ ] 實作用戶活動記錄
-- [ ] 實作價格提醒功能
-- [ ] Admin Panel 統計 API
+### Phase 3: 進階功能（⏳ 待開始）
+- [ ] 實作公告 CRUD API（AnnouncementController + Service）
+- [ ] 實作用戶活動記錄（user_activities 表整合）
+- [ ] 實作價格提醒功能（coin_price_alerts 表整合）
+- [ ] Admin Panel 統計 API（GET /api/admin/stats）
+- [ ] 幣種比較歷史（coin_comparisons 表整合）
+- [ ] 市場篩選預設（market_filter_presets 表整合）
 
 ### Phase 4: 優化與測試（⏳ 待開始）
 - [ ] 單元測試撰寫
@@ -185,7 +191,7 @@ A: 參考 `../CLAUDE.md`，包含所有開發歷史與決策記錄
 ---
 
 **專案名稱**: CoinVue（幣景）
-**前端版本**: v1.1.0（90% 完成）
-**後端版本**: v1.0.0（基礎功能完成）
-**最後更新**: 2024-11-27
-**專案狀態**: Phase 1-2 完成，Phase 3-4 進行中
+**前端版本**: v1.1.0（95% 完成）
+**後端版本**: v1.0.0（核心功能完成）
+**最後更新**: 2024-11-28
+**專案狀態**: Phase 1-2 完成，Phase 3-4 待開始
