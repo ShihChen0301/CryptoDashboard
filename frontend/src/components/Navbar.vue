@@ -1,10 +1,14 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { getUserAvatar } from '@/utils/gravatar'
 
 const router = useRouter()
 const user = ref(JSON.parse(localStorage.getItem('user') || '{}'))
 const showDropdown = ref(false)
+
+// 計算用戶頭像 URL
+const userAvatar = computed(() => getUserAvatar(user.value))
 
 const logout = () => {
   localStorage.removeItem('authToken')
@@ -33,7 +37,7 @@ const closeDropdown = () => {
       <div class="navbar-right">
         <div class="user-section" @click="toggleDropdown">
           <div class="user-info">
-            <img :src="user.avatar" alt="avatar" class="avatar" />
+            <img :src="userAvatar" alt="avatar" class="avatar" />
             <span class="username">{{ user.username || 'User' }}</span>
           </div>
           <span class="dropdown-arrow">▼</span>

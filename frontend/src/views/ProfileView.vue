@@ -1,16 +1,20 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { getUserAvatar } from '@/utils/gravatar'
 
 const { t } = useI18n()
 
 const user = ref({
   username: '',
   email: '',
-  avatar: '',
+  avatarUrl: '',
   joinDate: '',
   tradingExperience: ''
 })
+
+// 計算用戶頭像 URL
+const userAvatar = computed(() => getUserAvatar(user.value))
 
 const isEditing = ref(false)
 const editForm = ref({
@@ -87,7 +91,7 @@ const formatDate = (dateString) => {
 
       <div class="profile-card">
         <div class="profile-avatar">
-          <img :src="user.avatar" :alt="user.username" />
+          <img :src="userAvatar" :alt="user.username" />
         </div>
 
         <div class="profile-form">
