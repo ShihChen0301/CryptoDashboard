@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { isFavorite as checkFavorite, toggleFavorite as toggleFav } from '../utils/favorite'
+import { isFavorite as checkFavorite, toggleFavorite as toggleFav, getFavorites } from '../utils/favorite'
 
 const props = defineProps({
   coinId: {
@@ -10,18 +10,21 @@ const props = defineProps({
 })
 
 const isFav = ref(false)
-const isAnimating = ref(false)
+const isLoading = ref(true)
 
-const loadFavoriteStatus = () => {
+const loadFavoriteStatus = async () => {
+  // 先確保已經載入收藏列表
+  await getFavorites()
+  // 然後檢查當前幣種是否已收藏
   isFav.value = checkFavorite(props.coinId)
+  isLoading.value = false
 }
 
 const handleToggle = async (event) => {
   event.stopPropagation()
   event.preventDefault()
 
-  // 觸發動畫
-  isAnimating.value = true
+  if (isLoading.value) return
 
   try {
     await toggleFav(props.coinId)
@@ -29,14 +32,10 @@ const handleToggle = async (event) => {
   } catch (error) {
     console.error('Failed to toggle favorite:', error)
   }
-
-  setTimeout(() => {
-    isAnimating.value = false
-  }, 600)
 }
 
 const handleFavoritesChanged = () => {
-  loadFavoriteStatus()
+  isFav.value = checkFavorite(props.coinId)
 }
 
 onMounted(() => {
@@ -53,107 +52,38 @@ onUnmounted(() => {
   <button
     class="favorite-btn"
     @click="handleToggle"
-    :class="{ active: isFav, animating: isAnimating }"
+    :class="{ active: isFav }"
     :title="isFav ? 'Remove from favorites' : 'Add to favorites'"
   >
     <span class="star-icon">{{ isFav ? '★' : '☆' }}</span>
-    <span v-if="isAnimating" class="ripple"></span>
   </button>
 </template>
 
 <style scoped>
 .favorite-btn {
-  position: relative;
   background: transparent;
   border: none;
-  font-size: var(--text-2xl);
+  font-size: 1.5rem;
   cursor: pointer;
-  color: var(--color-border-dark);
-  transition: all var(--transition-base);
-  padding: var(--spacing-sm);
+  color: #d1d5db;
+  transition: color 0.2s;
+  padding: 0.5rem;
   line-height: 1;
-  border-radius: var(--radius-md);
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 .favorite-btn:hover {
-  color: var(--color-warning);
-  transform: scale(1.15);
-  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
 }
 
 .favorite-btn.active {
-  color: var(--color-warning);
-}
-
-.favorite-btn.active .star-icon {
-  animation: starPop 0.3s ease-out;
+  color: #fbbf24;
 }
 
 .star-icon {
-  position: relative;
-  z-index: 1;
   display: block;
-  transition: transform var(--transition-base);
-}
-
-.favorite-btn.animating .star-icon {
-  animation: heartBeat 0.6s ease-out;
-}
-
-@keyframes starPop {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.3) rotate(20deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-@keyframes heartBeat {
-  0%, 100% {
-    transform: scale(1);
-  }
-  10%, 30% {
-    transform: scale(1.3);
-  }
-  20%, 40%, 60%, 80% {
-    transform: scale(1.1);
-  }
-  50%, 70% {
-    transform: scale(1.25);
-  }
-}
-
-.ripple {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: var(--radius-full);
-  background: var(--color-warning);
-  opacity: 0.5;
-  animation: rippleEffect 0.6s ease-out;
-  pointer-events: none;
-}
-
-@keyframes rippleEffect {
-  0% {
-    transform: scale(0);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(2.5);
-    opacity: 0;
-  }
-}
-
-.favorite-btn:active {
-  transform: scale(0.95);
 }
 </style>

@@ -1,5 +1,6 @@
 package com.crypto.dashboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -68,9 +69,11 @@ public class User {
     private LocalDateTime updatedAt;
 
     // 一對多關係
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CoinFavorite> favorites;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AuthToken> authTokens;
 
