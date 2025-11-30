@@ -45,9 +45,9 @@
 
 ---
 
-## 現況（2024-11-28）
+## 現況（2024-11-30）
 
-### ✅ 前端（v1.1.0，95% 完成）
+### ✅ 前端（v1.1.1，98% 完成）
 - Vue 3 + Pinia + i18n 完整架構
 - Sidebar 語系切換按鈕（zh-TW / en-US）
 - Market 進階篩選功能（價格、市值、漲跌幅範圍）
@@ -198,7 +198,47 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 
 ## 開發歷史
 
-### 2024-11-28（今日）
+### 2024-11-30（今日）
+- ✅ **收藏功能完整修復**：
+  - **Watchlist 顯示問題修復**：
+    - 正確轉換 CoinGecko API 數據格式為應用格式
+    - 添加載入中和錯誤狀態顯示（含重試按鈕）
+    - 優化 clearAll 函數邏輯
+  - **收藏按鈕閃爍問題修復**：
+    - 改用直接更新快取而非清除快取（避免所有星星閃爍）
+    - 優化 addFavorite/removeFavorite/clearFavorites 函數
+    - 添加登入狀態檢查，避免未登入時發送請求
+  - **FavoriteButton 組件優化**：
+    - 改善快取載入邏輯，避免無限循環
+- ✅ **後端代碼與數據庫全面審查**：
+  - **發現 16 項待優化問題**：
+    - 高優先（安全性）：3 項
+      - 敏感資訊外洩（DB 密碼、JWT Secret、API Key 已提交到 Git）
+      - JWT Secret 強度不足
+      - 缺少 Token 黑名單機制
+    - 中優先（性能與代碼質量）：8 項
+      - N+1 查詢問題
+      - AuthService 登入刪除所有舊 Token
+      - toSafeUser 使用手動複製
+      - 缺少 Rate Limiting
+      - JwtAuthenticationFilter 日誌級別不當
+    - 數據庫設計：5 項
+      - 缺少數據庫索引優化
+      - auth_tokens 表缺少清理機制
+      - users 表缺少軟刪除機制
+      - coin_price_alerts 表缺少通知狀態
+  - **建議優化方案**：
+    - 立即執行：移除敏感資訊到環境變數、更新 JWT Secret、添加 Token 數據庫檢查
+    - 短期優化：添加 Rate Limiting、實作過期 Token 清理、優化數據庫索引
+    - 長期優化：添加單元測試、整合 API 文檔、實作軟刪除
+- ✅ **文檔全面整理**：
+  - 更新 CLAUDE.md 記錄最新進展
+  - 更新 README.md（移除假測試帳號、加入安全性警告）
+  - 整理 docs/ 資料夾文檔
+  - 標註 v2.0 功能規劃文檔為未來功能
+  - 新增後端代碼審查報告與安全性建議文檔
+
+### 2024-11-28
 - ✅ **後端完整架構實作**：
   - **Config 層**：AppConfig（RestTemplate Bean）、SecurityConfig（JWT + BCrypt + CORS）
   - **Controller 層**：AuthController、FavoriteController、CoinController
@@ -329,7 +369,20 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 
 ### 🔥 立即執行（下一步）
 
-#### 1. 前後端整合測試
+#### 1. 安全性優化（最高優先級）⚠️
+- [ ] **移除敏感資訊到環境變數**
+  - [ ] 將 `application.yml` 和 `application-dev.yml` 的敏感資訊移至環境變數
+  - [ ] 創建 `.env.example` 範本文件
+  - [ ] 更新 `.gitignore` 確保 `.env` 不被提交
+  - [ ] 更新文檔說明環境變數配置方式
+- [ ] **更新 JWT Secret**
+  - [ ] 使用 `openssl rand -base64 64` 生成強密鑰（512 位）
+  - [ ] 更新 `application.yml` 使用環境變數
+- [ ] **添加 JwtAuthenticationFilter 數據庫檢查**
+  - [ ] 修改 `JwtAuthenticationFilter` 驗證 Token 是否存在於 `auth_tokens` 表
+  - [ ] 實現真正的 Token 撤銷機制
+
+#### 2. 前後端整合測試
 ```bash
 # 確認後端正在運行
 # 後端應該在 http://localhost:8080/api
@@ -340,25 +393,23 @@ npm run dev
 ```
 
 **開啟瀏覽器測試**：`http://localhost:5173`
-- [ ] 測試註冊功能（POST /api/auth/register）
-- [ ] 測試登入功能（POST /api/auth/login）
-- [ ] 登入後查看 Dashboard（GET /api/coins）
-- [ ] 測試收藏功能（POST /api/favorites, DELETE /api/favorites/{id}）
-- [ ] 查看 Watchlist 頁面（GET /api/favorites）
-- [ ] 測試登出功能（POST /api/auth/logout）
-
-#### 2. 修復整合測試中發現的 Bug
-- 根據測試結果修復任何前後端整合問題
-- 確認 JWT Token 正確傳送與驗證
-- 確認 CORS 設定正確
+- [x] 測試註冊功能（POST /api/auth/register）
+- [x] 測試登入功能（POST /api/auth/login）
+- [x] 登入後查看 Dashboard（GET /api/coins）
+- [x] 測試收藏功能（POST /api/favorites, DELETE /api/favorites/{id}）
+- [x] 查看 Watchlist 頁面（GET /api/favorites）
+- [x] 測試登出功能（POST /api/auth/logout）
 
 ---
 
 ### 📋 待辦事項（按優先順序）
 
 #### 高優先（本週完成）
-- [ ] **完成前後端整合測試**（見上方測試清單）
-- [ ] **修復整合測試中發現的 Bug**
+- [ ] **安全性優化**（見上方立即執行部分）
+- [ ] **短期性能優化**：
+  - [ ] 添加 Rate Limiting（防暴力破解）
+  - [ ] 實作過期 Token 自動清理機制
+  - [ ] 優化數據庫索引（user_activities, auth_tokens）
 - [ ] **Admin Panel 後端 API 實作**：
   - [ ] `GET /api/admin/stats` - 統計資料（總用戶數、活躍用戶、收藏排行）
   - [ ] `GET /api/admin/users` - 用戶列表
@@ -523,4 +574,4 @@ mysql -u root -p -e "SHOW DATABASES LIKE 'crypto_dashboard';"
 
 ---
 
-*最後更新：2024-11-28（後端完整架構實作、前端 API 整合、後端代碼全面修復與優化、文檔更新）*
+*最後更新：2024-11-30（收藏功能完整修復、後端代碼與數據庫全面審查、文檔全面整理）*

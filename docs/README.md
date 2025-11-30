@@ -79,7 +79,7 @@ mysql -u root -p < ../database/schema_v3.sql
 - [x] 實作 Spring Security 配置
 - [x] 實作登入/註冊 API（AuthController + AuthService）
 
-### Phase 2: 前後端整合（✅ 90% 完成）
+### Phase 2: 前後端整合（✅ 100% 完成）
 - [x] 實作 CoinGecko API Proxy (`/api/coins/*`)
 - [x] 後端快取機制（Spring Cache + @Cacheable）
 - [x] 實作收藏 CRUD API（FavoriteController + FavoriteService）
@@ -87,7 +87,9 @@ mysql -u root -p < ../database/schema_v3.sql
 - [x] 前端環境變數配置（.env）
 - [x] 後端配置檔完善（application.yml, application-dev.yml）
 - [x] LoginView、RegisterView、WatchlistView 改用真實 API
-- [ ] ⏳ 實際前後端整合測試（待完成）
+- [x] 實際前後端整合測試（已完成）
+- [x] Watchlist 顯示問題修復
+- [x] 收藏按鈕閃爍問題修復
 
 ### Phase 3: 進階功能（⏳ 待開始）
 - [ ] 實作公告 CRUD API（AnnouncementController + Service）
@@ -130,10 +132,20 @@ mysql -u root -p < ../database/schema_v3.sql
 
 ## 測試帳號
 
-| 角色 | Email | 密碼 |
-|------|-------|------|
-| 一般用戶 | demo@example.com | password |
-| 管理員 | admin@example.com | admin123 |
+**目前沒有預設帳號**，請透過以下方式建立：
+
+1. **註冊新帳號**（推薦）
+   - 訪問 http://localhost:5173/register
+   - 填寫用戶名、Email、密碼
+   - 註冊後會自動獲得 `user` 角色
+
+2. **升級為 Admin**
+   - 註冊後，在資料庫中執行：
+   ```sql
+   UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
+   ```
+
+**安全考量**：為了安全，註冊 API 不允許直接建立 admin 帳號。
 
 ## 專案規範
 
@@ -191,7 +203,10 @@ A: 參考 `../CLAUDE.md`，包含所有開發歷史與決策記錄
 ---
 
 **專案名稱**: CoinVue（幣景）
-**前端版本**: v1.1.0（95% 完成）
+**前端版本**: v1.1.1（98% 完成）
 **後端版本**: v1.0.0（核心功能完成）
-**最後更新**: 2024-11-28
-**專案狀態**: Phase 1-2 完成，Phase 3-4 待開始
+**最後更新**: 2024-11-30
+**專案狀態**: Phase 1-2 完成，收藏功能已完整測試，待安全性優化與 Phase 3-4 開發
+
+**⚠️ 重要提醒**：本專案配置文件包含敏感資訊已提交到 Git，不適合直接用於生產環境。
+詳見：[後端代碼審查報告](./後端代碼審查報告_2024-11-30.md) 和 [安全性建議](./安全性建議.md)
