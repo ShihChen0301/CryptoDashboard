@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { adminApi, announcementApi } from '@/utils/api'
 
 const router = useRouter()
 const currentUser = ref(null)
@@ -27,6 +28,10 @@ const newAnnouncement = ref({
   type: 'info' // info, warning, success
 })
 
+// 載入狀態
+const loading = ref(false)
+const error = ref(null)
+
 // 檢查是否為管理員
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -40,74 +45,51 @@ onMounted(() => {
   loadData()
 })
 
-const loadData = () => {
-  loadUsers()
-  loadStats()
-  loadTopFavoriteCoins()
-  loadAnnouncements()
-}
-
-const loadUsers = () => {
-  // 模擬用戶數據（未來接 API）
-  const storedUsers = localStorage.getItem('all_users')
-  if (storedUsers) {
-    users.value = JSON.parse(storedUsers)
-  } else {
-    // 預設一些測試用戶
-    users.value = [
-      {
-        id: 1,
-        username: 'demo_user',
-        email: 'demo@example.com',
-        role: 'user',
-        createdAt: '2024-11-15T10:00:00Z',
-        lastLoginAt: '2024-11-20T14:30:00Z',
-        favoriteCount: 5
-      },
-      {
-        id: 2,
-        username: 'admin',
-        email: 'admin@example.com',
-        role: 'admin',
-        createdAt: '2024-11-01T09:00:00Z',
-        lastLoginAt: '2024-11-20T15:00:00Z',
-        favoriteCount: 12
-      }
-    ]
-    localStorage.setItem('all_users', JSON.stringify(users.value))
+const loadData = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    await Promise.all([
+      loadStats(),
+      loadUsers(),
+      loadAnnouncements()
+    ])
+  } catch (err) {
+    console.error('載入資料失敗:', err)
+    error.value = err.message || '載入資料失敗'
+  } finally {
+    loading.value = false
   }
 }
 
-const loadStats = () => {
-  stats.value.totalUsers = users.value.length
-  stats.value.activeUsers = users.value.filter(u => {
-    const lastLogin = new Date(u.lastLoginAt)
-    const daysSinceLogin = (Date.now() - lastLogin) / (1000 * 60 * 60 * 24)
-    return daysSinceLogin <= 7
-  }).length
-  stats.value.totalFavorites = users.value.reduce((sum, u) => sum + (u.favoriteCount || 0), 0)
+const loadUsers = async () => {
+  try {
+    const data = await adminApi.getAllUsers()
+    users.value = data
+  } catch (err) {
+    console.error('載入用戶列表失敗:', err)
+    throw err
+  }
 }
 
-const loadTopFavoriteCoins = () => {
-  // 統計所有用戶的收藏
-  const favoriteCounts = {}
-
-  users.value.forEach(user => {
-    const userFavorites = JSON.parse(localStorage.getItem(`crypto_favorites_${user.id}`) || '[]')
-    userFavorites.forEach(coinId => {
-      favoriteCounts[coinId] = (favoriteCounts[coinId] || 0) + 1
-    })
-  })
-
-  // 轉換為陣列並排序
-  topFavoriteCoins.value = Object.entries(favoriteCounts)
-    .map(([coinId, count]) => ({
-      coinId,
-      coinName: getCoinName(coinId),
-      favoriteCount: count
+const loadStats = async () => {
+  try {
+    const data = await adminApi.getStats()
+    stats.value = {
+      totalUsers: data.totalUsers,
+      activeUsers: data.activeUsers,
+      totalFavorites: data.totalFavorites
+    }
+    // 收藏排行從統計 API 取得
+    topFavoriteCoins.value = data.topCoins.map(coin => ({
+      coinId: coin.coinId,
+      coinName: getCoinName(coin.coinId),
+      favoriteCount: coin.favoriteCount
     }))
-    .sort((a, b) => b.favoriteCount - a.favoriteCount)
-    .slice(0, 10)
+  } catch (err) {
+    console.error('載入統計資料失敗:', err)
+    throw err
+  }
 }
 
 const getCoinName = (coinId) => {
@@ -121,49 +103,75 @@ const getCoinName = (coinId) => {
     'solana': 'Solana (SOL)',
     'polkadot': 'Polkadot (DOT)'
   }
-  return coinNames[coinId] || coinId
+  return coinNames[coinId] || coinId.charAt(0).toUpperCase() + coinId.slice(1)
 }
 
-const loadAnnouncements = () => {
-  const stored = localStorage.getItem('system_announcements')
-  if (stored) {
-    announcements.value = JSON.parse(stored)
+const loadAnnouncements = async () => {
+  try {
+    const data = await announcementApi.getAll()
+    announcements.value = data
+  } catch (err) {
+    console.error('載入公告列表失敗:', err)
+    throw err
   }
 }
 
-const createAnnouncement = () => {
+const createAnnouncement = async () => {
   if (!newAnnouncement.value.title || !newAnnouncement.value.content) {
     alert('請填寫標題和內容')
     return
   }
 
-  const announcement = {
-    id: Date.now(),
-    ...newAnnouncement.value,
-    createdAt: new Date().toISOString(),
-    createdBy: currentUser.value.email,
-    isActive: true
+  try {
+    const data = {
+      title: newAnnouncement.value.title,
+      content: newAnnouncement.value.content,
+      type: newAnnouncement.value.type,
+      isActive: true
+    }
+    await announcementApi.create(data)
+    // 重新載入公告列表
+    await loadAnnouncements()
+    // 清空表單
+    newAnnouncement.value = { title: '', content: '', type: 'info' }
+    alert('公告建立成功！')
+  } catch (err) {
+    console.error('建立公告失敗:', err)
+    alert('建立公告失敗：' + (err.message || '未知錯誤'))
   }
-
-  announcements.value.unshift(announcement)
-  localStorage.setItem('system_announcements', JSON.stringify(announcements.value))
-
-  // 清空表單
-  newAnnouncement.value = { title: '', content: '', type: 'info' }
 }
 
-const toggleAnnouncement = (id) => {
+const toggleAnnouncement = async (id) => {
   const announcement = announcements.value.find(a => a.id === id)
-  if (announcement) {
-    announcement.isActive = !announcement.isActive
-    localStorage.setItem('system_announcements', JSON.stringify(announcements.value))
+  if (!announcement) return
+
+  try {
+    const data = {
+      title: announcement.title,
+      content: announcement.content,
+      type: announcement.type,
+      isActive: !announcement.isActive
+    }
+    await announcementApi.update(id, data)
+    // 重新載入公告列表
+    await loadAnnouncements()
+  } catch (err) {
+    console.error('更新公告失敗:', err)
+    alert('更新公告失敗：' + (err.message || '未知錯誤'))
   }
 }
 
-const deleteAnnouncement = (id) => {
-  if (confirm('確定要刪除此公告？')) {
-    announcements.value = announcements.value.filter(a => a.id !== id)
-    localStorage.setItem('system_announcements', JSON.stringify(announcements.value))
+const deleteAnnouncement = async (id) => {
+  if (!confirm('確定要刪除此公告？')) return
+
+  try {
+    await announcementApi.delete(id)
+    // 重新載入公告列表
+    await loadAnnouncements()
+    alert('公告刪除成功！')
+  } catch (err) {
+    console.error('刪除公告失敗:', err)
+    alert('刪除公告失敗：' + (err.message || '未知錯誤'))
   }
 }
 
@@ -178,7 +186,8 @@ const formatDate = (dateString) => {
 }
 
 const getAnnouncementTypeColor = (type) => {
-  switch (type) {
+  const typeLower = typeof type === 'string' ? type.toLowerCase() : type
+  switch (typeLower) {
     case 'success': return '#10b981'
     case 'warning': return '#f59e0b'
     case 'info': return '#3b82f6'
@@ -187,7 +196,8 @@ const getAnnouncementTypeColor = (type) => {
 }
 
 const getAnnouncementTypeLabel = (type) => {
-  switch (type) {
+  const typeLower = typeof type === 'string' ? type.toLowerCase() : type
+  switch (typeLower) {
     case 'success': return '成功'
     case 'warning': return '警告'
     case 'info': return '資訊'
@@ -303,8 +313,8 @@ const getAnnouncementTypeLabel = (type) => {
                     {{ user.role === 'admin' ? '管理員' : '用戶' }}
                   </span>
                 </td>
-                <td>{{ formatDate(user.createdAt) }}</td>
-                <td>{{ formatDate(user.lastLoginAt) }}</td>
+                <td>{{ user.joinDate ? formatDate(user.joinDate) : '-' }}</td>
+                <td>{{ user.lastLoginAt ? formatDate(user.lastLoginAt) : '尚未登入' }}</td>
                 <td>{{ user.favoriteCount || 0 }}</td>
               </tr>
             </tbody>

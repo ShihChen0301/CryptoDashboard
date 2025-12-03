@@ -45,20 +45,29 @@
 
 ---
 
-## 現況（2024-11-30）
+## 現況（2025-12-04）
 
-### ✅ 前端（v1.1.1，98% 完成）
+### ✅ 前端（v1.2.0，100% 完成）
 - Vue 3 + Pinia + i18n 完整架構
 - Sidebar 語系切換按鈕（zh-TW / en-US）
 - Market 進階篩選功能（價格、市值、漲跌幅範圍）
 - Dashboard、Market、Compare、Watchlist、Profile、Admin 全頁面完成
+- **Admin Panel 完整功能** 🎉：
+  - 數據總覽：總用戶數、活躍用戶數、總收藏數、最多收藏幣種排行
+  - 用戶管理：用戶列表（含收藏數統計）
+  - 公告管理：建立/切換/刪除公告
+- **系統公告功能**：
+  - 用戶端 Dashboard 顯示啟用的系統公告
+  - 支援三種公告類型（資訊/成功/警告）視覺區分
+  - 公告橫幅動畫效果
 - **API 整合**：
   - 統一 API 工具（utils/api.js）：支援 Bearer Token 認證
-  - 完整前後端整合：auth/favorite/coin API
+  - 完整前後端整合：auth/favorite/coin/admin/announcement API
   - 移除模擬資料（mockAuth.js）
-  - LoginView、RegisterView、WatchlistView 已串接真實 API
+  - 所有頁面已串接真實 API 並測試通過
+- **路由智能跳轉**：根據用戶角色自動跳轉（admin → /admin, user → /dashboard）
 
-### ✅ 後端（v1.0.0，生產就緒）
+### ✅ 後端（v1.1.0，生產就緒）
 - **配置層（Config）**：
   - AppConfig：RestTemplate Bean 配置（含超時設定：連線 5 秒 / 讀取 10 秒）
   - SecurityConfig：JWT 驗證 + BCrypt 密碼編碼 + CORS 設定 + JwtAuthenticationFilter
@@ -71,17 +80,21 @@
   - AuthController：註冊、登入、登出（含 @Valid 自動驗證）
   - FavoriteController：收藏 CRUD
   - CoinController：CoinGecko API Proxy
+  - AdminController：管理員統計數據、用戶列表 ✅
+  - AnnouncementController：公告 CRUD、啟用/停用切換 ✅
 - **服務層（Service）**：
   - AuthService：JWT 簽發、登出、返回淨化 User 物件（移除手動驗證邏輯）
   - FavoriteService：防重複收藏邏輯（使用資料庫載入的 User 實體）
   - CoinService：CoinGecko Proxy + Caffeine Cache（5 分鐘 TTL，最大 1000 項）
+  - AdminService：統計數據、用戶列表（含收藏數）✅
+  - AnnouncementService：公告 CRUD、自動設定建立者（從 SecurityContext）✅
 - **資料層（Repository）**：
   - UserRepository, AuthTokenRepository, CoinFavoriteRepository, AnnouncementRepository
 - **實體層（Entity）**：
   - User, AuthToken, CoinFavorite, Announcement（使用 @Getter/@Setter，避免循環參照）
 - **DTO 物件**：
-  - Request：LoginRequest, RegisterRequest（含 Jakarta Bean Validation）
-  - Response：AuthResponse（token + user）
+  - Request：LoginRequest, RegisterRequest, AnnouncementRequest（含 Jakarta Bean Validation）
+  - Response：AuthResponse（token + user）, AdminStatsResponse, UserSummaryDTO, AnnouncementResponse
 - **JWT 工具（JwtUtil）**：
   - 演算法：HS512
   - 配置化：secret、expiration（application.yml）
@@ -177,17 +190,31 @@ coingecko:
 
 ---
 
-## 帳號說明
+## 測試帳號
 
-**目前沒有預設帳號**，請使用以下方式建立帳號：
+### 目前已建立的測試帳號
+- **用戶名**：shihChenAdmin
+- **Email**：shichen@example.com
+- **角色**：admin
+- **密碼**：（註冊時設定的密碼）
 
-### 方式 1：註冊新帳號（推薦）
+### 建立新帳號
+
+#### 方式 1：註冊新帳號（推薦）
 1. 前端註冊頁面：http://localhost:5173/register
 2. 填寫用戶名、Email、密碼
 3. 註冊後會自動獲得 `user` 角色
 
-### 方式 2：升級為 Admin
-註冊後，在資料庫中執行：
+#### 方式 2：升級為 Admin
+註冊後，可使用以下兩種方式升級為 admin：
+
+**A. 使用 MySQL Workbench（圖形界面）**
+1. 連接到 `crypto_dashboard` 資料庫
+2. 在 `users` 表中找到你的帳號
+3. 將 `role` 欄位從 `user` 改成 `admin`
+4. 按 Apply 儲存
+
+**B. 使用 SQL 指令**
 ```sql
 UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ```
@@ -198,7 +225,65 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 
 ## 開發歷史
 
-### 2024-11-30（今日）
+### 2025-12-04（今日）
+- ✅ **Admin Panel 完整測試與修復** 🎉：
+  - **路由優化**：修復 admin 登入後首頁跳轉邏輯，根據角色智能跳轉（admin → /admin, user → /dashboard）
+  - **用戶列表修復**：修正 AdminService 的 Enum 轉換問題（role 和 status 從 Enum 正確轉換為 String）
+  - **公告建立功能完整實作**：
+    - 修復 AnnouncementService.createAnnouncement()，加入從 SecurityContext 取得當前用戶並設定 createdBy 欄位
+    - 修復 AnnouncementResponse，加入 createdBy 欄位（顯示建立者用戶名）
+    - 統一前後端公告類型使用小寫（info, success, warning）
+  - **用戶端公告顯示功能實作**：
+    - 在 DashboardView.vue 加入系統公告顯示區域
+    - 支援三種公告類型的視覺區分（資訊/成功/警告）
+    - 公告橫幅動畫效果（slideIn）
+    - 公告顯示在 Dashboard 最上方
+- ✅ **Admin Panel 三大功能全面測試通過**：
+  - 數據總覽 Tab：總用戶數、活躍用戶數、總收藏數、最多收藏幣種排行 ✅
+  - 用戶管理 Tab：用戶列表顯示（含收藏數統計）✅
+  - 公告管理 Tab：建立/切換/刪除公告 ✅
+- ✅ **專案清理**：
+  - 刪除 TODO_TOMORROW.md（所有待辦事項已完成）
+  - 更新 CLAUDE.md 完整記錄
+
+### 2025-12-03
+- ✅ **Admin Panel 後端 API 完整實作**：
+  - 建立 4 個 DTO 類別（AdminStatsResponse, UserSummaryDTO, AnnouncementRequest, AnnouncementResponse）
+  - 建立 AdminService 和 AnnouncementService
+  - 建立 AdminController 和 AnnouncementController
+  - 新增 Repository 查詢方法（統計數據、用戶列表、收藏排行、公告管理）
+  - 修正 CoinFavoriteRepository 的 JPQL LIMIT 語法（改用 nativeQuery）
+- ✅ **前端 API 完整整合**：
+  - 新增 adminApi 和 announcementApi 到 api.js
+  - 改造 AdminView.vue，移除所有 localStorage 假資料
+  - 連接真實後端 API（統計、用戶列表、公告管理）
+  - 修正資料欄位對應（joinDate, lastLoginAt）
+  - 修正公告類型（INFO/WARNING/SUCCESS 大寫）
+- ✅ **JWT 權限系統完整修復**：
+  - 修改 AuthService.issueToken()，在 JWT 中加入 role 資訊
+  - 新增 JwtUtil.getRoleFromToken() 方法
+  - 修改 JwtAuthenticationFilter，解析角色並設定 authorities（ROLE_ADMIN）
+  - 解決 403 Forbidden 權限問題
+- ✅ **登入流程優化**：
+  - 修改 LoginView.vue，根據角色跳轉（admin → /admin, user → /dashboard）
+- ⏳ **部分功能測試**：
+  - ✅ 數據總覽 API 測試通過
+  - ⏳ 用戶列表 API（修正 JPQL 查詢，待重啟測試）
+  - ⏳ 公告管理 API（待測試）
+- ✅ **前後端整合測試完成**：
+  - 後端成功啟動在 http://localhost:8080/api
+  - 前端成功連接後端 API
+  - 完成註冊、登入、收藏、Watchlist 等功能測試
+- ✅ **測試帳號建立**：
+  - 建立 admin 測試帳號（shihChenAdmin / shichen@example.com）
+  - 驗證角色權限系統正常運作
+- ✅ **文檔整理與優化**：
+  - 重新組織高優先待辦事項
+  - 更新專案現況為最新狀態
+  - 新增測試帳號說明
+  - 清理過時內容
+
+### 2024-11-30
 - ✅ **收藏功能完整修復**：
   - **Watchlist 顯示問題修復**：
     - 正確轉換 CoinGecko API 數據格式為應用格式
@@ -367,56 +452,71 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 
 ## 接下來要做的事
 
-### 🔥 立即執行（下一步）
+### 🔥 高優先（本週完成）
 
-#### 1. 安全性優化（最高優先級）⚠️
-- [ ] **移除敏感資訊到環境變數**
-  - [ ] 將 `application.yml` 和 `application-dev.yml` 的敏感資訊移至環境變數
-  - [ ] 創建 `.env.example` 範本文件
-  - [ ] 更新 `.gitignore` 確保 `.env` 不被提交
-  - [ ] 更新文檔說明環境變數配置方式
-- [ ] **更新 JWT Secret**
-  - [ ] 使用 `openssl rand -base64 64` 生成強密鑰（512 位）
-  - [ ] 更新 `application.yml` 使用環境變數
-- [ ] **添加 JwtAuthenticationFilter 數據庫檢查**
-  - [ ] 修改 `JwtAuthenticationFilter` 驗證 Token 是否存在於 `auth_tokens` 表
-  - [ ] 實現真正的 Token 撤銷機制
+#### 1. Admin Panel 後端 API 實作
+**目標**：讓 Admin Panel 前端頁面可以顯示真實資料
 
-#### 2. 前後端整合測試
-```bash
-# 確認後端正在運行
-# 後端應該在 http://localhost:8080/api
+需要實作的 API：
 
-# 啟動前端
-cd frontend
-npm run dev
-```
+**A. 統計數據 API**
+- `GET /api/admin/stats` - 管理員統計資料
+  - 總用戶數
+  - 活躍用戶數（7 天內登入）
+  - 總收藏數
+  - 最多收藏的幣種排行（Top 10）
 
-**開啟瀏覽器測試**：`http://localhost:5173`
-- [x] 測試註冊功能（POST /api/auth/register）
-- [x] 測試登入功能（POST /api/auth/login）
-- [x] 登入後查看 Dashboard（GET /api/coins）
-- [x] 測試收藏功能（POST /api/favorites, DELETE /api/favorites/{id}）
-- [x] 查看 Watchlist 頁面（GET /api/favorites）
-- [x] 測試登出功能（POST /api/auth/logout）
+**B. 用戶管理 API**
+- `GET /api/admin/users` - 用戶列表
+  - 返回所有用戶資訊（id, username, email, role, status, join_date, last_login）
+  - 包含每個用戶的收藏數量
+
+**C. 公告管理 API**
+- `POST /api/admin/announcements` - 建立公告
+  - 參數：title, content, type (info/success/warning), is_active
+- `PUT /api/admin/announcements/{id}` - 更新公告
+- `DELETE /api/admin/announcements/{id}` - 刪除公告
+- `GET /api/announcements` - 取得啟用的公告（所有用戶可見）
+
+**實作內容**：
+- [ ] 建立 `AdminController`
+- [ ] 建立 `AdminService`
+- [ ] 建立 `AnnouncementController`
+- [ ] 建立 `AnnouncementService`
+- [ ] 新增對應的 DTO 類別
+- [ ] 測試所有 API 端點
 
 ---
 
-### 📋 待辦事項（按優先順序）
+#### 2. 安全性優化 ⚠️
 
-#### 高優先（本週完成）
-- [ ] **安全性優化**（見上方立即執行部分）
-- [ ] **短期性能優化**：
-  - [ ] 添加 Rate Limiting（防暴力破解）
-  - [ ] 實作過期 Token 自動清理機制
-  - [ ] 優化數據庫索引（user_activities, auth_tokens）
-- [ ] **Admin Panel 後端 API 實作**：
-  - [ ] `GET /api/admin/stats` - 統計資料（總用戶數、活躍用戶、收藏排行）
-  - [ ] `GET /api/admin/users` - 用戶列表
-  - [ ] `POST /api/announcements` - 建立公告
-  - [ ] `PUT /api/announcements/{id}` - 更新公告
-  - [ ] `DELETE /api/announcements/{id}` - 刪除公告
-  - [ ] `GET /api/announcements` - 取得啟用公告（一般用戶）
+**A. 移除敏感資訊到環境變數**
+- [ ] 將 `application.yml` 和 `application-dev.yml` 的敏感資訊移至環境變數
+  - MySQL 密碼
+  - JWT Secret
+  - CoinGecko API Key
+- [ ] 創建 `.env.example` 範本文件
+- [ ] 更新 `.gitignore` 確保 `.env` 不被提交
+- [ ] 更新文檔說明環境變數配置方式
+
+**B. 強化 JWT 安全性**
+- [ ] 使用 `openssl rand -base64 64` 生成強密鑰（512 位）
+- [ ] 更新 `application.yml` 使用環境變數
+- [ ] 修改 `JwtAuthenticationFilter` 驗證 Token 是否存在於 `auth_tokens` 表
+- [ ] 實現真正的 Token 撤銷機制（檢查資料庫）
+
+---
+
+#### 3. 性能優化
+
+- [ ] 添加 Rate Limiting（防暴力破解）
+  - 登入 API：5 次/分鐘
+  - 註冊 API：3 次/分鐘
+- [ ] 實作過期 Token 自動清理機制
+  - 建立定時任務清理過期的 `auth_tokens`
+- [ ] 優化數據庫索引
+  - `auth_tokens` 表：token, user_id, expires_at
+  - `coin_favorites` 表：user_id, coin_id
 
 #### 中優先（下週完成）
 - [ ] **語系完整化**：
@@ -445,25 +545,18 @@ npm run dev
 
 ### ⚠️ 已知問題與注意事項
 
-1. **前端 API 呼叫**：
-   - 前端 `api.js` 已整合，待實際前後端整合測試
-   - CORS 設定已正確配置（application.yml）
-   - JWT Token 傳送機制已實作（Bearer Token）
+1. **Admin Panel 資料**：
+   - Admin Panel 前端頁面已完成，但顯示的是模擬資料
+   - 需要實作後端 API（統計、用戶管理、公告管理）才能顯示真實資料
 
 2. **資料庫欄位對應**：
    - Entity 類別目前只對應 v1.0 的 4 個核心表（users, auth_tokens, coin_favorites, announcements）
    - v3.0 新增的 5 個擴充表尚未建立對應的 Entity（user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings）
 
-3. **帳號建立**：
-   - 資料庫初始化後無預設帳號
-   - 可透過前端註冊頁面建立新帳號（自動為 user 角色）
-   - Admin 帳號需在註冊後於資料庫手動升級（安全考量）
-
-4. **後端代碼品質**：
-   - ✅ 所有已知的代碼問題已修復（共 13 項）
-   - ✅ JWT 認證機制已完整實作並測試通過
-   - ✅ 所有依賴注入與 Bean 配置正確
-   - ✅ 快取機制已配置 TTL，避免資料過時
+3. **安全性問題**：
+   - ⚠️ 敏感資訊（DB 密碼、JWT Secret、API Key）已提交到 Git
+   - ⚠️ JWT Secret 強度不足（需要 512 位強密鑰）
+   - ⚠️ Token 撤銷機制未完全實現（JwtAuthenticationFilter 未檢查資料庫）
 
 ---
 
@@ -480,7 +573,7 @@ npm run dev
 - [x] JWT 認證系統（JwtUtil + HS512）
 - [x] 全域例外處理（GlobalExceptionHandler + 6 個自訂 Exception）
 
-**Phase 2: 前後端整合** ✅ 90% 完成
+**Phase 2: 前後端整合** ✅ 100% 完成
 - [x] 前端 API 工具類（api.js，含 Bearer Token）
 - [x] 移除模擬資料（mockAuth.js）
 - [x] CoinGecko API Proxy（含 @Cacheable）
@@ -488,8 +581,8 @@ npm run dev
 - [x] Watchlist 頁面整合
 - [x] 前端環境變數配置（.env）
 - [x] 後端配置檔完善（application.yml, application-dev.yml）
-- [ ] ⏳ 實際前後端整合測試（待完成）
-- [ ] ⏳ Bug 修正（待完成）
+- [x] 實際前後端整合測試（已完成）
+- [x] 建立測試帳號（shihChenAdmin）
 
 **Phase 3: 進階功能** ⏳ 0% 完成
 - [ ] Admin Panel API（統計、用戶管理、公告管理）
@@ -574,4 +667,4 @@ mysql -u root -p -e "SHOW DATABASES LIKE 'crypto_dashboard';"
 
 ---
 
-*最後更新：2024-11-30（收藏功能完整修復、後端代碼與數據庫全面審查、文檔全面整理）*
+*最後更新：2025-12-03（前後端整合測試完成、建立測試帳號、高優先待辦事項重新組織）*

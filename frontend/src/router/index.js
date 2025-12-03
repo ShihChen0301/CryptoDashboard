@@ -70,10 +70,26 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('authToken')
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
+  // 處理根路徑，根據角色智能跳轉
+  if (to.path === '/' && isAuthenticated) {
+    if (user.role === 'admin') {
+      next('/admin')
+      return
+    } else {
+      next('/dashboard')
+      return
+    }
+  }
+
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
   } else if (to.meta.requiresGuest && isAuthenticated) {
-    next('/dashboard')
+    // 已登入用戶訪問登入/註冊頁，根據角色跳轉
+    if (user.role === 'admin') {
+      next('/admin')
+    } else {
+      next('/dashboard')
+    }
   } else if (to.meta.requiresAdmin && user.role !== 'admin') {
     next('/dashboard')
   } else {

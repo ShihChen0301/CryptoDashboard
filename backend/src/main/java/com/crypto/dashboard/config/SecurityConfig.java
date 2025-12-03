@@ -23,9 +23,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> {})
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/coins/**").permitAll()
+                // 公開路徑（不需登入）
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/coins/**").permitAll()
+                .requestMatchers("/api/announcements").permitAll()  // 一般用戶可見公告
+
+                // 管理員專用路徑（需要 ADMIN 角色）
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 👈 新增這行
+
+                // 其他路徑需要認證
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

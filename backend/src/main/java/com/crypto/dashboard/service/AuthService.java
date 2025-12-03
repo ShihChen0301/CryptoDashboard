@@ -75,7 +75,12 @@ public class AuthService {
     }
 
     private String issueToken(User user) {
-        String token = jwtUtil.generateToken(user.getId(), user.getUsername());
+        // 加入角色資訊到 JWT claims
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("username", user.getUsername());
+        claims.put("role", user.getRole().name());  // 加入角色
+
+        String token = jwtUtil.generateToken(String.valueOf(user.getId()), claims);
 
         LocalDateTime expiresAt = LocalDateTime.now()
                 .plus(Duration.ofMillis(jwtUtil.getExpirationMillis()));

@@ -71,3 +71,32 @@ export const coinApi = {
     apiRequest(`/coins?page=${page}&perPage=${perPage}&orderBy=${orderBy}`),
   getDetail: (coinId) => apiRequest(`/coins/${encodeURIComponent(coinId)}`),
 }
+
+// 管理員 API
+export const adminApi = {
+  getStats: () => apiRequest('/admin/stats'),
+  getAllUsers: () => apiRequest('/admin/users'),
+}
+
+// 公告 API
+export const announcementApi = {
+  // 取得啟用的公告（所有用戶可見）
+  getActive: () => apiRequest('/announcements'),
+
+  // 管理員專用
+  getAll: () => apiRequest('/admin/announcements'),
+  create: (data) =>
+    apiRequest('/admin/announcements', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id, data) =>
+    apiRequest(`/admin/announcements/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  delete: (id) =>
+    apiRequest(`/admin/announcements/${id}`, {
+      method: 'DELETE',
+    }),
+}

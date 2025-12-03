@@ -26,7 +26,13 @@ const handleLogin = async () => {
     localStorage.setItem('authToken', response.data.token)
     localStorage.setItem('user', JSON.stringify(response.data.user))
 
-    router.push('/dashboard')
+    // 根據角色跳轉到不同頁面
+    const userRole = response.data.user.role
+    if (userRole === 'admin') {
+      router.push('/admin')
+    } else {
+      router.push('/dashboard')
+    }
   } catch (e) {
     error.value = e.message || 'Login failed'
   }

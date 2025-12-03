@@ -3,6 +3,7 @@ package com.crypto.dashboard.repository;
 import com.crypto.dashboard.entity.CoinFavorite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,4 +20,12 @@ public interface CoinFavoriteRepository extends JpaRepository<CoinFavorite, Long
     void deleteByUser_IdAndCoinId(Long userId, String coinId);
 
     long countByCoinId(String coinId);
+
+    // 新增：取得最多收藏的幣種排行（Top 10）
+    @Query(value = "SELECT coin_id, COUNT(id) as count " +
+           "FROM coin_favorites " +
+           "GROUP BY coin_id " +
+           "ORDER BY count DESC " +
+           "LIMIT 10", nativeQuery = true)
+    List<Object[]> findTopFavoriteCoins();
 }

@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { getGlobalData } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
 import { useCoinsStore } from '../stores/useCoinsStore'
+import { announcementApi } from '../utils/api'
 import CoinCard from '../components/CoinCard.vue'
 
 const { t } = useI18n()
@@ -17,6 +18,7 @@ const globalData = ref({
 })
 
 const hotCoins = ref([])
+const announcements = ref([])
 const isLoading = ref(true)
 const coinsStore = useCoinsStore()
 
@@ -24,9 +26,10 @@ onMounted(async () => {
   try {
     // 並行載入數據（幣種走快取，減少重複請求）
     // 預載入 50 個幣種以便與 Market/Compare 頁面共用快取
-    const [global, coins] = await Promise.all([
+    const [global, coins, activeAnnouncements] = await Promise.all([
       getGlobalData(),
-      coinsStore.fetchCoins({ currency: 'usd', perPage: 50, page: 1 })
+      coinsStore.fetchCoins({ currency: 'usd', perPage: 50, page: 1 }),
+      announcementApi.getActive().catch(() => []) // 公告載入失敗不影響其他功能
     ])
 
     // 設定全球市場數據
@@ -40,6 +43,9 @@ onMounted(async () => {
 
     // 設定熱門幣種（只顯示前 6 個）
     hotCoins.value = coins.slice(0, 6)
+
+    // 設定公告
+    announcements.value = activeAnnouncements
   } catch (error) {
     console.error('Failed to fetch from CoinGecko:', error)
     // 使用 CoinCap API 作為備援
@@ -82,10 +88,52 @@ const formatLargeNumber = (num) => {
   if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`
   return `$${(num / 1e6).toFixed(0)}M`
 }
+
+// 取得公告類型顏色
+const getAnnouncementColor = (type) => {
+  const typeLower = typeof type === 'string' ? type.toLowerCase() : type
+  switch (typeLower) {
+    case 'success': return { bg: '#d1fae5', border: '#10b981', text: '#065f46' }
+    case 'warning': return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' }
+    case 'info': return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' }
+    default: return { bg: '#f3f4f6', border: '#9ca3af', text: '#374151' }
+  }
+}
+
+// 取得公告類型圖示
+const getAnnouncementIcon = (type) => {
+  const typeLower = typeof type === 'string' ? type.toLowerCase() : type
+  switch (typeLower) {
+    case 'success': return '✅'
+    case 'warning': return '⚠️'
+    case 'info': return 'ℹ️'
+    default: return '📢'
+  }
+}
 </script>
 
 <template>
   <div class="dashboard">
+    <!-- 系統公告（移到最上面）-->
+    <div v-if="announcements.length > 0" class="announcements-section">
+      <div
+        v-for="announcement in announcements"
+        :key="announcement.id"
+        class="announcement-banner"
+        :style="{
+          backgroundColor: getAnnouncementColor(announcement.type).bg,
+          borderColor: getAnnouncementColor(announcement.type).border,
+          color: getAnnouncementColor(announcement.type).text
+        }"
+      >
+        <span class="announcement-icon">{{ getAnnouncementIcon(announcement.type) }}</span>
+        <div class="announcement-content">
+          <strong>{{ announcement.title }}</strong>
+          <span class="announcement-text">{{ announcement.content }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="dashboard-header">
       <h1>{{ t('dashboard.title') }}</h1>
       <p>{{ t('dashboard.welcome') }}</p>
@@ -128,6 +176,55 @@ const formatLargeNumber = (num) => {
 </template>
 
 <style scoped>
+/* 公告橫幅 */
+.announcements-section {
+  margin-bottom: 2rem;
+}
+
+.announcement-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.announcement-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.announcement-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.announcement-content strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.announcement-text {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 /* ==================== 背景動畫選項 ==================== */
 /* 取消註解你想要的背景效果（只能選一個） */
 
