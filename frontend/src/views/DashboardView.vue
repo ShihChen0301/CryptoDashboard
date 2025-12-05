@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getGlobalData } from '../utils/coingeckoApi'
 import * as coincapApi from '../utils/coincapApi'
@@ -22,6 +22,10 @@ const announcements = ref([])
 const isLoading = ref(true)
 const coinsStore = useCoinsStore()
 
+// 公告輪播狀態
+const currentAnnouncementIndex = ref(0)
+let autoPlayInterval = null
+
 onMounted(async () => {
   try {
     // 並行載入數據（幣種走快取，減少重複請求）
@@ -29,7 +33,7 @@ onMounted(async () => {
     const [global, coins, activeAnnouncements] = await Promise.all([
       getGlobalData(),
       coinsStore.fetchCoins({ currency: 'usd', perPage: 50, page: 1 }),
-      announcementApi.getActive().catch(() => []) // 公告載入失敗不影響其他功能
+      announcementApi.getActive().catch(() => []), // 公告載入失敗不影響其他功能
     ])
 
     // 設定全球市場數據
@@ -46,6 +50,11 @@ onMounted(async () => {
 
     // 設定公告
     announcements.value = activeAnnouncements
+
+    // 啟動公告自動輪播（如果有多則公告）
+    if (activeAnnouncements.length > 1) {
+      startAutoPlay()
+    }
   } catch (error) {
     console.error('Failed to fetch from CoinGecko:', error)
     // 使用 CoinCap API 作為備援
@@ -82,6 +91,11 @@ onMounted(async () => {
   }
 })
 
+// 組件卸載時清理定時器
+onUnmounted(() => {
+  stopAutoPlay()
+})
+
 // 格式化大數字
 const formatLargeNumber = (num) => {
   if (num >= 1e12) return `$${(num / 1e12).toFixed(2)}T`
@@ -93,10 +107,14 @@ const formatLargeNumber = (num) => {
 const getAnnouncementColor = (type) => {
   const typeLower = typeof type === 'string' ? type.toLowerCase() : type
   switch (typeLower) {
-    case 'success': return { bg: '#d1fae5', border: '#10b981', text: '#065f46' }
-    case 'warning': return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' }
-    case 'info': return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' }
-    default: return { bg: '#f3f4f6', border: '#9ca3af', text: '#374151' }
+    case 'success':
+      return { bg: '#d1fae5', border: '#10b981', text: '#065f46' }
+    case 'warning':
+      return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' }
+    case 'info':
+      return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' }
+    default:
+      return { bg: '#f3f4f6', border: '#9ca3af', text: '#374151' }
   }
 }
 
@@ -104,32 +122,121 @@ const getAnnouncementColor = (type) => {
 const getAnnouncementIcon = (type) => {
   const typeLower = typeof type === 'string' ? type.toLowerCase() : type
   switch (typeLower) {
-    case 'success': return '✅'
-    case 'warning': return '⚠️'
-    case 'info': return 'ℹ️'
-    default: return '📢'
+    case 'success':
+      return '✅'
+    case 'warning':
+      return '⚠️'
+    case 'info':
+      return 'ℹ️'
+    default:
+      return '📢'
   }
+}
+
+// ==================== 公告輪播功能 ====================
+
+// 啟動自動輪播
+const startAutoPlay = () => {
+  stopAutoPlay() // 先清除舊的定時器，避免重複
+  autoPlayInterval = setInterval(() => {
+    // 自動切換到下一則
+    if (announcements.value.length > 0) {
+      currentAnnouncementIndex.value =
+        (currentAnnouncementIndex.value + 1) % announcements.value.length
+    }
+  }, 5000) // 每 5 秒自動切換
+}
+
+// 停止自動輪播
+const stopAutoPlay = () => {
+  if (autoPlayInterval) {
+    clearInterval(autoPlayInterval)
+    autoPlayInterval = null
+  }
+}
+
+// 重啟自動輪播（手動操作後調用）
+const resetAutoPlay = () => {
+  stopAutoPlay()   // 停止當前計時器
+  startAutoPlay()  // 重新開始計時（重置 5 秒倒數）
+}
+
+// 下一則公告（手動）
+const nextAnnouncement = () => {
+  if (announcements.value.length > 0) {
+    currentAnnouncementIndex.value =
+      (currentAnnouncementIndex.value + 1) % announcements.value.length
+    resetAutoPlay() // 重置計時器，讓用戶有完整 5 秒閱讀
+  }
+}
+
+// 上一則公告（手動）
+const prevAnnouncement = () => {
+  if (announcements.value.length > 0) {
+    currentAnnouncementIndex.value =
+      currentAnnouncementIndex.value === 0
+        ? announcements.value.length - 1
+        : currentAnnouncementIndex.value - 1
+    resetAutoPlay() // 重置計時器，讓用戶有完整 5 秒閱讀
+  }
+}
+
+// 跳轉到指定公告（點擊指示器）
+const goToAnnouncement = (index) => {
+  currentAnnouncementIndex.value = index
+  resetAutoPlay() // 重置計時器，讓用戶有完整 5 秒閱讀
 }
 </script>
 
 <template>
   <div class="dashboard">
-    <!-- 系統公告（移到最上面）-->
+    <!-- 系統公告輪播（移到最上面）-->
     <div v-if="announcements.length > 0" class="announcements-section">
-      <div
-        v-for="announcement in announcements"
-        :key="announcement.id"
-        class="announcement-banner"
-        :style="{
-          backgroundColor: getAnnouncementColor(announcement.type).bg,
-          borderColor: getAnnouncementColor(announcement.type).border,
-          color: getAnnouncementColor(announcement.type).text
-        }"
-      >
-        <span class="announcement-icon">{{ getAnnouncementIcon(announcement.type) }}</span>
-        <div class="announcement-content">
-          <strong>{{ announcement.title }}</strong>
-          <span class="announcement-text">{{ announcement.content }}</span>
+      <div class="announcement-carousel">
+        <!-- 公告內容 -->
+        <div
+          class="announcement-banner"
+          :style="{
+            backgroundColor: getAnnouncementColor(announcements[currentAnnouncementIndex].type).bg,
+            borderColor: getAnnouncementColor(announcements[currentAnnouncementIndex].type).border,
+            color: getAnnouncementColor(announcements[currentAnnouncementIndex].type).text,
+          }"
+        >
+          <span class="announcement-icon">{{
+            getAnnouncementIcon(announcements[currentAnnouncementIndex].type)
+          }}</span>
+          <div class="announcement-content">
+            <strong>{{ announcements[currentAnnouncementIndex].title }}</strong>
+            <span class="announcement-text">{{
+              announcements[currentAnnouncementIndex].content
+            }}</span>
+          </div>
+        </div>
+
+        <!-- 輪播控制（只在有多則公告時顯示）-->
+        <div v-if="announcements.length > 1" class="carousel-controls">
+          <!-- 上一則按鈕 -->
+          <button @click="prevAnnouncement" class="carousel-btn" title="上一則">&#8249;</button>
+
+          <!-- 指示器 -->
+          <div class="carousel-indicators">
+            <span
+              v-for="(announcement, index) in announcements"
+              :key="announcement.id"
+              @click="goToAnnouncement(index)"
+              class="indicator-dot"
+              :class="{ active: index === currentAnnouncementIndex }"
+              :title="`${index + 1}/${announcements.length}`"
+            ></span>
+          </div>
+
+          <!-- 下一則按鈕 -->
+          <button @click="nextAnnouncement" class="carousel-btn" title="下一則">&#8250;</button>
+
+          <!-- 公告計數 -->
+          <span class="announcement-counter">
+            {{ currentAnnouncementIndex + 1 }}/{{ announcements.length }}
+          </span>
         </div>
       </div>
     </div>
@@ -176,9 +283,13 @@ const getAnnouncementIcon = (type) => {
 </template>
 
 <style scoped>
-/* 公告橫幅 */
+/* ==================== 公告輪播區域 ==================== */
 .announcements-section {
   margin-bottom: 2rem;
+}
+
+.announcement-carousel {
+  position: relative;
 }
 
 .announcement-banner {
@@ -188,18 +299,17 @@ const getAnnouncementIcon = (type) => {
   padding: 1rem 1.5rem;
   border-left: 4px solid;
   border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  animation: slideIn 0.3s ease-out;
+  animation: fadeIn 0.5s ease-out;
 }
 
-@keyframes slideIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
@@ -223,6 +333,80 @@ const getAnnouncementIcon = (type) => {
 .announcement-text {
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+/* 輪播控制 */
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.carousel-btn {
+  background: white;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.carousel-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111827;
+  transform: scale(1.1);
+}
+
+.carousel-btn:active {
+  transform: scale(0.95);
+}
+
+/* 指示器 */
+.carousel-indicators {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.indicator-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #d1d5db;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.indicator-dot:hover {
+  background: #9ca3af;
+  transform: scale(1.2);
+}
+
+.indicator-dot.active {
+  width: 1.5rem;
+  border-radius: 0.25rem;
+  background: #3b82f6;
+}
+
+/* 公告計數 */
+.announcement-counter {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 3rem;
+  text-align: center;
 }
 
 /* ==================== 背景動畫選項 ==================== */
