@@ -31,8 +31,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/coins/**").permitAll()
                 .requestMatchers("/api/announcements").permitAll()  // 一般用戶可見公告
 
+                // Swagger / OpenAPI 文檔路徑（開發時可訪問）
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui.html").permitAll()
+
                 // 管理員專用路徑（需要 ADMIN 角色）
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 👈 新增這行
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                 // 其他路徑需要認證
                 .anyRequest().authenticated()

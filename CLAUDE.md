@@ -161,6 +161,7 @@ CryptoDashboard/
     schema_v3.sql         # MySQL v3.0 完整結構（唯一正式版）
   docs/
     README.md                  # 文檔導覽
+    後端架構說明.md            # 後端三層架構、JPA、連接池詳細說明
     功能對照表.md              # v2.0 功能規劃（未來參考）
     功能需求分析_v2.md         # v2.0 需求分析（未來參考）
     archive/

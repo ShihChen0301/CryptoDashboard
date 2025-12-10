@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/crypto_dashboard?useSSL=false&serverTimezone=Asia/Taipei&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
-    password: soso0301
+    password: YOUR_MYSQL_PASSWORD_HERE  # ← 請修改為你的 MySQL 密碼
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -31,7 +31,7 @@ server:
 
 # JWT 配置
 jwt:
-  secret: crypto-dashboard-secret-key-minimum-256-bits-for-hs256-algorithm-please-change-in-production
+  secret: YOUR_JWT_SECRET_KEY_HERE_MINIMUM_256_BITS  # ← 請使用強密鑰
   expiration: 86400000 # 24 小時（毫秒）
 
 # CORS 配置
@@ -41,11 +41,12 @@ cors:
   allowed-headers: '*'
   allow-credentials: true
 
-# 日誌配置
+# CoinGecko API 配置
 coingecko:
   api:
-    key: CG-vczvnvBTsqG7Z8EVB7KRb3ii
+    key: YOUR_COINGECKO_API_KEY_HERE  # ← 請填入你的 API Key
 
+# 日誌配置
 logging:
   level:
     com.crypto.dashboard: DEBUG
