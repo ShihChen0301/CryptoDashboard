@@ -4,7 +4,7 @@
 
 **CoinVue** 是一個現代化的加密貨幣儀表板應用，結合 Vue 3 技術棧與即時市場數據，提供直觀流暢的用戶體驗。支援中英文雙語切換，打造專業的加密貨幣市場分析工具。
 
-**前端版本：** v1.2.0（100% 完成 🎉）| **後端版本：** v1.1.0（生產就緒）| **最後更新：** 2025-12-04
+**前端版本：** v1.2.0（100% 完成 🎉）| **後端版本：** v1.2.0（生產就緒）| **最後更新：** 2025-12-11
 
 ---
 
@@ -28,6 +28,13 @@
 - **公告管理** - 建立/編輯/刪除系統公告，支援三種類型（資訊/成功/警告）
 - **公告系統** - 用戶端 Dashboard 即時顯示啟用的系統公告
 
+### API 文檔與測試 ✨ (v1.2.0 後端新增)
+- **Swagger UI** - 互動式 API 文檔，無需 Postman 即可測試所有 API
+- **自動生成文檔** - 與程式碼同步，自動更新 API 說明
+- **JWT 認證整合** - 支援 Bearer Token 認證測試
+- **即時測試** - 直接在網頁上測試 API 請求和回應
+- **訪問路徑**：http://localhost:8080/swagger-ui/index.html
+
 ---
 
 ## 技術棧
@@ -42,6 +49,9 @@
 - **Spring Boot 3.2** - Java 企業級框架
 - **Spring Security** - JWT 認證授權
 - **Spring Data JPA** - Hibernate ORM
+- **SpringDoc OpenAPI** - Swagger API 文檔自動化
+- **HikariCP** - 高效能資料庫連接池
+- **Caffeine Cache** - 本地快取（CoinGecko API）
 - **Maven** - 專案管理工具
 
 ### API 數據源
@@ -55,17 +65,18 @@
 
 ## 快速開始
 
-### ⚠️ 安全性警告
+### ⚠️ 環境配置說明
 
-**重要提醒**：本專案的配置文件（`application.yml`、`application-dev.yml`）包含敏感資訊已提交到 Git，**不適合直接用於生產環境**。
+**重要提醒**：
+- ✅ 本專案已從 Git 移除所有包含敏感資訊的配置檔
+- ⚠️ Clone 後需自行建立配置檔（請參考 `application.yml.example`）
+- 🔒 **切勿**將實際的配置檔（`application.yml`）提交到 Git
 
-**生產環境部署前必須完成**：
-1. 將所有敏感資訊移至環境變數（資料庫密碼、JWT Secret、API Key）
-2. 更換 JWT Secret 為強密鑰（使用 `openssl rand -base64 64` 生成）
-3. 變更資料庫密碼
-4. 審查並實施 `docs/安全性建議.md` 中的所有建議
-
-詳見：[後端代碼審查報告](docs/後端代碼審查報告_2024-11-30.md)
+**首次設定需要**：
+1. 複製 `backend/src/main/resources/application.yml.example` 為 `application.yml`
+2. 填入你的 MySQL 密碼
+3. 設定 JWT Secret（建議使用 `openssl rand -base64 64` 生成強密鑰）
+4. 填入 CoinGecko API Key（可選，有預設值）
 
 ---
 
@@ -103,13 +114,26 @@
    mysql -u root -p < database/schema_v3.sql
    ```
 
-5. **配置後端資料庫連線**
+5. **設定後端配置檔**
 
-   編輯 `backend/src/main/resources/application.yml` 或 `application-dev.yml`，修改資料庫密碼：
+   複製範本並填入你的設定：
+   ```bash
+   cd backend/src/main/resources
+   cp application.yml.example application.yml
+   ```
+
+   編輯 `application.yml`，修改以下設定：
    ```yaml
    spring:
      datasource:
-       password: your_mysql_password  # 改成您的 MySQL 密碼
+       password: your_mysql_password  # 改成你的 MySQL 密碼
+
+   jwt:
+     secret: your_strong_jwt_secret   # 改成強密鑰（建議 64 字元以上）
+
+   coingecko:
+     api:
+       key: your_api_key              # 填入你的 CoinGecko API Key
    ```
 
 6. **啟動後端**
@@ -180,6 +204,7 @@ CryptoDashboard/
 │   └── schema_v3.sql                 # MySQL v3.0 完整結構
 ├── docs/                             # 專案文檔
 │   ├── README.md                     # 文檔導覽
+│   ├── 後端架構說明.md                # 三層架構、JPA、連接池詳解
 │   ├── 功能對照表.md                  # v2.0 功能規劃（未來參考）
 │   └── 功能需求分析_v2.md             # v2.0 需求分析（未來參考）
 ├── CLAUDE.md                         # 專案記憶與歷史決策
@@ -221,6 +246,17 @@ CryptoDashboard/
 
 ### 備援 API（CoinCap）
 當 CoinGecko API 達到速率限制時，自動切換至 CoinCap API。
+
+---
+
+## 📚 詳細文檔
+
+想深入了解專案架構和技術細節？請參考：
+
+- **[後端架構說明](docs/後端架構說明.md)** - 深入解析三層架構、JPA、HikariCP 連接池、Swagger 整合
+- **[專案記憶 (CLAUDE.md)](CLAUDE.md)** - 完整的開發歷史、技術決策、版本演進記錄
+- **[功能規劃](docs/功能對照表.md)** - v2.0 未來功能規劃參考
+- **[API 測試 (Swagger UI)](http://localhost:8080/swagger-ui/index.html)** - 互動式 API 文檔（需先啟動後端）
 
 ---
 
