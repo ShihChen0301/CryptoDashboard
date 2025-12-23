@@ -10,7 +10,7 @@
 - **命名理念**：Coin（加密貨幣）+ Vue（視野/框架），意指「洞察幣圈前景的視野」
 - **中文名稱**：幣景
 - **版本**：v1.1.0（前端）+ v1.0.0（後端）
-- **命名日期**：2024-11-27
+- **命名日期**：2025-11-27
 
 ---
 
@@ -23,6 +23,7 @@
 ## 技術棧
 
 ### 前端
+
 - **框架**：Vue 3.5.22 + Vite 7.1.11
 - **狀態管理**：Pinia 3.0.3（useCoinsStore, useLocaleStore, useMarketFilterStore）
 - **路由**：Vue Router 4.6.3
@@ -30,16 +31,19 @@
 - **樣式**：Scoped CSS + Tailwind CSS 4.1.17
 
 ### 後端
+
 - **框架**：Spring Boot 3.2.0 + Spring Security + JWT
 - **Java 版本**：17
 - **資料庫**：MySQL 8.0 + JPA/Hibernate
 - **建置工具**：Maven 3.8+
 
 ### API 數據源
+
 - **主要**：CoinGecko API（有 API Key，30 次/分鐘）
 - **備援**：CoinCap API（免費，200 次/分鐘）
 
 ### 資料庫
+
 - **類型**：MySQL 8
 - **Schema**：v3.0（9 個表，包含語系、活動記錄等）
 
@@ -48,6 +52,7 @@
 ## 現況（2025-12-04）
 
 ### ✅ 前端（v1.2.0，100% 完成）
+
 - Vue 3 + Pinia + i18n 完整架構
 - Sidebar 語系切換按鈕（zh-TW / en-US）
 - Market 進階篩選功能（價格、市值、漲跌幅範圍）
@@ -68,6 +73,7 @@
 - **路由智能跳轉**：根據用戶角色自動跳轉（admin → /admin, user → /dashboard）
 
 ### ✅ 後端（v1.1.0，生產就緒）
+
 - **配置層（Config）**：
   - AppConfig：RestTemplate Bean 配置（含超時設定：連線 5 秒 / 讀取 10 秒）
   - SecurityConfig：JWT 驗證 + BCrypt 密碼編碼 + CORS 設定 + JwtAuthenticationFilter
@@ -108,6 +114,7 @@
   - 容量：最大 1000 項
 
 ### ✅ 資料庫（v3.0）
+
 - **檔案**：`database/schema_v3.sql`（唯一正式版本）
 - **表格**：9 個
   - **核心表**（已實作 Entity）：users, auth_tokens, coin_favorites, announcements
@@ -173,12 +180,14 @@ CryptoDashboard/
 ## 環境變數
 
 **frontend/.env**
+
 ```env
 VITE_API_BASE_URL=http://localhost:8080/api
 VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
 ```
 
 **backend/application.yml**
+
 ```yaml
 jwt:
   secret: coinvue-secret-key-minimum-32-characters-required-for-hs512
@@ -194,6 +203,7 @@ coingecko:
 ## 測試帳號
 
 ### 目前已建立的測試帳號
+
 - **用戶名**：shihChenAdmin
 - **Email**：shichen@example.com
 - **角色**：admin
@@ -202,20 +212,24 @@ coingecko:
 ### 建立新帳號
 
 #### 方式 1：註冊新帳號（推薦）
+
 1. 前端註冊頁面：http://localhost:5173/register
 2. 填寫用戶名、Email、密碼
 3. 註冊後會自動獲得 `user` 角色
 
 #### 方式 2：升級為 Admin
+
 註冊後，可使用以下兩種方式升級為 admin：
 
 **A. 使用 MySQL Workbench（圖形界面）**
+
 1. 連接到 `crypto_dashboard` 資料庫
 2. 在 `users` 表中找到你的帳號
 3. 將 `role` 欄位從 `user` 改成 `admin`
 4. 按 Apply 儲存
 
 **B. 使用 SQL 指令**
+
 ```sql
 UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ```
@@ -227,6 +241,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ## 開發歷史
 
 ### 2025-12-04（今日）
+
 - ✅ **Admin Panel 完整測試與修復** 🎉：
   - **路由優化**：修復 admin 登入後首頁跳轉邏輯，根據角色智能跳轉（admin → /admin, user → /dashboard）
   - **用戶列表修復**：修正 AdminService 的 Enum 轉換問題（role 和 status 從 Enum 正確轉換為 String）
@@ -248,6 +263,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - 更新 CLAUDE.md 完整記錄
 
 ### 2025-12-03
+
 - ✅ **Admin Panel 後端 API 完整實作**：
   - 建立 4 個 DTO 類別（AdminStatsResponse, UserSummaryDTO, AnnouncementRequest, AnnouncementResponse）
   - 建立 AdminService 和 AnnouncementService
@@ -284,7 +300,8 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - 新增測試帳號說明
   - 清理過時內容
 
-### 2024-11-30
+### 2025-11-30
+
 - ✅ **收藏功能完整修復**：
   - **Watchlist 顯示問題修復**：
     - 正確轉換 CoinGecko API 數據格式為應用格式
@@ -324,7 +341,8 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - 標註 v2.0 功能規劃文檔為未來功能
   - 新增後端代碼審查報告與安全性建議文檔
 
-### 2024-11-28
+### 2025-11-28
+
 - ✅ **後端完整架構實作**：
   - **Config 層**：AppConfig（RestTemplate Bean）、SecurityConfig（JWT + BCrypt + CORS）
   - **Controller 層**：AuthController、FavoriteController、CoinController
@@ -356,11 +374,11 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
     - 修正 `FavoriteService`：改用資料庫載入的 User 實體（解決 JPA unmanaged entity 問題）
   - **中等優先修復（6 項）**：
     - Entity 層改用 `@Getter/@Setter` 取代 `@Data`（避免 JPA 循環參照）
-    - `AppConfig`：RestTemplate 加入連線超時（5秒）和讀取超時（10秒）
+    - `AppConfig`：RestTemplate 加入連線超時（5 秒）和讀取超時（10 秒）
     - `CorsConfig`：修正 allowedHeaders wildcard 處理的型別錯誤
     - `GlobalExceptionHandler`：移除 printStackTrace，改用 SLF4J Logger
     - `pom.xml`：新增 Caffeine Cache 依賴
-    - `application.yml`：配置 Caffeine Cache TTL（5分鐘過期，最大1000項）
+    - `application.yml`：配置 Caffeine Cache TTL（5 分鐘過期，最大 1000 項）
   - **次要優化（5 項）**：
     - DTO 層加入 Jakarta Bean Validation 註解
     - `AuthController`：使用 `@Valid` 啟用自動驗證
@@ -378,7 +396,8 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
     - 生成「後端代碼檢查報告.md」（詳細記錄所有問題與修復方案）
     - 將報告移至 `docs/archive/`（問題已全部修復）
 
-### 2024-11-27
+### 2025-11-27
+
 - ✅ **後端基礎架構完整實作**：
   - Repository 層（4 個）+ Service 層（3 個）+ Controller 層（3 個）
   - JWT 認證系統完整（JwtUtil + SecurityConfig）
@@ -401,7 +420,8 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - Navbar 顯示「CoinVue 幣景」（中英文並列）
   - 清理 Sidebar 未使用的 CSS 樣式
 
-### 2024-11-26
+### 2025-11-26
+
 - ✅ **前端 API 呼叫優化**：
   - 新增 CoinGecko API 逾時與重試機制
   - 超時時自動切換到 CoinCap 備援 API
@@ -410,7 +430,8 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - Dashboard、Market、Compare 頁面共用快取
   - 減少重複 API 請求
 
-### 2024-11-25
+### 2025-11-25
+
 - ✅ **權限分離優化**：
   - 管理者專屬選單：移除 Dashboard、Market、Compare
   - 一般用戶保留完整功能選單
@@ -423,7 +444,8 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - 建立 `useMarketFilterStore` Pinia Store
   - 實作篩選預設儲存與載入功能
 
-### 2024-11-24
+### 2025-11-24
+
 - ✅ **專案結構重構**：
   - 移除多餘的巢狀資料夾層級
   - 清理 Eclipse 產生的垃圾檔案
@@ -432,13 +454,15 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - 修復 `schema_zh.sql` 的外鍵約束 COMMENT 語法錯誤
   - 統一 `schema.sql` 和 `schema_zh.sql` 的欄位順序
 
-### 2024-11-23
+### 2025-11-23
+
 - ✅ **資料庫 Schema 優化**：
   - 完全移除 `coin_submissions` 表（功能已廢棄）
   - 建立 `schema_zh.sql` 詳細中文版
   - 後端 Spring Boot 專案成功匯入 Eclipse
 
-### 2024-11-20
+### 2025-11-20
+
 - ✅ 修復 `formatPrice` 函數處理極小價格（如 SHIB 0.0000095）
 - ✅ 統一格式化函數至 `format.js`
 - ✅ 建立 CoinCap API 作為備援數據源
@@ -456,11 +480,13 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ### 🔥 高優先（本週完成）
 
 #### 1. Admin Panel 後端 API 實作
+
 **目標**：讓 Admin Panel 前端頁面可以顯示真實資料
 
 需要實作的 API：
 
 **A. 統計數據 API**
+
 - `GET /api/admin/stats` - 管理員統計資料
   - 總用戶數
   - 活躍用戶數（7 天內登入）
@@ -468,11 +494,13 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - 最多收藏的幣種排行（Top 10）
 
 **B. 用戶管理 API**
+
 - `GET /api/admin/users` - 用戶列表
   - 返回所有用戶資訊（id, username, email, role, status, join_date, last_login）
   - 包含每個用戶的收藏數量
 
 **C. 公告管理 API**
+
 - `POST /api/admin/announcements` - 建立公告
   - 參數：title, content, type (info/success/warning), is_active
 - `PUT /api/admin/announcements/{id}` - 更新公告
@@ -480,6 +508,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 - `GET /api/announcements` - 取得啟用的公告（所有用戶可見）
 
 **實作內容**：
+
 - [ ] 建立 `AdminController`
 - [ ] 建立 `AdminService`
 - [ ] 建立 `AnnouncementController`
@@ -492,6 +521,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 #### 2. 安全性優化 ⚠️
 
 **A. 移除敏感資訊到環境變數**
+
 - [ ] 將 `application.yml` 和 `application-dev.yml` 的敏感資訊移至環境變數
   - MySQL 密碼
   - JWT Secret
@@ -501,6 +531,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 - [ ] 更新文檔說明環境變數配置方式
 
 **B. 強化 JWT 安全性**
+
 - [ ] 使用 `openssl rand -base64 64` 生成強密鑰（512 位）
 - [ ] 更新 `application.yml` 使用環境變數
 - [ ] 修改 `JwtAuthenticationFilter` 驗證 Token 是否存在於 `auth_tokens` 表
@@ -520,6 +551,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - `coin_favorites` 表：user_id, coin_id
 
 #### 中優先（下週完成）
+
 - [ ] **語系完整化**：
   - [ ] 檢查 `frontend/src/locales/zh-TW.json` 完整性
   - [ ] 檢查 `frontend/src/locales/en-US.json` 完整性
@@ -535,6 +567,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
   - [ ] coin_comparisons 表 - 實作幣種比較歷史記錄
 
 #### 低優先（未來功能）
+
 - [ ] 密碼重設/忘記密碼流程
 - [ ] Email 驗證功能
 - [ ] 使用者個人資料編輯 API
@@ -547,10 +580,12 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ### ⚠️ 已知問題與注意事項
 
 1. **Admin Panel 資料**：
+
    - Admin Panel 前端頁面已完成，但顯示的是模擬資料
    - 需要實作後端 API（統計、用戶管理、公告管理）才能顯示真實資料
 
 2. **資料庫欄位對應**：
+
    - Entity 類別目前只對應 v1.0 的 4 個核心表（users, auth_tokens, coin_favorites, announcements）
    - v3.0 新增的 5 個擴充表尚未建立對應的 Entity（user_activities, market_filter_presets, coin_price_alerts, coin_comparisons, system_settings）
 
@@ -564,6 +599,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ### 📊 開發進度追蹤
 
 **Phase 1: 後端基礎建設** ✅ 100% 完成
+
 - [x] Spring Boot 專案結構
 - [x] Config 層（AppConfig, SecurityConfig）
 - [x] Entity 層（4 個實體類）
@@ -575,6 +611,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 - [x] 全域例外處理（GlobalExceptionHandler + 6 個自訂 Exception）
 
 **Phase 2: 前後端整合** ✅ 100% 完成
+
 - [x] 前端 API 工具類（api.js，含 Bearer Token）
 - [x] 移除模擬資料（mockAuth.js）
 - [x] CoinGecko API Proxy（含 @Cacheable）
@@ -586,6 +623,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 - [x] 建立測試帳號（shihChenAdmin）
 
 **Phase 3: 進階功能** ⏳ 0% 完成
+
 - [ ] Admin Panel API（統計、用戶管理、公告管理）
 - [ ] 用戶活動記錄（user_activities 表整合）
 - [ ] 價格提醒功能（coin_price_alerts 表整合）
@@ -593,6 +631,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 - [ ] 市場篩選預設（market_filter_presets 表整合）
 
 **Phase 4: 優化與測試** ⏳ 0% 完成
+
 - [ ] 單元測試（JUnit + MockMvc）
 - [ ] 整合測試
 - [ ] API 效能優化
@@ -604,14 +643,17 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ## Admin Panel 功能
 
 ### 數據總覽 (Overview)
-- 總用戶數、活躍用戶數（7天內）、總收藏數統計
+
+- 總用戶數、活躍用戶數（7 天內）、總收藏數統計
 - 最多收藏的幣種排行榜（Top 10）
 
 ### 用戶管理 (Users)
+
 - 查看所有用戶列表（用戶名、Email、角色、註冊時間、最後登入、收藏數）
 - 角色標籤區分（管理員/用戶）
 
 ### 公告管理 (Announcements)
+
 - 新增系統公告（標題、內容、類型：資訊/成功/警告）
 - 啟用/停用公告
 - 刪除公告
@@ -632,6 +674,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ## 常用指令
 
 ### 前端
+
 ```bash
 cd frontend
 npm run dev          # 啟動開發伺服器
@@ -640,6 +683,7 @@ npm run preview      # 預覽生產版本
 ```
 
 ### 後端
+
 ```bash
 cd backend
 mvn spring-boot:run  # 啟動後端（需先安裝 Maven）
@@ -647,6 +691,7 @@ mvn spring-boot:run  # 啟動後端（需先安裝 Maven）
 ```
 
 ### 資料庫
+
 ```bash
 # 建立資料庫
 mysql -u root -p < database/schema_v3.sql
@@ -668,4 +713,4 @@ mysql -u root -p -e "SHOW DATABASES LIKE 'crypto_dashboard';"
 
 ---
 
-*最後更新：2025-12-03（前後端整合測試完成、建立測試帳號、高優先待辦事項重新組織）*
+_最後更新：2025-12-03（前後端整合測試完成、建立測試帳號、高優先待辦事項重新組織）_
