@@ -22,12 +22,25 @@ export async function apiRequest(endpoint, options = {}) {
 
   const response = await fetch(url, config)
 
+  const readJsonBodySafely = async () => {
+    const text = await response.text()
+    if (!text) return null
+    try {
+      return JSON.parse(text)
+    } catch {
+      return null
+    }
+  }
+
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}))
+    const error = (await readJsonBodySafely()) || {}
     throw new Error(error.message || 'API request failed')
   }
 
-  return response.json()
+  // e.g. DELETE 204 No Content
+  if (response.status === 204) return null
+
+  return readJsonBodySafely()
 }
 
 // 認證 API

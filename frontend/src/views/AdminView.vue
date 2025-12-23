@@ -171,7 +171,19 @@ const deleteAnnouncement = async (id) => {
     alert('公告刪除成功！')
   } catch (err) {
     console.error('刪除公告失敗:', err)
-    alert('刪除公告失敗：' + (err.message || '未知錯誤'))
+    // 即使刪除失敗，也嘗試重新同步列表，避免顯示過期資料
+    try {
+      await loadAnnouncements()
+    } catch {
+      // ignore
+    }
+
+    const message = err.message || '未知錯誤'
+    if (message.includes('Announcement not found')) {
+      alert('刪除公告失敗：此公告可能已不存在（已重新整理列表）')
+      return
+    }
+    alert('刪除公告失敗：' + message)
   }
 }
 
