@@ -1,6 +1,5 @@
 # Claude Code 設定
 .claude/
-# CLAUDE.md 現已納入版本控制，用於保存專案記憶
 
 # 本地配置備份（包含敏感資訊）
 _local_config_backup/
@@ -57,3 +56,8 @@ backend/src/main/resources/application-*.yml
 *.log
 logs/
 /.metadata/
+
+# 個人檔案（不提交到 Git）
+CLAUDE.md
+GEMINI_LEARNING_GUIDE.md
+啟動專案.bat
