@@ -106,22 +106,20 @@ CryptoDashboard/
 
 ## 資料庫結構
 
-### v1.0 基礎版（4 個表）
+專案使用 MySQL 8.0，共 9 個資料表：
 
-| 表格 | 說明 |
-|------|------|
-| `users` | 使用者帳號（包含角色、權限、個人資料） |
-| `auth_tokens` | 登入憑證（JWT Token 管理） |
-| `coin_favorites` | 收藏幣種（Watchlist 功能） |
-| `announcements` | 系統公告（管理員發布） |
+### 核心功能表（4 個）
+- `users` - 使用者帳號與權限管理
+- `auth_tokens` - JWT Token 登入憑證
+- `coin_favorites` - 收藏幣種（Watchlist）
+- `announcements` - 系統公告
 
-### v3.0 完整版（新增 5 個表）
-
-- `users.preferred_language` - 使用者語系偏好
+### 擴充功能表（5 個）
 - `user_activities` - 用戶活動記錄
-- `market_filter_presets` - 市場篩選預設
-- `coin_price_alerts` - 價格提醒
+- `market_filter_presets` - 市場篩選預設儲存
+- `coin_price_alerts` - 價格提醒設定
 - `coin_comparisons` - 幣種比較歷史
+- `system_settings` - 系統全域設定
 
 詳細結構請參考：`database/schema_v3.sql`
 
@@ -157,24 +155,6 @@ CryptoDashboard/
 | `/watchlist` | Watchlist | 收藏清單 |
 | `/profile` | Profile | 個人資料 |
 | `/admin` | Admin | 管理後台（需管理員權限） |
-
----
-
-## 開發指令
-
-```bash
-# 啟動開發伺服器
-npm run dev
-
-# 建構生產版本
-npm run build
-
-# 預覽生產版本
-npm run preview
-
-# 程式碼檢查
-npm run lint
-```
 
 ---
 
