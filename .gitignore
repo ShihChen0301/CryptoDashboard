@@ -58,6 +58,7 @@ logs/
 /.metadata/
 
 # 個人檔案（不提交到 Git）
+docs/
 CLAUDE.md
 GEMINI_LEARNING_GUIDE.md
 啟動專案.bat

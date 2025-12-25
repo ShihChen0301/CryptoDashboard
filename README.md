@@ -4,7 +4,7 @@
 
 **CoinVue** 是一個現代化的加密貨幣儀表板應用，結合 Vue 3 技術棧與即時市場數據，提供直觀流暢的用戶體驗。支援中英文雙語切換，打造專業的加密貨幣市場分析工具。
 
-**前端版本：** v1.2.0（100% 完成 🎉）| **後端版本：** v1.2.0（生產就緒）| **最後更新：** 2025-12-11
+**前端版本：** v1.2.0（100% 完成 🎉）| **後端版本：** v1.2.0（生產就緒）| **最後更新：** 2025-12-26
 
 ---
 
@@ -63,114 +63,11 @@
 
 ---
 
-## 快速開始
+## 環境需求
 
-### ⚠️ 環境配置說明
-
-**重要提醒**：
-- ✅ 本專案已從 Git 移除所有包含敏感資訊的配置檔
-- ⚠️ Clone 後需自行建立配置檔（請參考 `application.yml.example`）
-- 🔒 **切勿**將實際的配置檔（`application.yml`）提交到 Git
-
-**首次設定需要**：
-1. 複製 `backend/src/main/resources/application.yml.example` 為 `application.yml`
-2. 填入你的 MySQL 密碼
-3. 設定 JWT Secret（建議使用 `openssl rand -base64 64` 生成強密鑰）
-4. 填入 CoinGecko API Key（可選，有預設值）
-
----
-
-### 環境需求
-
-- **前端**: Node.js 18+, npm 或 yarn
+- **前端**: Node.js 18+, npm
 - **後端**: JDK 17+, Maven 3.8+
 - **資料庫**: MySQL 8.0+
-
-### 安裝步驟
-
-1. **Clone 專案**
-   ```bash
-   git clone https://github.com/ShihChen0301/CryptoDashboard.git
-   cd CryptoDashboard
-   ```
-
-2. **安裝前端依賴**
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-3. **設定環境變數**
-
-   建立 `frontend/.env` 檔案：
-   ```env
-   VITE_API_BASE_URL=http://localhost:8080/api
-   VITE_COINGECKO_API_KEY=CG-vczvnvBTsqG7Z8EVB7KRb3ii
-   ```
-
-4. **設定資料庫**
-   ```bash
-   # 建立資料庫（使用 v3.0 完整版）
-   mysql -u root -p < database/schema_v3.sql
-   ```
-
-5. **設定後端配置檔**
-
-   複製範本並填入你的設定：
-   ```bash
-   cd backend/src/main/resources
-   cp application.yml.example application.yml
-   ```
-
-   編輯 `application.yml`，修改以下設定：
-   ```yaml
-   spring:
-     datasource:
-       password: your_mysql_password  # 改成你的 MySQL 密碼
-
-   jwt:
-     secret: your_strong_jwt_secret   # 改成強密鑰（建議 64 字元以上）
-
-   coingecko:
-     api:
-       key: your_api_key              # 填入你的 CoinGecko API Key
-   ```
-
-6. **啟動後端**
-   ```bash
-   cd backend
-
-   # 方法 A: 使用 Maven（需先安裝 Maven）
-   mvn spring-boot:run
-
-   # 方法 B: 使用 Chocolatey 快速安裝 Maven
-   choco install maven -y
-   mvn spring-boot:run
-
-   # 方法 C: 使用 Eclipse IDE
-   # 右鍵 CryptoDashboardApplication.java → Run As → Java Application
-   ```
-
-   後端 API 位址：`http://localhost:8080/api`
-
-7. **啟動前端開發伺服器**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-8. **開啟瀏覽器並註冊新帳號**
-   ```
-   http://localhost:5173
-   ```
-
-   **註冊新帳號**：
-   - 訪問 http://localhost:5173/register 註冊新帳號
-   - 註冊後會自動獲得 `user` 角色
-   - 如需 `admin` 權限，請在資料庫執行：
-     ```sql
-     UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
-     ```
 
 ---
 
@@ -202,12 +99,6 @@ CryptoDashboard/
 │   └── pom.xml                       # Maven 配置
 ├── database/
 │   └── schema_v3.sql                 # MySQL v3.0 完整結構
-├── docs/                             # 專案文檔
-│   ├── README.md                     # 文檔導覽
-│   ├── 後端架構說明.md                # 三層架構、JPA、連接池詳解
-│   ├── 功能對照表.md                  # v2.0 功能規劃（未來參考）
-│   └── 功能需求分析_v2.md             # v2.0 需求分析（未來參考）
-├── CLAUDE.md                         # 專案記憶與歷史決策
 └── README.md
 ```
 
@@ -249,14 +140,9 @@ CryptoDashboard/
 
 ---
 
-## 📚 詳細文檔
+## 📚 API 文檔
 
-想深入了解專案架構和技術細節？請參考：
-
-- **[後端架構說明](docs/後端架構說明.md)** - 深入解析三層架構、JPA、HikariCP 連接池、Swagger 整合
-- **[專案記憶 (CLAUDE.md)](CLAUDE.md)** - 完整的開發歷史、技術決策、版本演進記錄
-- **[功能規劃](docs/功能對照表.md)** - v2.0 未來功能規劃參考
-- **[API 測試 (Swagger UI)](http://localhost:8080/swagger-ui/index.html)** - 互動式 API 文檔（需先啟動後端）
+- **[Swagger UI](http://localhost:8080/swagger-ui/index.html)** - 互動式 API 文檔與測試介面（需先啟動後端）
 
 ---
 
