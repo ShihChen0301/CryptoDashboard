@@ -39,16 +39,9 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.user;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "trading_experience")
-    private TradingExperience tradingExperience;
 
     @Column(name = "join_date", nullable = false)
     private LocalDateTime joinDate;
@@ -89,35 +82,5 @@ public class User {
      */
     public enum Status {
         active, disabled
-    }
-
-    /**
-     * 交易經驗枚舉
-     */
-    public enum TradingExperience {
-        @Column(name = "less-than-1")
-        LESS_THAN_1("less-than-1"),
-
-        @Column(name = "1-2")
-        ONE_TO_TWO("1-2"),
-
-        @Column(name = "3-5")
-        THREE_TO_FIVE("3-5"),
-
-        @Column(name = "5-10")
-        FIVE_TO_TEN("5-10"),
-
-        @Column(name = "more-than-10")
-        MORE_THAN_TEN("more-than-10");
-
-        private final String value;
-
-        TradingExperience(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 }

@@ -49,7 +49,7 @@
 
 ---
 
-## 現況（2025-12-04）
+## 現況（2025-12-25）
 
 ### ✅ 前端（v1.2.0，100% 完成）
 
@@ -59,7 +59,7 @@
 - Dashboard、Market、Compare、Watchlist、Profile、Admin 全頁面完成
 - **Admin Panel 完整功能** 🎉：
   - 數據總覽：總用戶數、活躍用戶數、總收藏數、最多收藏幣種排行
-  - 用戶管理：用戶列表（含收藏數統計）
+  - 用戶管理：用戶列表（用戶名、Email、角色、註冊時間、收藏數）
   - 公告管理：建立/切換/刪除公告
 - **系統公告功能**：
   - 用戶端 Dashboard 顯示啟用的系統公告
@@ -107,7 +107,7 @@
   - 方法：getUserIdFromToken, validateToken
 - **例外處理**：
   - GlobalExceptionHandler（使用 SLF4J Logger，移除 printStackTrace）
-  - 6 個自訂 Exception（ResourceNotFoundException, DuplicateFavoriteException, etc.）
+  - 4 個自訂 Exception（ResourceNotFoundException, ValidationException, InvalidCredentialsException, ExternalApiException）
 - **快取機制**：
   - Caffeine Cache（coinsList, coinDetail）
   - TTL：5 分鐘自動過期
@@ -240,8 +240,30 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 
 ## 開發歷史
 
-### 2025-12-04（今日）
+### 2025-12-25（今日）
+- ✅ **代碼清理與優化** 🧹：
+  - **後端清理**：
+    - 刪除 UnauthorizedException.java（未使用的例外類別）
+    - 移除 User.avatarUrl 欄位（改用 Gravatar 動態生成）
+    - 移除 User.TradingExperience 枚舉（保留 UI，待未來實作）
+    - 清理 GlobalExceptionHandler 中的 UnauthorizedException 處理器
+  - **前端清理**：
+    - 移除 AdminView.vue 的「最後登入」欄位
+    - 刪除 useLocaleStore.js 的過時 TODO 註解
+  - **後端調整**：
+    - 修改 UserRepository 查詢移除 lastLoginAt
+    - 修改 UserSummaryDTO 移除 lastLogin 欄位
+    - 修改 AdminService 調整欄位映射
+  - **文檔更新**：
+    - 更新 CLAUDE.md 反映最新架構
+    - 更新 docs/後端架構說明.md Exception 列表
+    - 更新 docs/學習路徑指南_v1.2.0.md
+  - **編譯測試**：
+    - ✅ 後端編譯成功（BUILD SUCCESS）
+    - ✅ 前端無錯誤
+    - ✅ 39 個 Java 檔案全部正常使用
 
+### 2025-12-04
 - ✅ **Admin Panel 完整測試與修復** 🎉：
   - **路由優化**：修復 admin 登入後首頁跳轉邏輯，根據角色智能跳轉（admin → /admin, user → /dashboard）
   - **用戶列表修復**：修正 AdminService 的 Enum 轉換問題（role 和 status 從 Enum 正確轉換為 String）
@@ -648,8 +670,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 - 最多收藏的幣種排行榜（Top 10）
 
 ### 用戶管理 (Users)
-
-- 查看所有用戶列表（用戶名、Email、角色、註冊時間、最後登入、收藏數）
+- 查看所有用戶列表（用戶名、Email、角色、註冊時間、收藏數）
 - 角色標籤區分（管理員/用戶）
 
 ### 公告管理 (Announcements)

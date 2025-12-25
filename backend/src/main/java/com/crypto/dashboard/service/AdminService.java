@@ -61,8 +61,7 @@ public class AdminService {
                     role,                            // role (Enum → String)
                     status,                          // status (Enum → String)
                     (LocalDateTime) row[5],          // joinDate
-                    (LocalDateTime) row[6],          // lastLoginAt
-                    ((Number) row[7]).longValue()    // favoriteCount
+                    ((Number) row[6]).longValue()    // favoriteCount
                 );
             })
             .collect(Collectors.toList());

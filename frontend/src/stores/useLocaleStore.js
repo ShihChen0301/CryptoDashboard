@@ -28,7 +28,6 @@ export const useLocaleStore = defineStore('locale', {
       if (this.availableLocales.includes(locale)) {
         this.currentLocale = locale
         localStorage.setItem('preferred_locale', locale)
-        // TODO: 整合 vue-i18n 後會觸發全域語系切換
       }
     },
 

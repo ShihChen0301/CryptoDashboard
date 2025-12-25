@@ -14,6 +14,5 @@ public class UserSummaryDTO {
     private String role;
     private String status;
     private LocalDateTime joinDate;
-    private LocalDateTime lastLogin;
     private Long favoriteCount;
 }

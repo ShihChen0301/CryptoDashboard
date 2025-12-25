@@ -46,6 +46,7 @@ public class AuthService {
         user.setRole(User.Role.user);
         user.setStatus(User.Status.active);
         user.setJoinDate(LocalDateTime.now());
+        user.setLastLoginAt(LocalDateTime.now()); // 註冊時設定登入時間（註冊等於自動登入）
 
         user = userRepository.save(user);
 
@@ -104,9 +105,7 @@ public class AuthService {
         safe.setId(user.getId());
         safe.setUsername(user.getUsername());
         safe.setEmail(user.getEmail());
-        safe.setAvatarUrl(user.getAvatarUrl());
         safe.setRole(user.getRole());
-        safe.setTradingExperience(user.getTradingExperience());
         safe.setJoinDate(user.getJoinDate());
         safe.setStatus(user.getStatus());
         safe.setLastLoginAt(user.getLastLoginAt());

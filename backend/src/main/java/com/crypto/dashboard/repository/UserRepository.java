@@ -22,10 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Long countByLastLoginAtAfter(LocalDateTime date);
 
     // 新增：取得所有用戶及其收藏數
-    @Query("SELECT u.id, u.username, u.email, u.role, u.status, u.joinDate, u.lastLoginAt, " +
+    @Query("SELECT u.id, u.username, u.email, u.role, u.status, u.joinDate, " +
            "COALESCE(COUNT(f.id), 0) as favoriteCount " +
            "FROM User u LEFT JOIN u.favorites f " +
-           "GROUP BY u.id, u.username, u.email, u.role, u.status, u.joinDate, u.lastLoginAt " +
+           "GROUP BY u.id, u.username, u.email, u.role, u.status, u.joinDate " +
            "ORDER BY u.joinDate DESC")
     List<Object[]> findAllUsersWithFavoriteCount();
 }

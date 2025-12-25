@@ -312,7 +312,6 @@ const getAnnouncementTypeLabel = (type) => {
                 <th>Email</th>
                 <th>角色</th>
                 <th>註冊時間</th>
-                <th>最後登入</th>
                 <th>收藏數</th>
               </tr>
             </thead>
@@ -326,7 +325,6 @@ const getAnnouncementTypeLabel = (type) => {
                   </span>
                 </td>
                 <td>{{ user.joinDate ? formatDate(user.joinDate) : '-' }}</td>
-                <td>{{ user.lastLoginAt ? formatDate(user.lastLoginAt) : '尚未登入' }}</td>
                 <td>{{ user.favoriteCount || 0 }}</td>
               </tr>
             </tbody>

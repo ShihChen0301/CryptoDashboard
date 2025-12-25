@@ -28,16 +28,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 處理未授權錯誤
-     */
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException e) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(e.getMessage()));
-    }
-
-    /**
      * 處理驗證錯誤
      */
     @ExceptionHandler(ValidationException.class)

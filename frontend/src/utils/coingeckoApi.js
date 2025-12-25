@@ -7,7 +7,7 @@
 
 const BASE_URL = 'https://api.coingecko.com/api/v3'
 const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY || ''
-const REQUEST_TIMEOUT = 3000 // ms (優化：從 6000 降到 3000，加快失敗切換)
+const REQUEST_TIMEOUT = 6000 // ms (優化：從 6000失敗切換)
 const MAX_RETRIES = 1
 const RETRY_DELAY = 200 // ms (優化：從 500 降到 200，加快重試速度)
 
@@ -32,7 +32,10 @@ const fetchCoinGecko = async (endpoint, params = {}) => {
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(new Error('CoinGecko request timeout')), REQUEST_TIMEOUT)
+    const timeoutId = setTimeout(
+      () => controller.abort(new Error('CoinGecko request timeout')),
+      REQUEST_TIMEOUT,
+    )
 
     try {
       const response = await fetch(url.toString(), { headers, signal: controller.signal })
@@ -73,7 +76,7 @@ export const getCoinsList = async (currency = 'usd', perPage = 100, page = 1) =>
     per_page: perPage,
     page: page,
     sparkline: false,
-    price_change_percentage: '24h'
+    price_change_percentage: '24h',
   })
 }
 
@@ -87,7 +90,7 @@ export const getCoinDetails = async (coinId) => {
     tickers: false,
     market_data: true,
     community_data: false,
-    developer_data: false
+    developer_data: false,
   })
 }
 
@@ -101,7 +104,7 @@ export const getCoinMarketChart = async (coinId, currency = 'usd', days = 30) =>
   return await fetchCoinGecko(`/coins/${coinId}/market_chart`, {
     vs_currency: currency,
     days: days,
-    interval: days <= 1 ? 'hourly' : 'daily'
+    interval: days <= 1 ? 'hourly' : 'daily',
   })
 }
 
@@ -116,7 +119,7 @@ export const getSimplePrice = async (coinIds, currency = 'usd') => {
     vs_currencies: currency,
     include_24hr_change: true,
     include_market_cap: true,
-    include_24hr_vol: true
+    include_24hr_vol: true,
   })
 }
 
@@ -162,7 +165,7 @@ export const convertToAppFormat = (coin) => {
     circulatingSupply: coin.circulating_supply,
     totalSupply: coin.total_supply,
     ath: coin.ath,
-    athDate: coin.ath_date
+    athDate: coin.ath_date,
   }
 }
 
@@ -176,7 +179,7 @@ export const convertChartData = (marketChart) => {
 
   return marketChart.prices.map(([timestamp, price]) => ({
     date: new Date(timestamp).toISOString().split('T')[0],
-    price: price
+    price: price,
   }))
 }
 
@@ -189,5 +192,5 @@ export default {
   getGlobalData,
   getTrendingCoins,
   convertToAppFormat,
-  convertChartData
+  convertChartData,
 }
