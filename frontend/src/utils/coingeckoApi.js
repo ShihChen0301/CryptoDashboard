@@ -178,7 +178,7 @@ export const convertChartData = (marketChart) => {
   }
 
   return marketChart.prices.map(([timestamp, price]) => ({
-    date: new Date(timestamp).toISOString().split('T')[0],
+    date: timestamp, // 保留原始 timestamp，讓圖表組件處理格式化
     price: price,
   }))
 }

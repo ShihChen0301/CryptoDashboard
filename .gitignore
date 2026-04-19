@@ -63,3 +63,9 @@ CLAUDE.md
 GEMINI_LEARNING_GUIDE.md
 啟動專案.bat
 CryptoDashboard Gantt Chart.png
+
+# IDE files
+.project
+.settings/
+.factorypath
+nul

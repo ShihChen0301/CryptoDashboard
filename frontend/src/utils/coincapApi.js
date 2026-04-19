@@ -173,7 +173,7 @@ export const convertToAppFormat = (asset) => {
  */
 export const convertChartData = (history) => {
   return history.map(item => ({
-    date: new Date(item.time).toISOString().split('T')[0],
+    date: item.time, // 保留原始 timestamp
     price: parseFloat(item.priceUsd)
   }))
 }

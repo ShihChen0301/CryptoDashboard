@@ -69,8 +69,7 @@ const handleRegister = async () => {
             type="text"
             placeholder="Enter your username"
             required
-          />
-        </div>
+          /></div>
 
         <div class="form-group">
           <label for="email">Email</label>
