@@ -1,6 +1,6 @@
 {
   "name": "coinvue",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "private": true,
   "description": "CoinVue（幣景）- 專業的加密貨幣市場監控平台",
   "type": "module",
