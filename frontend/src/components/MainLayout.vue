@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import Navbar from './Navbar.vue'
 import Sidebar from './Sidebar.vue'
 
+const route = useRoute()
 const isMobileMenuOpen = ref(false)
 
 const toggleMobileMenu = () => {
@@ -30,9 +32,7 @@ const closeMobileMenu = () => {
       <main class="main-content">
         <div class="content-container">
           <router-view v-slot="{ Component }">
-            <transition name="page" mode="out-in">
-              <component :is="Component" />
-            </transition>
+            <component :is="Component" :key="route.fullPath" />
           </router-view>
         </div>
       </main>
@@ -66,23 +66,6 @@ const closeMobileMenu = () => {
   margin: 0 auto;
   width: 100%;
 }
-
-/* Page transitions */
-.page-enter-active,
-.page-leave-active {
-  transition: all 0.2s ease;
-}
-
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
 /* Mobile overlay */
 .mobile-overlay {
   display: none;
