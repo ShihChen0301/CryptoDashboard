@@ -91,6 +91,16 @@ export const adminApi = {
   getAllUsers: () => apiRequest('/admin/users'),
 }
 
+// 個人資料 API
+export const profileApi = {
+  get: () => apiRequest('/profile'),
+  update: (data) =>
+    apiRequest('/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+}
+
 // 公告 API
 export const announcementApi = {
   // 取得啟用的公告（所有用戶可見）

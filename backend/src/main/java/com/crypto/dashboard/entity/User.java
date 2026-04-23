@@ -50,6 +50,9 @@ public class User {
     @Column(nullable = false)
     private Status status = Status.active;
 
+    @Column(name = "trading_experience")
+    private String tradingExperience;
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 

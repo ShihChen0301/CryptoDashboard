@@ -2,8 +2,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getUserAvatar } from '@/utils/gravatar'
+import { profileApi } from '@/utils/api'
 
 const { t } = useI18n()
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const user = ref({
   username: '',
@@ -37,13 +40,31 @@ const getExperienceLabel = (value) => {
   return option ? option.label : t('profile.experience.notSet')
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 先從 localStorage 讀取基本資料
   const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
   user.value = storedUser
   editForm.value = {
     username: storedUser.username,
     email: storedUser.email,
     tradingExperience: storedUser.tradingExperience || ''
+  }
+
+  // 再從後端取得最新資料
+  try {
+    const response = await profileApi.get()
+    if (response && response.data) {
+      user.value = response.data
+      editForm.value = {
+        username: response.data.username,
+        email: response.data.email,
+        tradingExperience: response.data.tradingExperience || ''
+      }
+      // 同步更新 localStorage
+      localStorage.setItem('user', JSON.stringify(response.data))
+    }
+  } catch (error) {
+    console.error('Failed to fetch profile:', error)
   }
 })
 
@@ -60,17 +81,28 @@ const cancelEdit = () => {
   }
 }
 
-const saveProfile = () => {
-  // 更新使用者資訊
-  user.value = {
-    ...user.value,
-    username: editForm.value.username,
-    email: editForm.value.email,
-    tradingExperience: editForm.value.tradingExperience
-  }
+const saveProfile = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
 
-  localStorage.setItem('user', JSON.stringify(user.value))
-  isEditing.value = false
+  try {
+    const response = await profileApi.update({
+      username: editForm.value.username,
+      tradingExperience: editForm.value.tradingExperience
+    })
+
+    if (response && response.data) {
+      user.value = response.data
+      // 同步更新 localStorage
+      localStorage.setItem('user', JSON.stringify(response.data))
+    }
+    isEditing.value = false
+  } catch (error) {
+    console.error('Failed to save profile:', error)
+    errorMessage.value = error.message || '儲存失敗，請稍後再試'
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const formatDate = (dateString) => {
@@ -140,6 +172,10 @@ const formatDate = (dateString) => {
             <div v-else class="form-value">{{ getExperienceLabel(user.tradingExperience) }}</div>
           </div>
 
+          <div v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </div>
+
           <div class="form-actions">
             <button
               v-if="!isEditing"
@@ -150,10 +186,10 @@ const formatDate = (dateString) => {
             </button>
 
             <template v-else>
-              <button @click="saveProfile" class="btn-primary">
-                {{ t('profile.save') }}
+              <button @click="saveProfile" class="btn-primary" :disabled="isLoading">
+                {{ isLoading ? '儲存中...' : t('profile.save') }}
               </button>
-              <button @click="cancelEdit" class="btn-secondary">
+              <button @click="cancelEdit" class="btn-secondary" :disabled="isLoading">
                 {{ t('profile.cancel') }}
               </button>
             </template>
@@ -331,5 +367,20 @@ const formatDate = (dateString) => {
 
 .status-active {
   color: #10b981;
+}
+
+.error-message {
+  padding: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

@@ -196,6 +196,7 @@ onMounted(async () => {
 .compare-page {
   max-width: 1400px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .compare-header {
@@ -299,6 +300,7 @@ onMounted(async () => {
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 1.5rem;
+  overflow: hidden;
 }
 
 .charts-section h2 {
@@ -310,6 +312,7 @@ onMounted(async () => {
 .charts-grid {
   display: grid;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 .charts-grid.cols-1 {
@@ -330,6 +333,8 @@ onMounted(async () => {
   border: 1px solid #e5e7eb;
   border-radius: 0.375rem;
   padding: 1rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chart-card-header {
