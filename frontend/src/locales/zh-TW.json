@@ -43,6 +43,7 @@
   "watchlist": {
     "title": "我的收藏",
     "subtitle": "您收藏的加密貨幣",
+    "loading": "載入收藏清單中...",
     "clearAll": "清除全部",
     "confirmClear": "確定要清除所有收藏嗎？",
     "empty": {

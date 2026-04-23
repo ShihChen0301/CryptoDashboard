@@ -43,6 +43,7 @@
   "watchlist": {
     "title": "My Watchlist",
     "subtitle": "Your favorite cryptocurrencies",
+    "loading": "Loading favorites...",
     "clearAll": "Clear All",
     "confirmClear": "Are you sure you want to clear all favorites?",
     "empty": {
