@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -50,8 +52,10 @@ public class User {
     @Column(nullable = false)
     private Status status = Status.active;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.ENUM)
     @Column(name = "trading_experience")
-    private String tradingExperience;
+    private TradingExperience tradingExperience;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;

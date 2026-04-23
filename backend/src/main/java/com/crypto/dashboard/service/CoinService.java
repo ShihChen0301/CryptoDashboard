@@ -53,4 +53,17 @@ public class CoinService {
             throw new ExternalApiException("Failed to fetch coin detail from CoinGecko", e);
         }
     }
+
+    @Cacheable(value = "globalData")
+    public String getGlobalData() {
+        String url = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/global")
+                .queryParam("x_cg_demo_api_key", apiKey)
+                .toUriString();
+
+        try {
+            return restTemplate.getForObject(url, String.class);
+        } catch (Exception e) {
+            throw new ExternalApiException("Failed to fetch global data from CoinGecko", e);
+        }
+    }
 }

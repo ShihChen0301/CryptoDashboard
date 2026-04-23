@@ -21,6 +21,12 @@ public class CoinController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/global")
+    public ResponseEntity<String> getGlobalData() {
+        String result = coinService.getGlobalData();
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<String> getCoinDetail(@PathVariable String id) {
         String result = coinService.getCoinDetail(id);

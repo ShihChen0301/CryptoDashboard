@@ -1,10 +1,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getGlobalData } from '../utils/coingeckoApi'
-import * as coincapApi from '../utils/coincapApi'
 import { useCoinsStore } from '../stores/useCoinsStore'
-import { announcementApi } from '../utils/api'
+import { announcementApi, coinApi } from '../utils/api'
 import CoinCard from '../components/CoinCard.vue'
 
 const { t } = useI18n()
@@ -28,21 +26,21 @@ let autoPlayInterval = null
 
 onMounted(async () => {
   try {
-    // 並行載入數據（幣種走快取，減少重複請求）
-    // 預載入 50 個幣種以便與 Market/Compare 頁面共用快取
-    const [global, coins, activeAnnouncements] = await Promise.all([
-      getGlobalData(),
+    // 並行載入數據（透過後端 proxy 避免 CORS 問題）
+    const [globalResponse, coins, activeAnnouncements] = await Promise.all([
+      coinApi.getGlobal(),
       coinsStore.fetchCoins({ currency: 'usd', perPage: 50, page: 1 }),
       announcementApi.getActive().catch(() => []), // 公告載入失敗不影響其他功能
     ])
 
     // 設定全球市場數據
+    const global = globalResponse.data || globalResponse
     globalData.value = {
-      totalMarketCap: global.data.total_market_cap.usd,
-      totalVolume: global.data.total_volume.usd,
-      btcDominance: global.data.market_cap_percentage.btc,
-      activeCryptos: global.data.active_cryptocurrencies,
-      marketCapChange: global.data.market_cap_change_percentage_24h_usd,
+      totalMarketCap: global.data?.total_market_cap?.usd || 0,
+      totalVolume: global.data?.total_volume?.usd || 0,
+      btcDominance: global.data?.market_cap_percentage?.btc || 0,
+      activeCryptos: global.data?.active_cryptocurrencies || 0,
+      marketCapChange: global.data?.market_cap_change_percentage_24h_usd || 0,
     }
 
     // 設定熱門幣種（只顯示前 6 個）
@@ -56,36 +54,16 @@ onMounted(async () => {
       startAutoPlay()
     }
   } catch (error) {
-    console.error('Failed to fetch from CoinGecko:', error)
-    // 使用 CoinCap API 作為備援
-    try {
-      console.log('Trying CoinCap API as fallback...')
-      const [globalFallback, coinsFallback] = await Promise.all([
-        coincapApi.getGlobalData(),
-        coincapApi.getCoinsList(50),
-      ])
-
-      globalData.value = {
-        totalMarketCap: globalFallback.totalMarketCap,
-        totalVolume: globalFallback.totalVolume,
-        btcDominance: globalFallback.btcDominance,
-        activeCryptos: 0, // CoinCap 沒有此數據
-        marketCapChange: 0, // CoinCap 沒有此數據
-      }
-
-      hotCoins.value = coinsFallback.map(coincapApi.convertToAppFormat).slice(0, 6)
-    } catch (fallbackError) {
-      console.error('CoinCap fallback also failed:', fallbackError)
-      // 如果兩個 API 都失敗，顯示錯誤狀態
-      globalData.value = {
-        totalMarketCap: 0,
-        totalVolume: 0,
-        btcDominance: 0,
-        activeCryptos: 0,
-        marketCapChange: 0,
-      }
-      hotCoins.value = []
+    console.error('Failed to fetch data:', error)
+    // 顯示錯誤狀態
+    globalData.value = {
+      totalMarketCap: 0,
+      totalVolume: 0,
+      btcDominance: 0,
+      activeCryptos: 0,
+      marketCapChange: 0,
     }
+    hotCoins.value = []
   } finally {
     isLoading.value = false
   }

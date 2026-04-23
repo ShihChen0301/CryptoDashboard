@@ -83,6 +83,7 @@ export const coinApi = {
   getList: (page = 1, perPage = 50, orderBy = 'market_cap_desc') =>
     apiRequest(`/coins?page=${page}&perPage=${perPage}&orderBy=${orderBy}`),
   getDetail: (coinId) => apiRequest(`/coins/${encodeURIComponent(coinId)}`),
+  getGlobal: () => apiRequest('/coins/global'),
 }
 
 // 管理員 API
