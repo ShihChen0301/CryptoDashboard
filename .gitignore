@@ -8,6 +8,8 @@ _local_config_backup/
 .env
 .env.local
 .env.*.local
+!.env.example
+!backend/.env.example
 
 # 依賴套件
 node_modules/
